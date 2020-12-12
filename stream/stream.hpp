@@ -2,7 +2,7 @@
 #include <functional>
 
 #include <synapse/type/array/type_array.hpp>
-#include <synapse/thread/lock/protect/protect.hpp>
+#include <synapse/sync/protect/protect.hpp>
 
 namespace stream
 {
@@ -12,39 +12,29 @@ namespace stream
             virtual size_t read (uint8_t* r_ctx, size_t r_size) = 0;
             virtual size_t write(uint8_t* w_ctx, size_t w_size) = 0;
 
-        template <class T> requires type::type_array<T>
-        stream& operator << (T& w_ctx)
-        {
-            write((uint8_t*)w_ctx, type::array_property<T>::length);
-            return *this;
-        }
-
-        template <class T>
-        stream& operator << (T& w_ctx)
-        {
-            write((uint8_t*)&w_ctx, sizeof(T));
-            return *this;
-        }
+            enum class stream_mode
+            {
+                sync,
+                async
+            };
+            void           mode (stream_mode s_mode) { sync_mode = s_mode; }
 
         template <class T> requires type::type_array<T>
-        stream& operator >> (T& r_ctx)
-        {
-            read((uint8_t*)r_ctx, type::array_property<T>::length);
-            return *this;
-        }
+        stream& operator << (T& w_ctx);
 
         template <class T>
-        stream& operator >> (T& r_ctx)
-        {
-            read((uint8_t*)&r_ctx, sizeof(T));
-            return *this;
-        }
+        stream& operator << (T& w_ctx);
 
-        void               lock_stream()   { stream_locked = true; }
-        void               unlock_stream() { stream_locked = false; }
+        template <class T> requires type::type_array<T>
+        stream& operator >> (T& r_ctx);
+
+        template <class T>
+        stream& operator >> (T& r_ctx);
 
         private:
-            bool               stream_locked;
-            lock::protect stream_lock;
+            stream_mode         sync_mode;
+
+            synchronous::sector read_lock,
+                                write_lock;
     };
 }

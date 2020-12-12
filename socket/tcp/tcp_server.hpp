@@ -1,32 +1,41 @@
 #include <synapse/socket/tcp/tcp.hpp>
-#include <synapse/thread/lock/signal/signal.hpp>
-
 #include <thread>
-#include <functional>
 
 namespace network
 {
-        template <uint16_t port>
-        class tcp_server
-        {
-                public:
-                        tcp_server  (std::string _ip);
-                        ~tcp_server() { end(); }
+    class tcp_server
+    {
+        public:
+            tcp_server(const char* _ip, unsigned short _port);
 
-                        bool start(); // Starts Listening.
-                        void end  (); // Ends Listening
+        public:
+            bool start_server();
+            void end_server  ();
 
-                public:
-                        std::function<void(network::tcp)>     on_connection;
+        public:
+            enum error
+            {
+                server_started,
+                server_ended,
 
-                private:
-                        struct sockaddr_in   server_address;
-                        network::socket_type server_sock;
+                socket_error,
+                bind_error,
+                listen_error
+            };
 
-                private:
-                        std::thread*                          server_thread;
-                        
-                        lock::signal<network::tcp> server_lock;
-                        bool                       server_acting = false;
-        };
+            using connection_handler = std::function<void(network::tcp)>;
+            using error_handler      = std::function<void(network::tcp_server&, network::tcp_server::error)>;
+            using server_handler     = error_handler;
+
+            connection_handler   on_client;
+            server_handler       on_server;
+            error_handler        on_error;
+
+        private:
+            sockaddr_in          server_address;
+            network::socket_type server_socket;
+            
+            std::thread         *server_thread;
+            std::atomic<bool>    server_running;
+    };
 }

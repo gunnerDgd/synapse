@@ -1,47 +1,47 @@
 #include "tcp_server.hpp"
 
-template <uint16_t port>
-network::tcp_server<port>::tcp_server(std::string _ip)
+network::tcp_server::tcp_server(const char* _ip, unsigned short _port)
 {
-        server_address.sin_addr.s_addr = inet_addr(_ip.c_str());
-        server_address.sin_port        = htons(port);
-        server_address.sin_family      = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr(_ip);
+    server_address.sin_port        = htons    (_port);
+    server_address.sin_family      = AF_INET;
 
-        server_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-        bind                (server_sock, (struct sockaddr*)&server_address, sizeof(struct sockaddr_in));
+    server_socket                  = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 }
 
-template <uint16_t port>
-bool network::tcp_server<port>::start() // Starts Listening
+void network::tcp_server::end_server  ()
 {
-        bool res = (listen(server_sock,  20) == 0) ? true : false;
+    server_thread->join();
+    close              (server_socket);
+}
 
-        if(res)
-        {
-                server_thread = new std::thread([&]()
-                {
-                        int                addr_size = sizeof(struct sockaddr_in);
-                        struct sockaddr_in cl_addr;
+bool network::tcp_server::start_server()
+{
+    bool start_res = ::bind(server_socket,
+                            reinterpret_cast<sockaddr*>(&server_address), sizeof(sockaddr_in));
+    
+    if  (!start_res && on_error) { on_error(*this, error::bind_error);   return false; }
 
-                        while(server_acting)
+    start_res      = ::listen(server_socket, 20);
+    if  (!start_res && on_error) { on_error(*this, error::listen_error); return false; }
+
+    server_thread = new std::thread([&, this]()
+                    {
+                        network::socket_type cl_socket;
+                      
+                        sockaddr_in          cl_address;
+                        int                  cl_size = sizeof(sockaddr_in);
+
+                        while(server_running == true)
                         {
-                                network::socket_type cl_socket = accept(server_sock, 
-                                                                       (struct sockaddr*)&cl_addr, 
-                                                                       (socklen_t*)&addr_size);
-                                on_connection                          (network::tcp(cl_socket, cl_addr));
+                            cl_socket = ::accept(server_socket,
+                            reinterpret_cast<sockaddr*>(&cl_address),
+                            (socklen_t*)&cl_size);
+                                            
+                            this->on_client(network::tcp(cl_socket, cl_address));
                         }
-                }, this);
-        }
+                    });
 
-        return res;
-}
-
-template <uint16_t port>
-void network::tcp_server<port>::end  () // Ends Listening
-{
-        server_acting = false;
-        server_thread->join();
-
-        delete server_thread;
-        close (server_sock);
+    on_server(*this, error::server_started);
+    return true;
 }

@@ -3,9 +3,9 @@
 
 #include <sched.h>
 
-namespace lock
+namespace synchronous
 {
-    class protect
+    class sector
     {
         public:
             void acquire()

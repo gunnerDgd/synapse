@@ -1,44 +1,40 @@
 #include "tcp.hpp"
 
-network::tcp::tcp  (std::string& tcp_ip, uint16_t tcp_port) { set_address(tcp_ip, tcp_port); }
+network::tcp::tcp(const char* _ip, unsigned short _port) 
+            : network::socket_base(_ip, _port),
+              socket_fd           (::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP)) {}
 
-network::tcp::~tcp()                                              { disconnect(); }
+network::tcp::tcp(network::socket_type _sock, sockaddr_in& _addr)
+            : network::socket(_sock, _addr) {}
 
-void   network::tcp::set_address(std::string& _ip, uint16_t _port)
+bool   network::tcp::connect   ()
 {
-        disconnect();
-        
-        sock_address.sin_addr.s_addr = inet_addr(_ip.c_str());
-        sock_address.sin_port        = htons    (_port);
-        sock_address.sin_family      = AF_INET;
+    bool res =  (::connect(socket_fd,
+                           reinterpret_cast<sockaddr*>&socket_address,
+                           sizeof(sockaddr_in)) == 0) ? true : false;
 
-        sock_ctx   = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(!res && error_handler) error_handler(error::connect_fail);
+    return                    res;
 }
 
-bool   network::tcp::connect()
-{
-        bool res = (::connect(sock_ctx, (struct sockaddr*)&sock_address, sizeof(struct sockaddr_in)) == 0) ? true : false;
-        on_connected        (*this);
-}
+void   network::tcp::disconnect() { close(socket_fd); }
 
-void   network::tcp::disconnect()
+size_t network::tcp::send(uint8_t* s_ctx, size_t s_size
 {
-        close          (sock_ctx);
-        on_disconnected(*this);
-}
+    if(stream_mode == stream::mode::sync) read_lock.acquire();
+    size_t send_res = ::send(socket_fd, s_ctx, s_size, 0);
 
-size_t network::tcp::send(uint8_t* s_ctx, size_t s_size)
-{
-        size_t send_size = ::send(sock_ctx, s_ctx, s_size, 0);
-        on_send                  (*this, s_size);
-
-        return send_size;
+    if(send_res > 0 && error_handler) error_handler(error::send_fail);
+    if(on_send)                     { on_send      (*this, send_res); return 0; }
+    else                              return send_res;
 }
 
 size_t network::tcp::recv(uint8_t* r_ctx, size_t r_size)
 {
-        size_t recv_size = ::recv(sock_ctx, r_ctx, r_size, 0);
-        on_recv                  (*this, r_ctx, r_size);
+    if(stream_mode == stream::mode::sync) write_lock.acquire();
+    size_t recv_res = ::send(socket_fd, r_ctx, r_size, 0);
 
-        return recv_size;
+    if(recv_res > 0 && error_handler) error_handler(error::recv_fail);
+    if(on_send)                     { on_recv      (*this, r_ctx, send_res); return 0; }
+    else                              return recv_res;
 }
