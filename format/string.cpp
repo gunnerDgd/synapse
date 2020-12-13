@@ -1,13 +1,13 @@
 #include "string.hpp"
 
-void                  format::string::trim (std::string& target, std::string delim)
+void        format::string::trim (std::string& target, std::string delim)
 {
     size_t seek_cur = 0;
     for   ( ; (seek_cur = delim.find(seek_next, delim)) != std::string::npos ; )
         target.erase(seek_cur, delim.length());
 }
 
-std::list<std::string> format::string::split(std::string& target, std::string delim)
+string_list format::string::split(std::string& target, std::string delim)
 {
     size_t                 seek_cur = 0, seek_next = 0;
     std::list<std::string> seek_res;

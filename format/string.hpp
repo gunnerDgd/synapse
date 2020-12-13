@@ -3,10 +3,14 @@
 
 namespace format
 {
+    using string_list = std::list<std::string>;
+    using offset_list = std::set<size_t>;
+
     class string
     {
-        static void                   trim  (std::string& target, std::string delim);
-        static std::list<std::string> split (std::string& target, std::string delim);
-        static std::set<size_t>       find  (std::string& target, std::string delim);
+        public:
+            static void        trim  (std::string& target, std::string delim);
+            static string_list split (std::string& target, std::string delim);
+            static offset_list find  (std::string& target, std::string delim);
     }
 }

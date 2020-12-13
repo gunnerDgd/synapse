@@ -2,7 +2,7 @@
 #include <functional>
 
 #include <synapse/type/array/type_array.hpp>
-#include <synapse/sync/protect/protect.hpp>
+#include <synapse/sync/protect.hpp>
 
 namespace stream
 {
@@ -31,7 +31,7 @@ namespace stream
         template <class T>
         stream& operator >> (T& r_ctx);
 
-        private:
+        protected:
             stream_mode         sync_mode;
 
             synchronous::sector read_lock,
