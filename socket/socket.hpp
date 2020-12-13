@@ -41,7 +41,6 @@ namespace network
             socket_base(network::socket_type _sock, sockaddr_in& _addr) :
                 socket_fd(_sock), socket_address(_addr) {}
 
-
             ~socket_base() { close(socket_fd); }
 
             virtual size_t send(uint8_t* s_ctx, size_t s_size) = 0;

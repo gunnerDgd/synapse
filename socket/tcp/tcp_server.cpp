@@ -41,7 +41,8 @@ bool network::tcp_server::start_server()
                                                  reinterpret_cast<sockaddr*>(&cl_address),
                                                 (socklen_t*)&cl_size);
                                             
-                            this->on_client(network::tcp(cl_socket, cl_address));
+                            network::tcp   *cl = new network::Tcp(cl_socket, cl_address);
+                            this->on_client(cl);
                         }
                     });
 

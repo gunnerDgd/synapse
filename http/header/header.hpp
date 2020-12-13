@@ -9,6 +9,11 @@ namespace http
     {
         public:
             request    (std::string& r_ctx);
+            request    (std::string _meth, std::string _url, std::string _ver)
+                       : r_method (std::move(_meth)),
+                         r_url    (std::move(_url)),
+                         r_version(_ver) {}
+
             request    (request&&    r_move)
             {
                 r_method  = std::move(r_move.r_method);
@@ -25,6 +30,11 @@ namespace http
     {
         public:
             response   (std::string& r_ctx);
+            response   (std::string _ver, std::string _stat, std::string _msg)
+                       : r_version(std::move(_ver)),
+                         r_status (std::move(_stat)),
+                         r_message(std::move(_msg)) {}
+
             response   (response&&   r_move)
             {
                 r_version = std::move(r_move.r_version);
@@ -41,6 +51,9 @@ namespace http
     {
         public:
             header     (std::string& _ctx);
+            header     (std::string _pref, std::string _ctx)
+                       : h_prefix (std::move(_pref)),
+                         h_context(std::move(_ctx)) {}
          
             std::string h_prefix,
                         h_context;
@@ -53,6 +66,12 @@ namespace http
 
         public:
             packet (const char* _ctx, size_t _len, packet_type _type);
+            packet (void*  _pref, header_map&  _header, const char* _context, packet_type _type)
+                   : p_header (std::move(_header)),
+                     p_context(_context),
+                     p_type   (_type),
+                     p_request(_pref) {}
+
             ~packet() 
             { 
                 if(p_type == packet_type::req) delete p_request;

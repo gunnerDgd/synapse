@@ -1,28 +1,36 @@
 #include <iostream>
-#include <mutex>
+#include <ctime>
+
+#ifdef UNIX_MODE
+#include <sys/types.h> 
+#include <sys/ipc.h> 
+#include <sys/sem.h> 
+#endif
+
+#ifdef WIN32_MODE
+#include <Windows.h>
+#endif
+
+union     semun
+{
+    int                  val;
+    struct   semid_ds   *buf;
+    unsigned short int  *array;
+}         sem_ctrl;
 
 namespace synchronous
 {
-        template <typename T>
-        class event
-        {
-                public:
-                        event() { event_lock.lock(); }
+    template <size_t N>
+    class event
+    {
+        public:
+            event();
+            
+            void await();
+            void alert();
 
-                        void alert(T& _msg) 
-                        { 
-                                msg = _msg;  
-                                event_lock.unlock(); 
-                        }
-
-                        T&   wait ()
-                        { 
-                                event_lock.lock();  
-                                return msg; 
-                        }
-
-                private:
-                        std::mutex event_lock;
-                        T          msg;
-        };
+        private:
+            size_t event_count = N;
+            int    event_context;
+    };
 }

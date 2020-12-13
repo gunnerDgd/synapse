@@ -23,7 +23,7 @@ namespace network
                 listen_error
             };
 
-            using connection_handler = std::function<void(network::tcp)>;
+            using connection_handler = std::function<void(network::tcp*)>;
             using error_handler      = std::function<void(network::tcp_server&, network::tcp_server::error)>;
             using server_handler     = error_handler;
 
