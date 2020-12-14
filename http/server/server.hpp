@@ -1,25 +1,20 @@
 #include <synapse/socket/tcp/tcp_server.hpp>
 #include <synapse/thread/pool/thread_pool.hpp>
 
+#include <synapse/http/packet/packet.hpp>
+
 namespace http
 {
-    class http_handler : public thread::pooled_launcher
-    {
-        public:
-            http_handler(network::tcp* _sock);
-            void  launch() override;
-
-        private:
-            network::tcp* h_comm;
-    };
-
     class http_server : public network::tcp_server
     {
         public:
-            http_server   (uint16_t _port);
-            void on_client(network::tcp* _cl);
+            http_server   (uint16_t _port, std::string _path);
 
-        public:
-            thread::thread_pool<4> http_pool;
+            using client_handler = std::function<void(network::tcp*, packet)>;
+            client_handler         on_client;
+
+        private:
+            uint16_t    http_port;
+            std::string http_path;
     };
 }
