@@ -1,3 +1,4 @@
+#pragma once
 #include <synapse/socket/socket.hpp>
 
 namespace network
@@ -7,8 +8,6 @@ namespace network
         public:
             tcp (const char* _ip, unsigned short _port);
             tcp (socket_type _sock, sockaddr_in& _addr);
-            
-            ~tcp();
 
             bool connect   ();
             void disconnect();

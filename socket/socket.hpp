@@ -1,3 +1,5 @@
+#pragma once
+
 #include <synapse/stream/stream.hpp>
 #include <functional>
 

@@ -8,9 +8,11 @@ namespace synchronous
     class sector
     {
         public:
+            sector() { ctx_protect = true; }
+
             void acquire()
             {
-                while(ctx_protect.load() != true)
+                while(ctx_protect != true)
                     sched_yield();
                     
                 ctx_protect = false;

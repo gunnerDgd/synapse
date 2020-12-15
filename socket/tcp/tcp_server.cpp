@@ -12,9 +12,9 @@ network::tcp_server::tcp_server(const char* _ip, unsigned short _port)
 void network::tcp_server::end_server  ()
 {
     server_running = false;
-    server_thread ->join();
-    
     close              (server_socket);
+    
+    server_thread ->join();
 }
 
 bool network::tcp_server::start_server()
@@ -41,11 +41,11 @@ bool network::tcp_server::start_server()
                                                  reinterpret_cast<sockaddr*>(&cl_address),
                                                 (socklen_t*)&cl_size);
                                             
-                            network::tcp   *cl = new network::Tcp(cl_socket, cl_address);
+                            network::tcp   *cl = new network::tcp(cl_socket, cl_address);
                             this->on_client(cl);
                         }
                     });
 
-    on_server(*this, error::server_started);
+    if(on_server)  on_server(*this, error::server_started);
     return true;
 }

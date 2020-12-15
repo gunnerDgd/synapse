@@ -6,7 +6,8 @@ namespace network
     class tcp_server
     {
         public:
-            tcp_server(const char* _ip, unsigned short _port);
+            tcp_server (const char* _ip, unsigned short _port);
+            ~tcp_server() { end_server(); }
 
         public:
             bool start_server();

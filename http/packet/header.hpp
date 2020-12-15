@@ -1,8 +1,10 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <cstring>
 
 #include <synapse/format/string.hpp>
+#include <synapse/socket/tcp/tcp.hpp>
 
 namespace http
 {
@@ -10,7 +12,10 @@ namespace http
     {
         public:
             header()   {}
-            header     (std::string& _ctx)
+            header(const header&     _copy) : h_prefix (_copy.h_prefix),
+                                              h_context(_copy.h_context) {}
+
+            header(std::string& _ctx)
             {
                 format::string::trim(_ctx, " ");
                 format::string_list ctx_field = format::string::split(_ctx, ":");
@@ -24,7 +29,7 @@ namespace http
                          h_context(std::move(_ctx)) {}
 
             header     (header&& h_move) : h_prefix (std::move(h_move.h_prefix)),
-                                           h_context(std::move(h_move.h_context)) {}
+                                           h_context(std::move(h_move.h_context)) { }
          
             std::string h_prefix,
                         h_context;

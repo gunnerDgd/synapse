@@ -11,7 +11,7 @@ namespace http
         public:
             http_server   (uint16_t _port, std::string _path);
 
-            using client_handler = std::function<void(network::tcp*, packet)>;
+            using client_handler = std::function<void(network::tcp*, request)>;
             client_handler         on_client;
 
         private:
