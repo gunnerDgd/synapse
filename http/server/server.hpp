@@ -2,6 +2,7 @@
 #include <synapse/thread/pool/thread_pool.hpp>
 
 #include <synapse/http/packet/packet.hpp>
+#define  HTTP_BUFSIZE 4096
 
 namespace http
 {

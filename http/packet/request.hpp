@@ -17,7 +17,8 @@ namespace http
     request::request(const char* r_raw) : p_context(strstr(r_raw, "\r\n\r\n")), 
                                           p_raw(r_raw)
     {
-        memset (p_context, 0x00, 4); p_context += 4;
+        if(p_context != nullptr)       { memset (p_context, 0x00, 4); p_context += 4; }
+        
         format::string_list r_column = format::string::split(std::string(r_raw), "\r\n");
         format::string_list r_req    = format::string::split(r_column[0],        " ");
 
