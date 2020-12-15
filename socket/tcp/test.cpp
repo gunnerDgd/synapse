@@ -13,18 +13,20 @@ int main()
 
             _cl->send((uint8_t*)"Hello World", 11);
         };
-    t_server.start_server();
-
-    std::cout << "Ready to Connect" << std::endl;
-    if(!t_sock.connect()) { std::cout << "Connection Failed" << std::endl; }
-    std::thread t_cl([&]()
+    t_server.on_error = [](network::tcp_server* _serv, network::tcp_server::error _err)
     {
-        char   buf[11];
-        t_sock.mode(stream::stream::stream_mode::async);
-        t_sock >> buf;
-        std::cout << buf << std::endl;
-    });
+        std::cout << (int)_err << std::endl;
+    };
+    
+    if(!t_server.start_server()) { return 0; }
 
-    t_cl.join();
+    if(!t_sock.connect()) { std::cout << "Connection Failed" << std::endl; return 0; }
+
+    char   buf[11];
+    t_sock.mode(stream::stream::stream_mode::async);
+
+    t_sock >> buf;
+    std::cout << buf << std::endl;
+
     t_server.end_server();
 }

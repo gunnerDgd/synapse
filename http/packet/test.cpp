@@ -1,14 +1,20 @@
-#include "request.hpp"
+#include <synapse/http/packet/header.hpp>
+#include <synapse/http/server/server.hpp>
 
 int main()
 {
-    char*       test = new char[4096];
-    const char* test_http = "GET / HTTP/1.1\r\nHost: www.google.co.kr\r\nAccept: text/html\r\n\r\nHello World";
+    http::http_server t_serv(6000, "/");
+    if(!t_serv.start_server()) return 0;
 
-    strncpy(test, test_http, strlen(test_http));
+    const char* test_http = "\r\n<html>Hello World</html>";
 
-    http::request t_req((char*)test);
+    t_serv.on_http_client = [&](network::tcp* _s, http::request _r) 
+    { 
+        http::response _res("HTTP/1.1", "200", "OK");
+        *_s << _res;
+        _s->send((uint8_t*)test_http, strlen(test_http));
 
-    std::cout << t_req.r_method  << std::endl << t_req.r_url << std::endl << t_req.r_version << std::endl;
-    std::cout << t_req.p_context << std::endl;
+    };
+
+    while(true) {usleep(4000);}
 }

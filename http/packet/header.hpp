@@ -13,7 +13,8 @@ namespace http
         public:
             header()   {}
             header(const header&     _copy) : h_prefix (_copy.h_prefix),
-                                              h_context(_copy.h_context) {}
+                                              h_context(_copy.h_context),
+                                              h_netmsg (h_prefix + ": " + h_context + "\r\n") {}
 
             header(std::string& _ctx)
             {
@@ -22,17 +23,21 @@ namespace http
 
                 h_prefix                      = std::move(ctx_field[0]);
                 h_context                     = std::move(ctx_field[1]);
+                h_netmsg                      = h_prefix + ": " + h_context + "\r\n";
             }
 
             header     (std::string _pref, std::string _ctx)
                        : h_prefix (std::move(_pref)),
-                         h_context(std::move(_ctx)) {}
+                         h_context(std::move(_ctx)),
+                         h_netmsg (h_prefix + ": " + h_context + "\r\n") {}
 
             header     (header&& h_move) : h_prefix (std::move(h_move.h_prefix)),
-                                           h_context(std::move(h_move.h_context)) { }
+                                           h_context(std::move(h_move.h_context)),
+                                           h_netmsg (h_prefix + ": " + h_context + "\r\n"){ }
          
             std::string h_prefix,
                         h_context;
+            std::string h_netmsg;
     };
 
 

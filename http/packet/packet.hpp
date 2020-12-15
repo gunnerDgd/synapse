@@ -1,3 +1,4 @@
+#pragma once
 #include "header.hpp"
 
 namespace http

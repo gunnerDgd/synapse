@@ -12,23 +12,24 @@ network::tcp_server::tcp_server(const char* _ip, unsigned short _port)
 void network::tcp_server::end_server  ()
 {
     server_running = false;
-    close              (server_socket);
+    close            (server_socket);
     
-    server_thread ->join();
+    if(server_thread != nullptr) server_thread ->join();
 }
 
 bool network::tcp_server::start_server()
 {
-    bool start_res = ::bind(server_socket,
+    bool start_res = (::bind(server_socket,
                             reinterpret_cast<sockaddr*>(&server_address), 
-                            sizeof(sockaddr_in));
+                            sizeof(sockaddr_in)) != -1) ? true : false;
     
-    if  (!start_res && on_error) { on_error(*this, error::bind_error);   return false; }
+    if  (!start_res) { if(on_error) on_error(this, error::bind_error);   return false; }
 
-    start_res      = ::listen(server_socket, 20);
-    if  (!start_res && on_error) { on_error(*this, error::listen_error); return false; }
+    start_res      = (::listen(server_socket, 20) != -1) ? true : false;
+    if  (!start_res) { if(on_error) on_error(this, error::listen_error); return false; }
 
-    server_thread = new std::thread([&, this]()
+    server_running = true;
+    server_thread  = new std::thread([&]()
                     {
                         network::socket_type cl_socket;
                       
@@ -37,15 +38,17 @@ bool network::tcp_server::start_server()
 
                         while(server_running == true)
                         {
-                            cl_socket = ::accept(server_socket,
+                            cl_socket = ::accept(this->server_socket,
                                                  reinterpret_cast<sockaddr*>(&cl_address),
                                                 (socklen_t*)&cl_size);
-                                            
+                            
+                            if(cl_socket == -1)    { on_error(this, error::server_ended); break;}                
                             network::tcp   *cl = new network::tcp(cl_socket, cl_address);
-                            this->on_client(cl);
+
+                            on_client(cl);
                         }
                     });
 
-    if(on_server)  on_server(*this, error::server_started);
+    if(on_server)  on_server(this, error::server_started);
     return true;
 }

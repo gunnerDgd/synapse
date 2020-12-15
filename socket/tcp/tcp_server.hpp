@@ -25,7 +25,7 @@ namespace network
             };
 
             using connection_handler = std::function<void(network::tcp*)>;
-            using error_handler      = std::function<void(network::tcp_server&, network::tcp_server::error)>;
+            using error_handler      = std::function<void(network::tcp_server*, network::tcp_server::error)>;
             using server_handler     = error_handler;
 
             connection_handler   on_client;
@@ -36,7 +36,7 @@ namespace network
             sockaddr_in          server_address;
             network::socket_type server_socket;
             
-            std::thread         *server_thread;
-            std::atomic<bool>    server_running;
+            std::thread         *server_thread = nullptr;
+            bool                 server_running;
     };
 }

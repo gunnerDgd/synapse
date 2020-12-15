@@ -19,6 +19,8 @@ namespace stream
             };
             void           mode (stream_mode s_mode) { sync_mode = s_mode; }
 
+        stream& operator << (std::string& w_ctx) { write((uint8_t*)w_ctx.c_str(), w_ctx.length()); }
+
         template <class T> requires type::type_array<T>
         stream& operator << (T& w_ctx);
 
