@@ -7,15 +7,17 @@ namespace http
         public:
             request    (char* r_raw);
             request    (std::string _meth, std::string _url, std::string _ver);
-            request    (request&&    r_move);
+            
+			request    (request&&    r_move);
+			request	   (const request& r_copy);
 
             friend network::tcp& operator << (network::tcp& _s, request& _r)
             {
-                _s                            << _r.r_netmsg;
-                
-				for(auto& h : _r.p_header) _s << h.h_netmsg;
-				_s							  << "\r\n";
-				
+                _s     << _r.r_netmsg;
+				for (int i = 0; i < _r.p_header.size(); i++)
+					_s << _r.p_header[i];
+
+				_s     << "\r\n";
 				return _s;
             }
 
@@ -24,6 +26,14 @@ namespace http
                         r_version,
                         r_netmsg;
     };
+
+	http::request::request(const request& r_copy)
+	{
+		r_method  = r_copy.r_method;
+		r_url	  = r_copy.r_url;
+		r_version = r_copy.r_version;
+		r_netmsg  = r_copy.r_netmsg;
+	}
 
     http::request::request(char* r_raw) : packet(r_raw)
     {
@@ -38,11 +48,7 @@ namespace http
 
         r_netmsg  = r_method + " " + r_url + " " + r_version + "\r\n";
         
-		for (int i = 1; i < r_column.size(); i++)
-		{
-			header _h_add(r_column[i]);
-			write_header (std::move(_h_add));
-		}
+		for (int i = 1; i < r_column.size(); i++)  write_header (header(r_column[i]));
     }
 
     http::request::request(std::string _meth, std::string _url, std::string _ver)

@@ -12,10 +12,6 @@ namespace http
     {
         public:
             header()   {}
-            header(const header&     _copy) : h_prefix (_copy.h_prefix),
-                                              h_context(_copy.h_context),
-                                              h_netmsg (h_prefix + ": " + h_context + "\r\n") {}
-
             header(std::string& _ctx)
             {
                 format::string::trim(_ctx, " ");
@@ -34,6 +30,13 @@ namespace http
             header     (header&& h_move) : h_prefix (std::move(h_move.h_prefix)),
                                            h_context(std::move(h_move.h_context)),
                                            h_netmsg (h_prefix + ": " + h_context + "\r\n"){ }
+
+			header(const header& h_copy)
+			{
+				h_prefix  = h_copy.h_prefix;
+				h_context = h_copy.h_context;
+				h_netmsg  = h_prefix + ": " + h_context + "\r\n";
+			}
          
             std::string h_prefix,
                         h_context;

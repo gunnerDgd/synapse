@@ -1,62 +1,48 @@
 #include <iostream>
-#include <ctime>
+#include <mutex>
 
-#ifdef UNIX_MODE
-#include <sys/types.h> 
-#include <sys/ipc.h> 
-#include <sys/sem.h> 
-#endif
+#include <synapse\synapse.hpp>
 
-#ifdef WIN32_MODE
+#define _WINSOCKAPI_
 #include <Windows.h>
-#endif
-
-union     semun
-{
-    int                  val;
-    struct   semid_ds   *buf;
-    unsigned short int  *array;
-}         sem_ctrl;
 
 namespace synchronous
 {
-    template <size_t N>
-    class event
-    {
-        public:
-            event();
-            
-            void await();
-            void alert();
-
-        private:
-            size_t event_count = N;
-            int    event_context;
-    };
-
-	template          <size_t N>
-	synchronous::event<N>::event()
+	class event
 	{
-		std::srand(time());
-		while (event_context != -1)
-			event_context = semget(std::rand() % 1024,
-				1, IPC_CREAT | IPC_PRIVATE);
+	public:
+		event() 
+		{ 
+#ifdef WIN32_MODE
+			event_context = CreateEvent(NULL, TRUE, FALSE, NULL);
+#else
+			pthread_mutex_init(&event_context, NULL))
+#endif
+		}
 
-		sem_ctrl.val = 0;
-		semctl(event_context, 0, SETVAL, &sem_ctrl);
-	}
+		void wait () 
+		{
+#ifdef WIN32_MODE
+			WaitForSingleObject(event_context, INFINITE);
+			ResetEvent		   (event_context);
+#else
+			pthread_mutex_lock(event_context);
+#endif
+		}
+		void alert() 
+		{
+#ifdef WIN32_MODE
+			SetEvent		   (event_context);
+#else
+			pthread_mutex_unlock(event_context);
+#endif
+		}
 
-	template          <size_t N>
-	void synchronous::event<N>::await()
-	{
-		struct sembuf event_await = { 0, -1, SEM_UNDO };
-		semop(event_context, &event_await, 1);
-	}
-
-	template          <size_t N>
-	void synchronous::event<N>::alert()
-	{
-		struct sembuf event_await = { 0, N, SEM_UNDO };
-		semop(event_context, &event_await, 1);
-	}
+	private:
+#ifdef WIN32_MODE
+		HANDLE			event_context;
+#else
+		pthread_mutex_t event_context;
+#endif
+	};
 }

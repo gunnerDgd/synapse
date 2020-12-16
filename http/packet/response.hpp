@@ -39,7 +39,11 @@ namespace http
 
         r_netmsg  = r_version + " " + r_status + " " + r_message + "\r\n";
 
-        for(int i = 1 ; i < r_column.size() ; i++) write_header(std::move(header(r_column[i])));
+		for (int i = 1; i < r_column.size(); i++)
+		{
+
+			write_header(std::move(header(r_column[i])));
+		}
     }
 
     response::response   (std::string _ver, std::string _stat, std::string _msg)

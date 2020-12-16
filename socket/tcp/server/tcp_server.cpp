@@ -16,6 +16,7 @@ network::tcp_server::tcp_server(const char* _ip, unsigned short _port)
 void network::tcp_server::end_server()
 {
 	server_running = false;
+
 #ifdef UNIX_MODE
 	close(server_socket);
 #else
