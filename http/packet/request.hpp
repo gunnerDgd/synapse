@@ -11,8 +11,10 @@ namespace http
 
             friend network::tcp& operator << (network::tcp& _s, request& _r)
             {
-                _s                         << _r.r_netmsg;
+                _s                            << _r.r_netmsg;
                 for(auto& h : _r.p_header) _s << h.h_netmsg;
+
+				return _s;
             }
 
             std::string r_method,

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <synapse\synapse.hpp>
 
 namespace type
 {
@@ -16,6 +17,8 @@ namespace type
                     static constexpr size_t length    = N;
           };
 
+#if		  CPPVER >= 17
           template <class T>
           concept bool type_array = array_property<T>::is_array;
+#endif
 }

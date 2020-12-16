@@ -1,8 +1,9 @@
 #include <iostream>
 #include <functional>
 
+#include <synapse/synapse.hpp>
 #include <synapse/type/array/type_array.hpp>
-#include <synapse/sync/protect.hpp>
+#include <synapse/sync/fence.hpp>
 
 namespace stream
 {
@@ -19,27 +20,38 @@ namespace stream
             };
             void           mode (stream_mode s_mode) { sync_mode = s_mode; }
 
-        stream& operator << (std::string& w_ctx) { write((uint8_t*)w_ctx.c_str(), w_ctx.length()); }
+			stream& operator << (std::string& w_ctx) { write((uint8_t*)w_ctx.c_str(), w_ctx.length()); return *this; }
 
+#if		CPPVER >= 17
         template <class T> requires type::type_array<T>
         stream& operator << (T& w_ctx);
+
+		template <class T> requires type::type_array<T>
+		stream& operator >> (T& r_ctx);
+
+#else
+
+		template <class T, size_t N>
+		stream& operator << (T(&w_ctx)[N]);
+
+		template <class T, size_t N>
+		stream& operator >> (T(&r_ctx)[N]);
+#endif
 
         template <class T>
         stream& operator << (T& w_ctx);
-
-        template <class T> requires type::type_array<T>
-        stream& operator >> (T& r_ctx);
 
         template <class T>
         stream& operator >> (T& r_ctx);
 
         protected:
-            stream_mode         sync_mode;
+            stream_mode        sync_mode;
 
-            synchronous::sector read_lock,
-                                write_lock;
+            synchronous::fence read_lock,
+                               write_lock;
     };
     
+#if CPPVER >= 17
     template <class T> requires type::type_array<T>
     stream& stream::stream::operator << (T& w_ctx)
     {
@@ -47,17 +59,35 @@ namespace stream
         return *this;
     }
 
+	template <class T> requires type::type_array<T>
+	stream& stream::stream::operator >> (T& r_ctx)
+	{
+		read((uint8_t*)r_ctx, type::array_property<T>::length);
+		return *this;
+	}
+
+#else
+
+	template <class T, size_t N>
+	stream& stream::stream::operator << (T(&w_ctx)[N])
+	{
+		write((uint8_t*)w_ctx, N);
+		return *this;
+	}
+
+	template <class T, size_t N>
+	stream& stream::stream::operator >> (T(&r_ctx)[N])
+	{
+		read((uint8_t*)r_ctx, N);
+		return *this;
+	}
+
+#endif
+
     template <class T>
     stream& stream::stream::operator << (T& w_ctx)
     {
         write((uint8_t*)&w_ctx, sizeof(T));
-        return *this;
-    }
-
-    template <class T> requires type::type_array<T>
-    stream& stream::stream::operator >> (T& r_ctx)
-    {
-        read((uint8_t*)r_ctx, type::array_property<T>::length);
         return *this;
     }
 

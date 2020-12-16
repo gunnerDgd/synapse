@@ -35,6 +35,11 @@ namespace network
         private:
             sockaddr_in          server_address;
             network::socket_type server_socket;
+#ifdef WIN32_MODE
+			WSADATA				 server_ws2data;
+#endif
+
+		private:
             
             std::thread         *server_thread = nullptr;
             bool                 server_running;
