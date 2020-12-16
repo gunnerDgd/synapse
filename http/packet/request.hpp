@@ -36,7 +36,11 @@ namespace http
 
         r_netmsg  = r_method + " " + r_url + " " + r_version + "\r\n";
         
-        for(int i = 1 ; i < r_column.size() ; i++) write_header(std::move(header(r_column[i])));
+		for (int i = 1; i < r_column.size(); i++)
+		{
+			header _h_add(r_column[i]);
+			write_header (std::move(_h_add));
+		}
     }
 
     http::request::request(std::string _meth, std::string _url, std::string _ver)

@@ -11,7 +11,7 @@ namespace http
         public:
             http_server   (uint16_t _port, std::string _path);
 
-            using client_handler = std::function<void(network::tcp*, request)>;
+            using client_handler = std::function<void(network::tcp*, request*)>;
             client_handler         on_http_client;
 
         private:
@@ -29,7 +29,9 @@ namespace http
                                 memset(_cl_msg, 0x00,     HTTP_BUFSIZE);
 
                                 _cl          ->recv((uint8_t*)_cl_msg, HTTP_BUFSIZE);
-                                on_http_client  (_cl, request(_cl_msg));
+
+								request*		 _cl_req = new request(_cl_msg);
+                                on_http_client  (_cl, _cl_req);
                             };
     }
 }
