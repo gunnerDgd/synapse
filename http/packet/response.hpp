@@ -12,7 +12,9 @@ namespace http
             friend network::tcp& operator << (network::tcp& _s, response& _r)
             {
                 _s                            << (_r.r_netmsg);
-                for(auto& h : _r.p_header) _s << (h.h_netmsg);
+                
+				for(auto& h : _r.p_header) _s << (h.h_netmsg);
+				_s							  << "\r\n";
 
 				return _s;
             }
