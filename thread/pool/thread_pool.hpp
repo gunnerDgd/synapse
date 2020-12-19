@@ -1,80 +1,98 @@
-#include <iostream>
-#include <thread>
-#include <atomic>
-#include <queue>
+#include <synapse/sync/fence.hpp>
+#include <synapse/sync/signal.hpp>
 
-#include <synapse/sync/event.hpp>
+#include <queue>
 
 namespace thread
 {
-    class pooled_launcher { public: virtual void launch() = 0; };
-    class pooled_thread
-    {
-        public:
-            pooled_thread(size_t _id) : state      (pool_state::await),
-										pool_thread(new std::thread(&pooled_thread::process_context, this)),
-										pool_id(_id)	{ }
-           
-			~pooled_thread()							{ delete pool_thread; }
+	class thread_task
+	{
+		public:
+			virtual void launch() = 0;
 
-            enum                 pool_state { await, running, pause_wait };
-            std::atomic<uint8_t> state;
+		private:
+			synchronous::signal<thread_task*> tsk_sig;
 
-            std::thread*                 pool_thread;
-            std::queue<pooled_launcher*> pool_context;
-            
-			synchronous::event           pool_signal;
-			size_t						 pool_id;
+			template <size_t N>
+			friend class thread_pool;
+	};
+	using th_queue = std::queue<thread_task*>;
+
+	class thread_context
+	{
+		public:
+			thread_context(th_queue			 * _queue,
+						   synchronous::fence* _lock);
 
 		public:
-			using handler_finished = std::function<void(pooled_thread*)>;
-			handler_finished		 on_poolFinished;
-
-        private:
-            void                     process_context()
+			enum class th_state
 			{
-				while (state != pool_state::pause_wait)
-				{
-					pool_signal.wait();
-					std::cout << "Pool " << pool_id << "Launched" << std::endl;
+				running,
+				stopped
+			};
+			th_state				 ctx_state;
 
-					if (pool_context.empty()) { state = pool_state::await; continue; }
+		private:
+			template <size_t N>
+			friend class thread_pool;
 
-					state				  = pool_state::running;
-					pooled_launcher *_ctx = pool_context.front();
+			void					 ctx_process_queue();
+			std::thread				*ctx_th;
+			th_queue		   		*ctx_queue;
 
-					_ctx	   ->launch();
-					pool_context.pop();
-					
-					if (!pool_context.empty()) { pool_signal.alert(); }
-				}
-			}
-    };
+			synchronous::event  	 ctx_process_event;
+			synchronous::fence 		*ctx_queue_lock;
+	};
 
-    template <size_t thread_count>
-    class thread_pool
-    {
+	template <size_t N>
+	class thread_pool
+	{
 		public:
-			thread_pool() { for (int i = 0; i < thread_count; i++) pool_thread[i] = new pooled_thread(i); }
-
-			void launch() { for (int i = 0; i < thread_count; i++) pool_thread[i]->pool_signal.alert(); }
-			void stop  ()
+			synchronous::signal<thread_task*> enqueue(thread_task* _task);
+			
+			void							  start();
+			void							  stop ();
+			void							  wake_up()
 			{
-				for (int i = 0; i < thread_count; i++)
-					pool_thread[i]->pool_thread->join();
+				for(auto& th : th_pooled) th->ctx_process_event.alert();
 			}
-            
-			void enqueue(pooled_launcher* _ctx)
-			{
-				pooled_thread* min_queued = pool_thread[0];
-				for (int i = 0 ; i < thread_count ; i++)
-					if (min_queued->pool_context.size() > pool_thread[i]->pool_context.size()) min_queued = pool_thread[i];
 
-				min_queued->pool_context.push(_ctx);
-				min_queued->pool_signal.alert();
-			}
-            
-        private:
-            pooled_thread* pool_thread[thread_count];
-    };
+		private:
+			thread_context*    th_pooled[N] = {nullptr, };
+			
+			th_queue           th_queue_tsk;
+			synchronous::fence th_queue_lock; 
+	};
+}
+
+template <size_t N>
+synchronous::signal<thread::thread_task*> thread::thread_pool<N>::enqueue(thread::thread_task* _task)
+{
+    th_queue_lock.acquire();
+    th_queue_tsk .push   (_task);
+    th_queue_lock.release();
+
+    return        _task->tsk_sig;
+}
+
+template <size_t N>
+void							  thread::thread_pool<N>::start()
+{
+    for(int i = 0 ; i < N ; i++)
+        if(th_pooled[i] == nullptr) 
+			th_pooled[i] = new thread::thread_context(&th_queue_tsk, &th_queue_lock);
+    
+    wake_up();
+}
+
+template <size_t N>
+void							  thread::thread_pool<N>::stop ()
+{
+    for(int i = 0 ; i < N ; i++)
+    {
+        th_pooled[i]				  			->ctx_state = thread_context::th_state::stopped;
+		th_pooled[i]							->ctx_process_event.alert();
+		
+        if(th_pooled[i] != nullptr) th_pooled[i]->ctx_th->join();
+    }
 }
