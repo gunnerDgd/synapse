@@ -5,3 +5,5 @@
 
 #define SYNAPSE_VER 1.0.0
 #define CPPVER 17
+
+namespace synapse {}

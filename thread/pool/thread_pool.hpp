@@ -54,7 +54,8 @@ namespace thread
 			void							  stop ();
 			void							  wake_up()
 			{
-				for(auto& th : th_pooled) th->ctx_process_event.alert();
+				for(int i = 0 ; i < N ; i++)
+					if(th_pooled[i] != nullptr) th_pooled[i]->ctx_process_event.alert();
 			}
 
 		private:
@@ -92,7 +93,7 @@ void							  thread::thread_pool<N>::stop ()
     {
         th_pooled[i]				  			->ctx_state = thread_context::th_state::stopped;
 		th_pooled[i]							->ctx_process_event.alert();
-		
+
         if(th_pooled[i] != nullptr) th_pooled[i]->ctx_th->join();
     }
 }
