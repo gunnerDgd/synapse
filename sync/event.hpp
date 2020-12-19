@@ -1,48 +1,51 @@
 #include <iostream>
-#include <mutex>
+#include <synapse/synapse.hpp>
 
-#include <synapse\synapse.hpp>
-
-#define _WINSOCKAPI_
+#ifdef UNIX_MODE
+#include <sys/eventfd.h>
+#include <unistd.h>
+#else
 #include <Windows.h>
+#endif
 
 namespace synchronous
 {
-	class event
-	{
-	public:
-		event() 
-		{ 
-#ifdef WIN32_MODE
-			event_context = CreateEvent(NULL, TRUE, FALSE, NULL);
+    class event
+    {
+        public:
+            event()
+            {
+#ifdef UNIX_MODE
+                event_context = eventfd(0, 0);
 #else
-			pthread_mutex_init(&event_context, NULL))
+                event_context = CreateEvent(NULL, TRUE, FALSE, NULL);
 #endif
-		}
+            }
 
-		void wait () 
-		{
-#ifdef WIN32_MODE
-			WaitForSingleObject(event_context, INFINITE);
-			ResetEvent		   (event_context);
+            void alert() 
+            { 
+#ifdef UNIX_MODE
+                uint64_t a_ctx = 1;
+                ::write   (event_context, &a_ctx, sizeof(uint64_t));
 #else
-			pthread_mutex_lock(event_context);
+                SetEvent  (event_context);
 #endif
-		}
-		void alert() 
-		{
-#ifdef WIN32_MODE
-			SetEvent		   (event_context);
+            }
+            void wait ()
+            {
+#ifdef UNIX_MODE
+                uint64_t w_ctx;
+                ::read    (event_context, &w_ctx, sizeof(uint64_t));
 #else
-			pthread_mutex_unlock(event_context);
+                WaitForSingleObject(event_context, INFINITE);
 #endif
-		}
+            }
 
-	private:
-#ifdef WIN32_MODE
-		HANDLE			event_context;
+        private:
+#ifdef UNIX_MODE
+            int    event_context;
 #else
-		pthread_mutex_t event_context;
+            HANDLE event_context;
 #endif
-	};
+    };
 }

@@ -23,8 +23,8 @@ namespace http
             }
 
             header     (std::string _pref, std::string _ctx)
-                       : h_prefix (std::move(_pref)),
-                         h_context(std::move(_ctx)),
+                       : h_prefix (_pref),
+                         h_context(_ctx),
                          h_netmsg (h_prefix + ": " + h_context + "\r\n") {}
 
             header     (header&& h_move) : h_prefix (std::move(h_move.h_prefix)),

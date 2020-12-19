@@ -7,7 +7,9 @@ namespace http
         public:
             response   (char* r_raw);            
             response   (std::string _ver, std::string _stat, std::string _msg);
+            
             response   (response&&   r_move);
+            response   (const response& r_copy);
 
             friend network::tcp& operator << (network::tcp& _s, response& _r)
             {
@@ -60,5 +62,12 @@ namespace http
         r_message = std::move(r_move.r_message);
 
         r_netmsg  = r_version + " " + r_status + " " + r_message + "\r\n";
+    }
+
+    response::response   (const response& r_copy)
+    {
+        r_version = r_copy.r_version;
+        r_status  = r_copy.r_status;
+        r_message = r_copy.r_message;
     }
 }

@@ -49,7 +49,7 @@ bool network::tcp_server::start_server()
 		{
 			cl_socket = ::accept(server_socket,
 								 reinterpret_cast<sockaddr*>(&cl_address),
-								 (int*)&cl_size);
+								 (uint32_t*)&cl_size);
 
 			if (cl_socket == -1) { on_error(this, error::server_ended); break; }
 			network::tcp   *cl = new network::tcp(cl_socket, cl_address);

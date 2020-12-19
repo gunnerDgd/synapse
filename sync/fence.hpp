@@ -1,6 +1,7 @@
 #include <synapse/synapse.hpp>
 
 #include <iostream>
+#include <thread>
 #include <atomic>
 
 #ifdef UNIX_MODE
@@ -15,24 +16,19 @@ namespace synchronous
     class fence
     {
         public:
-            fence() { ctx_protect = true; }
+            fence() { ctx_protect = 0; }
 
             void acquire()
             {
-				while (ctx_protect != true)
-#ifdef UNIX_MODE
-					sched_yield();
-#else
-					YieldProcessor();
-#endif
-                    
-                ctx_protect = false;
+				while (ctx_protect)
+                    std::this_thread::yield();
+
+                ctx_protect = 1;
             }
 
-            void release() { ctx_protect = true; }
-
+            void release() { ctx_protect = 0; }
 
         private:
-            std::atomic<bool> ctx_protect;
+            std::atomic<int> ctx_protect;
     };
 }

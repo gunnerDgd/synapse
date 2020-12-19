@@ -13,6 +13,7 @@ namespace http
 			~packet()													  { if (p_raw != nullptr) delete[] p_raw; }
 
             void      write_header(header h_add)                          { p_header.push_back(h_add); }
+            void      write_header(std::string _pref, std::string _ctx)   { p_header.push_back(header(_pref, _ctx)); }
 
         public:
             header_vec  p_header;

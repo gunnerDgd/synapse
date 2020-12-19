@@ -1,5 +1,5 @@
 #include <iostream>
-#include <synapse\synapse.hpp>
+#include <synapse/synapse.hpp>
 
 namespace type
 {

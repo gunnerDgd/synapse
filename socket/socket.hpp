@@ -43,7 +43,7 @@ namespace network
                 socket_fd                      = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             }
 
-            socket_base(network::socket_type _sock, sockaddr_in& _addr) :
+            socket_base (network::socket_type _sock, sockaddr_in& _addr) :
                 socket_fd(_sock), socket_address(_addr) {}
 
             ~socket_base() 
