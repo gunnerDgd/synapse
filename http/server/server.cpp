@@ -1,12 +1,12 @@
 #include "server.hpp"
 
 http::http_server::http_server   (uint16_t _port, std::string _path) 
-                                : network::tcp_server("0.0.0.0", _port) 
-                                {
-                                    on_client = std::bind(&http::http_server::process_request, this);
-                                }
+                                : network::tcp_server("0.0.0.0", _port)
+{
+    on_client = std::bind(&http::http_server::process_request, this, std::placeholders::_1);
+}
 
-void http::http_server::process_request()
+void http::http_server::process_request(network::tcp* _cl)
 {
     if (!on_http_client) return;
 
