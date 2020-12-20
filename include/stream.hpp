@@ -20,8 +20,8 @@ namespace stream
             };
             void           mode (stream_mode s_mode) { sync_mode = s_mode; }
 
-			stream& operator << (std::string& w_ctx);
-            stream& operator >> (std::string& r_ctx);
+			//stream& operator << (std::string& w_ctx);
+            //stream& operator >> (std::string& r_ctx);
 
 #if		CPPVER >= 17
         template <class T> requires type::type_array<T>
@@ -99,7 +99,7 @@ namespace stream
         return *this;
     }
 
-    stream& stream::stream::operator << (std::string& w_ctx)
+    /*stream& stream::stream::operator << (std::string& w_ctx)
     { 
         write((uint8_t*)w_ctx.c_str(), w_ctx.length()); 
         return *this; 
@@ -112,5 +112,5 @@ namespace stream
 
         r_ctx  .assign((const char*)r_buf, r_size);
         return *this;
-    }
+    }*/
 }

@@ -1,12 +1,16 @@
 #include <iostream>
 #include <synapse/include/stream.hpp>
-#include <synapse/disk/directory/directory.hpp>
+#include <synapse/disk/disk_object.hpp>
+//#include <synapse/disk/directory/directory.hpp>
 
 #ifdef UNIX_MODE
 #include <sys/types.h> 
 #include <sys/stat.h>
+#include <sys/mman.h>
+
 #include <fcntl.h>
 #include <unistd.h>
+
 #include <errno.h>
 
 extern int errno;
@@ -20,8 +24,14 @@ namespace disk
     class file : public stream::stream, public disk::disk_object
     {
         public:
+            enum state
+            {
+                mapped,
+                general
+            };
+
 #ifdef UNIX_MODE
-            enum mode
+            enum access_mode
             {
                 read_only    = O_RDONLY,
                 write_only   = O_WRONLY,
@@ -29,7 +39,7 @@ namespace disk
             };
             using error_code = int;
 #else
-            enum mode
+            enum access_mode
             {
                 read_only    = GERNERIC_READ,
                 write_only   = GENERIC_WRITE,
@@ -38,7 +48,8 @@ namespace disk
             using error_code = DWORD;
 #endif
         public:
-            file(std::string _name, file::mode _mode);
+            file (std::string _name, file::access_mode _mode);
+            ~file();
 
             size_t read (uint8_t* r_ctx, size_t r_size) override;
             size_t write(uint8_t* w_ctx, size_t w_size) override;
@@ -51,14 +62,28 @@ namespace disk
             read_handler  on_read;
             write_handler on_write;
 
+        public:
+            void* map  ();
+            void  unmap();
+
+        private:
+            void*       f_mmap_pointer;
+#ifdef WIN32_MODE
+            HANDLE      f_mmap_handle;
+#endif
+
+
         private:
             std::string f_path;
+            size_t      f_size;
+
             size_t      f_pointer;
+            state       f_state = file::state::general;
 
 #ifdef UNIX_MODE
             int         f_handle;
 #else
             HANDLE      f_handle;
 #endif
-    }
+    };
 }

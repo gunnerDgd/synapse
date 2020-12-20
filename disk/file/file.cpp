@@ -1,16 +1,38 @@
 #include "file.hpp"
 
-disk::file::file        (std::string _name, file::mode _mode) : f_path(_name), disk::disk_object(disk::type::file)
+disk::file::file        (std::string _name, file::access_mode _mode) : f_path(_name), disk::disk_object(disk::type::file)
 {
 #ifdef UNIX_MODE
-    f_handle = open             (_name.c_str(), _mode);
+    f_handle = open             (_name.c_str(), O_CREAT, _mode);
     if(f_handle < 0 && on_error) on_error(this, errno);
+
+    struct stat _fstat;
+    fstat       (f_handle, &_fstat);
+
+    f_size = _fstat.st_size;
 
 #else
     f_handle = CreateFile(_name.c_str(), _mode,
-                          0, NULL, CREATE_NEW, 0, NULL);
+                          0, NULL, OPEN_ALWAYS, 0, NULL);
     
     if(f_handle < 0 && on_error) on_error(this, GetLastError());
+
+    DWORD _hsize = 0;
+    
+    f_size       = GetFileSize(f_handle);
+    f_size       = (_hsize << 32) | f_size;
+#endif
+}
+
+disk::file::~file()
+{
+    if(f_state == file::state::mapped)
+        this->unmap();
+
+#ifdef UNIX_MODE
+    close      (f_handle);
+#else
+    CloseHandle(f_handle);
 #endif
 }
 
@@ -19,7 +41,7 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
 #ifdef UNIX_MODE
 
     if(sync_mode == stream::stream_mode::sync) read_lock.acquire(); 
-    size_t _sz    = read(f_handle, (void*)r_ctx, r_size);
+    size_t _sz    = ::read(f_handle, (void*)r_ctx, r_size);
 
     if(sync_mode == stream::stream_mode::sync) read_lock.release();
     if    (_sz   <= 0)
@@ -28,8 +50,8 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
         else         { return _sz; }
     }
 
-    if    (on_read)  { on_read (this, _sz); return 0; }
-    else                                    return _sz;
+    if    (on_read)  { on_read (this, r_ctx, _sz); return 0; }
+    else                                           return _sz;
 
 #else
 
@@ -44,8 +66,8 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
         else         { return _sz; }
     }
 
-    if    (on_read)  { on_read (this, _sz); return 0; }
-    else                                    return _sz;
+    if    (on_read)  { on_read (this, r_ctx, _sz); return 0; }
+    else                                           return _sz;
 
 #endif
 }
@@ -55,7 +77,7 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
 #ifdef UNIX_MODE
 
     if(sync_mode == stream::stream_mode::sync) write_lock.acquire(); 
-    size_t _sz    = write(f_handle, (void*)w_ctx, w_size);
+    size_t _sz    = ::write(f_handle, (void*)w_ctx, w_size);
 
     if(sync_mode == stream::stream_mode::sync) write_lock.release();
     if    (_sz   <= 0)
@@ -83,5 +105,38 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
     if    (on_write) { on_write(this, _sz); return 0; }
     else                                    return _sz;
 
+#endif
+}
+
+void* disk::file::map  ()
+{
+    f_state = file::state::mapped;
+
+#ifdef UNIX_MODE
+    f_mmap_pointer = mmap(0, f_size, 
+                          PROT_READ | PROT_WRITE | PROT_EXEC,
+                          MAP_PRIVATE | MAP_ANONYMOUS, f_handle, 0);
+
+#else
+    f_mmap_handle  = CreateFileMapping(INVALID_HANDLE_VALUE,
+                                       PAGE_READWRITE,
+                                       (f_size >> 32),
+                                       (f_size & 0xFFFFFFFF), NULL);
+
+    f_mmap_pointer = MapViewofFile(f_mmap_handle,
+                                   FILE_MAP_ALL_ACCESS,
+                                   0, 0, f_size);    
+#endif
+}
+
+void  disk::file::unmap()
+{
+    f_state = file::state::general;
+
+#ifdef WIN32_MODE
+    UnmapViewOfFile(f_mmap_pointer);
+    CloseHandle    (f_mmap_handle);
+#else
+    munmap         (f_mmap_pointer, f_size);
 #endif
 }
