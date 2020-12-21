@@ -2,7 +2,6 @@
 
 #include <synapse/include/stream.hpp>
 #include <functional>
-#include <variant>
 
 #ifdef UNIX_MODE
 #include <sys/socket.h>

@@ -19,21 +19,14 @@ disk::file::file        (std::string _name, file::access_mode _mode) : f_path(_n
 
     DWORD _hsize = 0;
     
-    f_size       = GetFileSize(f_handle);
-    f_size       = (_hsize << 32) | f_size;
+    f_size       = GetFileSize(f_handle, &_hsize);
+    f_size       = ((size_t)_hsize << 32) | f_size;
 #endif
 }
 
 disk::file::~file()
 {
-    if(f_state == file::state::mapped)
-        this->unmap();
-
-#ifdef UNIX_MODE
-    close      (f_handle);
-#else
-    CloseHandle(f_handle);
-#endif
+	close();
 }
 
 size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
@@ -57,7 +50,7 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
 
     if(sync_mode == stream::stream_mode::sync) read_lock.acquire(); 
     size_t _sz;
-    bool   r_success = ReadFile(f_handle, (void*)r_ctx, r_size, &_sz, NULL);
+    bool   r_success = ReadFile(f_handle, (void*)r_ctx, r_size, (LPDWORD)&_sz, NULL);
 
     if(sync_mode == stream::stream_mode::sync) read_lock.release();
     if    (!r_success)
@@ -93,7 +86,7 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
 
     if(sync_mode == stream::stream_mode::sync) write_lock.acquire(); 
     size_t _sz;
-    bool   r_success = WriteFile(f_handle, (void*)w_ctx, w_size, &_sz, NULL);
+    bool   r_success = WriteFile(f_handle, (void*)w_ctx, w_size, (LPDWORD)&_sz, NULL);
 
     if(sync_mode == stream::stream_mode::sync) write_lock.release();
     if    (!r_success)
@@ -117,16 +110,21 @@ void* disk::file::map  ()
                           PROT_READ | PROT_WRITE | PROT_EXEC,
                           MAP_PRIVATE | MAP_ANONYMOUS, f_handle, 0);
 
+	return f_mmap_pointer;
+
 #else
     f_mmap_handle  = CreateFileMapping(INVALID_HANDLE_VALUE,
+									   NULL,
                                        PAGE_READWRITE,
                                        (f_size >> 32),
                                        (f_size & 0xFFFFFFFF), NULL);
 
-    f_mmap_pointer = MapViewofFile(f_mmap_handle,
+    f_mmap_pointer = MapViewOfFile(f_mmap_handle,
                                    FILE_MAP_ALL_ACCESS,
                                    0, 0, f_size);    
 #endif
+
+	return f_mmap_pointer;
 }
 
 void  disk::file::unmap()

@@ -41,7 +41,7 @@ namespace disk
 #else
             enum access_mode
             {
-                read_only    = GERNERIC_READ,
+                read_only    = GENERIC_READ,
                 write_only   = GENERIC_WRITE,
                 all          = GENERIC_ALL
             };
@@ -50,6 +50,18 @@ namespace disk
         public:
             file (std::string _name, file::access_mode _mode);
             ~file();
+
+			void close()
+			{
+				if (f_state == file::state::mapped)
+					this->unmap();
+
+#ifdef UNIX_MODE
+				close(f_handle);
+#else
+				CloseHandle(f_handle);
+#endif
+			}
 
             size_t read (uint8_t* r_ctx, size_t r_size) override;
             size_t write(uint8_t* w_ctx, size_t w_size) override;

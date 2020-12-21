@@ -15,6 +15,7 @@ namespace thread
 
 			template <size_t N>
 			friend class thread_pool;
+			friend class thread_context;
 	};
 	using th_queue = std::queue<thread_task*>;
 

@@ -8,4 +8,5 @@ int main()
     char test[12] = "Hello World";
 
     t_file.write((uint8_t*)test, 11);
+	t_file.close();
 }
