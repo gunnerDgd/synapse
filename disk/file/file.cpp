@@ -101,6 +101,18 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
 #endif
 }
 
+void   disk::file::offset(size_t m_ptr)
+{
+#ifdef WIN32_MODE
+	LONG _hptr   = m_ptr >> 32;
+	SetFilePointer(f_handle,
+				   m_ptr & 0xFFFFFFFF, &_hptr,
+				   FILE_BEGIN);
+#else
+	lseek		  (f_handle, m_ptr, SEEK_SET);
+#endif
+}
+
 void* disk::file::map  ()
 {
     f_state = file::state::mapped;

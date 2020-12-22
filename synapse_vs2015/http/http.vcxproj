@@ -19,8 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0E1B73DC-79C3-4D09-AC25-3A3486A8EE93}</ProjectGuid>
-    <RootNamespace>synapse_vs2015</RootNamespace>
+    <ProjectGuid>{5B9C29C8-4641-484A-8257-97891CB03126}</ProjectGuid>
+    <RootNamespace>http</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -38,7 +38,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -68,7 +68,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:\Users\5\Documents;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -81,7 +83,6 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\5\Documents;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -111,19 +112,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\stream.hpp" />
-    <ClInclude Include="..\..\synapse.hpp" />
-    <ClInclude Include="..\..\sync\event.hpp" />
-    <ClInclude Include="..\..\sync\fence.hpp" />
-    <ClInclude Include="..\..\sync\signal.hpp" />
-    <ClInclude Include="..\..\type\array\type_array.hpp" />
-    <ClInclude Include="..\..\type\function\type_function.hpp" />
+    <ClInclude Include="..\..\http\packet\header.hpp" />
+    <ClInclude Include="..\..\http\packet\packet.hpp" />
+    <ClInclude Include="..\..\http\packet\request.hpp" />
+    <ClInclude Include="..\..\http\packet\response.hpp" />
+    <ClInclude Include="..\..\http\server\server.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\http\packet\test_http.cpp" />
-    <ClCompile Include="..\..\socket\tcp\test.cpp" />
-    <ClCompile Include="..\..\sync\test_sig.cpp" />
-    <ClCompile Include="..\..\thread\thpool_test.cpp" />
+    <ClCompile Include="..\..\http\server\server.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

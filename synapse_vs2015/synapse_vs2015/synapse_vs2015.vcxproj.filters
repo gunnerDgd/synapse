@@ -13,107 +13,53 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\sync">
+      <UniqueIdentifier>{1042da29-3afc-42c0-b8d7-c6b5fb5d7bfa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\include">
+      <UniqueIdentifier>{830d58fd-d79d-423d-9d25-bc60f167087c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type">
+      <UniqueIdentifier>{5ba15e10-8d84-45eb-a927-104a4b5fe090}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type\array">
+      <UniqueIdentifier>{72c42230-8fc6-4eeb-98ef-b97f2d37b219}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type\function">
+      <UniqueIdentifier>{0fe1d569-69e8-444c-90ec-923ccb9f5a52}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\disk\directory\directory.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\disk\disk_object.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\disk\file\file.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\format\string.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\http\packet\header.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\http\packet\packet.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\http\packet\request.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\http\packet\response.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\http\server\server.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\include\stream.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\memory\pool.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\socket\socket.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\socket\tcp\server\tcp_server.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\socket\tcp\tcp.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\event.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\fence.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\signal.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\thread\pool\thread_pool.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\type\array\type_array.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\type\function\type_function.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\synapse.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\page.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\sync\fence.hpp">
+      <Filter>Header Files\sync</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\memory_object.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\sync\event.hpp">
+      <Filter>Header Files\sync</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\sync\signal.hpp">
+      <Filter>Header Files\sync</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\stream.hpp">
+      <Filter>Header Files\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\type\array\type_array.hpp">
+      <Filter>Header Files\type\array</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\type\function\type_function.hpp">
+      <Filter>Header Files\type\function</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\disk\file\file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\disk\file\file_test.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\format\string.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\http\packet\test_http.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\http\server\server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\socket\tcp\server\tcp_server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\socket\tcp\tcp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\socket\tcp\test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\sync\test_sig.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\thread\pool\thread_pool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\thread\thpool_test.cpp">

@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\http">
+      <UniqueIdentifier>{2b590c38-829f-486b-88de-e4eab1360d72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\http\packet">
+      <UniqueIdentifier>{f86990de-efad-4b18-8e52-4608d13fa198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\http\server">
+      <UniqueIdentifier>{eae47338-0869-45c3-a556-fa4046adfae9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\http">
+      <UniqueIdentifier>{5a6b18a9-1a00-4f09-a6c3-3c7fc225d693}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\http\server">
+      <UniqueIdentifier>{d2b4e64d-45e1-4e17-be9e-555adaa3428a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\http\packet\header.hpp">
+      <Filter>Header Files\http\packet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\http\packet\packet.hpp">
+      <Filter>Header Files\http\packet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\http\packet\request.hpp">
+      <Filter>Header Files\http\packet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\http\packet\response.hpp">
+      <Filter>Header Files\http\packet</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\http\server\server.hpp">
+      <Filter>Header Files\http\server</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\http\server\server.cpp">
+      <Filter>Source Files\http\server</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

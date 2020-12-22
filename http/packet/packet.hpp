@@ -19,5 +19,5 @@ namespace http
             header_vec  p_header;
             char*       p_context = nullptr;
             char*       p_raw     = nullptr;
-    };                             
+    };
 }

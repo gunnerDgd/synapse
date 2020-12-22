@@ -19,6 +19,8 @@ namespace type
             static constexpr size_t param_count = sizeof...(P);
     };
 
+#if CPPVER >= 17
     template <typename F>
     concept bool is_method = function_property<F>::is_method;
+#endif
 }
