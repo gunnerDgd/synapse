@@ -12,7 +12,7 @@ namespace memory
 		memory_object(size_t _len, size_t _size) 
 			: memory_size	   (_size),
 			  memory_array_size(_len)	{}
-
+		
 		size_t			 size()			  { return memory_size; }
 		virtual T& operator[](size_t _off) = 0;
 
@@ -32,7 +32,7 @@ namespace memory
 		{}
 		
 		void*	   native_pointer() { return memory_pointer; }
-
+		
 	public:
 		template <typename V>
 		memory::view<V> view(size_t _off, size_t _len)

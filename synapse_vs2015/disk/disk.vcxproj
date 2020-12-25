@@ -115,9 +115,11 @@
     <ClInclude Include="..\..\disk\directory\directory.hpp" />
     <ClInclude Include="..\..\disk\disk_object.hpp" />
     <ClInclude Include="..\..\disk\file\file.hpp" />
+    <ClInclude Include="..\..\disk\memory_stream\memory_stream.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\disk\file\file.cpp" />
+    <ClCompile Include="..\..\disk\memory_stream\memory_stream.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

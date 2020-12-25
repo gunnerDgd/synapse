@@ -13,33 +13,19 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\memory">
-      <UniqueIdentifier>{d1b8e4bc-3bff-43e3-b133-e4f85c5a30f1}</UniqueIdentifier>
+    <Filter Include="Header Files\sync">
+      <UniqueIdentifier>{39d13b4a-a40c-435d-9c1c-5ddd4fefe659}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\memory\memory_object.hpp">
-      <Filter>Header Files\memory</Filter>
+    <ClInclude Include="..\..\sync\event.hpp">
+      <Filter>Header Files\sync</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\page.hpp">
-      <Filter>Header Files\memory</Filter>
+    <ClInclude Include="..\..\sync\fence.hpp">
+      <Filter>Header Files\sync</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\view.hpp">
-      <Filter>Header Files\memory</Filter>
+    <ClInclude Include="..\..\sync\signal.hpp">
+      <Filter>Header Files\sync</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\heap.hpp">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\memory\mpool.h">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\memory\mpool.hpp">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\memory\mpool.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

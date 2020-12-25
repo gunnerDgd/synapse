@@ -113,9 +113,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\stream.hpp" />
     <ClInclude Include="..\..\synapse.hpp" />
-    <ClInclude Include="..\..\sync\event.hpp" />
-    <ClInclude Include="..\..\sync\fence.hpp" />
-    <ClInclude Include="..\..\sync\signal.hpp" />
     <ClInclude Include="..\..\type\array\type_array.hpp" />
     <ClInclude Include="..\..\type\function\type_function.hpp" />
   </ItemGroup>

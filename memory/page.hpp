@@ -1,5 +1,6 @@
 #pragma once
 #include <synapse/memory/memory_object.hpp>
+
 #ifdef WIN32_MODE
 #include <Windows.h>
 #else

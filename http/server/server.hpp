@@ -1,4 +1,5 @@
 #include <synapse/socket/tcp/server/tcp_server.hpp>
+#include <synapse/memory/mpool.hpp>
 
 #include <synapse/http/packet/request.hpp>
 #include <synapse/http/packet/response.hpp>
@@ -8,13 +9,13 @@ namespace http
 {
     class http_server : public network::tcp_server
     {
-        public:
-            http_server   (uint16_t _port, std::string _path);
+    public:
+		http_server   (uint16_t _port, std::string _path);
 
-            using client_handler = std::function<void(network::tcp*, request*)>;
-            client_handler         on_http_client;
+		using client_handler = std::function<void(network::tcp*, request*)>;
+			  client_handler         on_http_client;
 
-        private:
+	private:
             uint16_t    http_port;
             std::string http_path;
 

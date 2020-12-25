@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\sync">
-      <UniqueIdentifier>{1042da29-3afc-42c0-b8d7-c6b5fb5d7bfa}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\include">
       <UniqueIdentifier>{830d58fd-d79d-423d-9d25-bc60f167087c}</UniqueIdentifier>
     </Filter>
@@ -32,15 +29,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\synapse.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\fence.hpp">
-      <Filter>Header Files\sync</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\event.hpp">
-      <Filter>Header Files\sync</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\signal.hpp">
-      <Filter>Header Files\sync</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\stream.hpp">
       <Filter>Header Files\include</Filter>

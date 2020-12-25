@@ -28,6 +28,12 @@
     <Filter Include="Source Files\disk\file">
       <UniqueIdentifier>{efc90657-3f8c-45be-8a4b-317645822340}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\disk\memory_stream">
+      <UniqueIdentifier>{d4b477af-f00a-411b-80e3-2f84da525b2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\disk\memory_stream">
+      <UniqueIdentifier>{a7be34e3-27d2-4ab3-af0c-99f729bc8058}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\disk\disk_object.hpp">
@@ -39,10 +45,16 @@
     <ClInclude Include="..\..\disk\directory\directory.hpp">
       <Filter>Header Files\disk\directory</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\disk\memory_stream\memory_stream.hpp">
+      <Filter>Header Files\disk\memory_stream</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\disk\file\file.cpp">
       <Filter>Source Files\disk\file</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\disk\memory_stream\memory_stream.cpp">
+      <Filter>Source Files\disk\memory_stream</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

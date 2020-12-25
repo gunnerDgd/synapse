@@ -1,35 +1,33 @@
-#include <synapse/memory/page.hpp>
-#include <synapse/memory/heap.hpp>
-#include <synapse/format/string.hpp>
+#include <synapse/memory/mpool.hpp>
+#include <Windows.h>
 
-#include <ctime>
+#include <chrono>
+#include <iostream>
 
-#define OFFSET 4096*1024
-
-std::string rand_string()
-{
-	std::string _res;
-
-	for (int i = 0; i < 100000 ; i++)
-		_res += "HelloWorld#" + std::to_string(i) + " ";
-
-	return _res;
-}
+struct dummy { char test[2048]; };
 
 int main()
 {
-	std::string s = rand_string();
+	memory::memory_pool<dummy, 1024> memory_pool(memory::mpool_location::page);
+	dummy* test[1024];
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	for (int i = 0; i < 1024; i++)
+		test[i] = memory_pool.acquire();
 	
-	clock_t split_view_start = clock();
-	auto sp_v = format::string::split_view(s, " ");
-	clock_t split_view_end   = clock();
+	auto end = std::chrono::high_resolution_clock::now();
 
-	clock_t split_start = clock();
-	auto sp = format::string::split(s, " ");
-	clock_t split_end   = clock();
+	std::cout << (end - start).count() << std::endl;
 
-	std::cout << "Split View : " << split_view_end - split_view_start << std::endl;
-	std::cout << "Split : " << split_end - split_start << std::endl;
+	start = std::chrono::high_resolution_clock::now();
 
-	while (true) { Sleep(1000); }
+	for (int i = 0; i < 1024; i++)
+		test[i] = new dummy;
+
+	end = std::chrono::high_resolution_clock::now();
+
+	std::cout << (end - start).count() << std::endl;
+
+	while (true) { Sleep(4000); }
 }

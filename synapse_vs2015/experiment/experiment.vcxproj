@@ -85,7 +85,8 @@
       <AdditionalOptions>/std:c++latest %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>C:\Users\5\Documents\synapse\synapse_vs2015\x64\Debug\format.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>C:\Users\5\Documents\synapse\synapse_vs2015\x64\Debug\format.lib;C:\Users\5\Documents\synapse\synapse_vs2015\x64\Debug\container.lib;C:\Users\5\Documents\synapse\synapse_vs2015\x64\Debug\memory.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>2147483648</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

@@ -18,15 +18,29 @@ namespace synchronous
         public:
             fence() { ctx_protect = 0; }
 
-            void acquire()
+#ifdef WIN32_MODE
+            __forceinline void acquire()
             {
 				while (ctx_protect)
                     std::this_thread::yield();
 
                 ctx_protect = 1;
             }
+#else
+			void acquire()
+			{
+				while (ctx_protect)
+					std::this_thread::yield();
 
-            void release() { ctx_protect = 0; }
+				ctx_protect = 1;
+			}
+#endif
+
+#ifdef WIN32_MODE
+            __forceinline void release() { ctx_protect = 0; }
+#else
+			void release() { ctx_protect = 0; }
+#endif
 
         private:
             std::atomic<int> ctx_protect;

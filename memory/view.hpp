@@ -1,5 +1,6 @@
 #pragma once
 #include <synapse/synapse.hpp>
+#include <iostream>
 
 namespace memory
 {

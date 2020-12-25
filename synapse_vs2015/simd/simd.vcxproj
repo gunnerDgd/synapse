@@ -18,9 +18,12 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\simd\simd.hpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6B1471F7-3654-4B0C-8EF3-D5F51C43D8F8}</ProjectGuid>
-    <RootNamespace>memory</RootNamespace>
+    <ProjectGuid>{43303C84-6ADE-423F-8E55-712A4894A46A}</ProjectGuid>
+    <RootNamespace>simd</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -38,7 +41,7 @@
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
@@ -69,7 +72,6 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExecutablePath>C:\Users\5\Documents;$(ExecutablePath)</ExecutablePath>
     <IncludePath>C:\Users\5\Documents;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -85,6 +87,10 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
     </ClCompile>
+    <Link>
+      <AdditionalOptions>/Od %(AdditionalOptions)</AdditionalOptions>
+      <StackReserveSize>1073741824</StackReserveSize>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -112,17 +118,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\memory\heap.hpp" />
-    <ClInclude Include="..\..\memory\memory_object.hpp" />
-    <ClInclude Include="..\..\memory\mpool.h" />
-    <ClInclude Include="..\..\memory\mpool.hpp" />
-    <ClInclude Include="..\..\memory\page.hpp" />
-    <ClInclude Include="..\..\memory\view.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\memory\mpool.c" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
