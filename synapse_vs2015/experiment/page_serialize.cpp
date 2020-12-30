@@ -1,33 +1,37 @@
 #include <synapse/memory/mpool.hpp>
+
+#include <iostream>
+#include <thread>
+#include <list>
+#include <chrono>
+
 #include <Windows.h>
 
-#include <chrono>
-#include <iostream>
-
-struct dummy { char test[2048]; };
+struct dummy { int _dummy[1024]; };
 
 int main()
 {
-	memory::memory_pool<dummy, 1024> memory_pool(memory::mpool_location::page);
-	dummy* test[1024];
+	memory::memory_pool<dummy, 1000> a;
+	memory::memory_block<dummy>*	 b;
+	dummy*						     c;
 
 	auto start = std::chrono::high_resolution_clock::now();
 
-	for (int i = 0; i < 1024; i++)
-		test[i] = memory_pool.acquire();
-	
-	auto end = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < 1000; i++)
+		b = a.acquire();
+
+	auto end   = std::chrono::high_resolution_clock::now();
 
 	std::cout << (end - start).count() << std::endl;
 
 	start = std::chrono::high_resolution_clock::now();
 
-	for (int i = 0; i < 1024; i++)
-		test[i] = new dummy;
+	for (int i = 0; i < 1000; i++)
+		c = new dummy;
 
 	end = std::chrono::high_resolution_clock::now();
 
 	std::cout << (end - start).count() << std::endl;
 
-	while (true) { Sleep(4000); }
+	while (true) { Sleep(1000); }
 }

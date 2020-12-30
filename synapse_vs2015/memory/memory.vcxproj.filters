@@ -30,16 +30,8 @@
     <ClInclude Include="..\..\memory\heap.hpp">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\mpool.h">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\memory\mpool.hpp">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\memory\mpool.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

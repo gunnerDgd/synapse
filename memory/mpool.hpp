@@ -1,34 +1,65 @@
 #pragma once
 #include <iostream>
-
-extern "C" 
-{ 
-	#include <synapse/memory/mpool.h> 
-}
+#include <atomic>
 
 namespace memory
 {
-	enum		mpool_location { heap, page };
-
-	template <typename T, size_t N>
-	class memory_pool
+	template <class T>
+	class memory_block
 	{
-	public:	
-		memory_pool(mpool_location _loc);
+	public:
+		T& get() { return block_context; }
 
-		T*   acquire()		  { return (T*)mpool_acquire(mpool_ctx); }
-		void release(T* _ptr) { mpool_release(mpool_ctx, (void*)_ptr); }
+		template <class T, size_t N>
+		friend class memory_pool;
 
 	private:
-		struct mpool* mpool_ctx;
+		T				 block_context;
+		memory_block<T>* block_next = nullptr;
 	};
 
-	template <typename T, size_t N>
-	memory::memory_pool<T, N>::memory_pool(mpool_location _loc)
+	template <class T, size_t N>
+	class memory_pool
 	{
-		if (_loc == mpool_location::heap)
-			mpool_ctx = init_heap_mpool(sizeof(T), N);
-		else
-			mpool_ctx = init_page_mpool(sizeof(T), N);
+	public:
+		memory_pool()
+		{
+			mblock_entry = new memory_block<T>[N];
+			for (size_t i = 0; i < N - 1; i++)
+				mblock_entry[i].block_next = (mblock_entry.load() + i + 1);
+		}
+
+		memory_block<T>*			  acquire();
+		void						  release(memory_block<T>* _res);
+
+	private:
+		std::atomic<memory_block<T>*> mblock_entry = nullptr;
+	};
+
+	template <class T, size_t N>
+	memory_block<T>* memory_pool<T, N>::acquire() 
+	{
+		memory_block<T>* _chk;
+		do
+		{
+			_chk = mblock_entry.load(std::memory_order_relaxed);
+			if (_chk == nullptr) return nullptr;
+
+		} while (!mblock_entry.compare_exchange_weak(_chk, _chk->block_next,
+													 std::memory_order_release,
+													 std::memory_order_relaxed));
+		return _chk;
+	}
+
+	template <class T, size_t N>
+	void			 memory_pool<T, N>::release(memory_block<T>* _res)
+	{
+		do
+		{
+			_res->block_next = mblock_entry.load(std::memory_order_relaxed);
+
+		} while (!mblock_entry.compare_exchange_weak(_res->block_next, _res,
+													 std::memory_order_release,
+													 std::memory_order_relaxed));
 	}
 }

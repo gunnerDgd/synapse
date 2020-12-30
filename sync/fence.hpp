@@ -19,7 +19,7 @@ namespace synchronous
             fence() { ctx_protect = 0; }
 
 #ifdef WIN32_MODE
-            __forceinline void acquire()
+            void acquire()
             {
 				while (ctx_protect)
                     std::this_thread::yield();

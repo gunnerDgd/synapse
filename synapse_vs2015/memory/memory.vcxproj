@@ -115,13 +115,9 @@
   <ItemGroup>
     <ClInclude Include="..\..\memory\heap.hpp" />
     <ClInclude Include="..\..\memory\memory_object.hpp" />
-    <ClInclude Include="..\..\memory\mpool.h" />
     <ClInclude Include="..\..\memory\mpool.hpp" />
     <ClInclude Include="..\..\memory\page.hpp" />
     <ClInclude Include="..\..\memory\view.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\memory\mpool.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
