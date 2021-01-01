@@ -1,6 +1,7 @@
 #include <iostream>
 #include <synapse/include/stream.hpp>
 #include <synapse/disk/disk_object.hpp>
+#include <synapse/disk/file/file_flag.hpp>
 //#include <synapse/disk/directory/directory.hpp>
 
 #ifdef UNIX_MODE
@@ -30,23 +31,7 @@ namespace disk
                 general
             };
 
-#ifdef UNIX_MODE
-            enum access_mode
-            {
-                read_only    = O_RDONLY,
-                write_only   = O_WRONLY,
-                all          = O_RDWR
-            };
-            using error_code = int;
-#else
-            enum access_mode
-            {
-                read_only    = GENERIC_READ,
-                write_only   = GENERIC_WRITE,
-                all          = GENERIC_ALL
-            };
-            using error_code = DWORD;
-#endif
+
         public:
             file (std::string _name, file::access_mode _mode);
             ~file();
@@ -85,8 +70,6 @@ namespace disk
 #ifdef WIN32_MODE
             HANDLE      f_mmap_handle;
 #endif
-
-
         private:
             std::string f_path;
             size_t      f_size;

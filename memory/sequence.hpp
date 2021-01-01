@@ -12,7 +12,7 @@ namespace memory
 	{
 	public:
 		template <typename T>
-		sequence& operator& (T& _add)	  { sequence_vec.push(std::make_pair(&_add, sizeof(T))); }
+		sequence& operator& (T& _add)	    { sequence_vec.push(std::make_pair(&_add, sizeof(T))); }
 
 		template <typename T, size_t N>
 		sequence& operator& (T(&_add)[N]) { sequence_vec.push(std::make_pair(_add, sizeof(T) * N)); }
