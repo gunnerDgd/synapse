@@ -3,6 +3,13 @@
 
 namespace type
 {
+	template <typename T>
+	class function_property
+	{
+		static constexpr bool   is_method   = false;
+		static constexpr size_t param_count = 0;
+	};
+
     template <typename R, typename... P, typename C>
     class function_property<R(C::*)(P...)>
     {

@@ -32,11 +32,7 @@ disk::file::~file()
 size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
 {
 #ifdef UNIX_MODE
-
-    if(sync_mode == stream::stream_mode::sync) read_lock.acquire(); 
     size_t _sz    = ::read(f_handle, (void*)r_ctx, r_size);
-
-    if(sync_mode == stream::stream_mode::sync) read_lock.release();
     if    (_sz   <= 0)
     {
         if(on_error) { on_error(this, errno); return _sz; }
@@ -47,13 +43,10 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
     else                                           return _sz;
 
 #else
-
-    if(sync_mode == stream::stream_mode::sync) read_lock.acquire(); 
     size_t _sz;
     bool   r_success = ReadFile(f_handle, (void*)r_ctx, r_size, (LPDWORD)&_sz, NULL);
 
-    if(sync_mode == stream::stream_mode::sync) read_lock.release();
-    if    (!r_success)
+	if    (!r_success)
     {
         if(on_error) { on_error(this, GetLastError()); return _sz; }
         else         { return _sz; }
@@ -69,10 +62,7 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
 {
 #ifdef UNIX_MODE
 
-    if(sync_mode == stream::stream_mode::sync) write_lock.acquire(); 
     size_t _sz    = ::write(f_handle, (void*)w_ctx, w_size);
-
-    if(sync_mode == stream::stream_mode::sync) write_lock.release();
     if    (_sz   <= 0)
     {
         if(on_error) { on_error(this, errno); return _sz; }
@@ -83,12 +73,9 @@ size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
         else                                    return _sz;
 
 #else
-
-    if(sync_mode == stream::stream_mode::sync) write_lock.acquire(); 
     size_t _sz;
     bool   r_success = WriteFile(f_handle, (void*)w_ctx, w_size, (LPDWORD)&_sz, NULL);
 
-    if(sync_mode == stream::stream_mode::sync) write_lock.release();
     if    (!r_success)
     {
         if(on_error) { on_error(this, GetLastError()); return _sz; }

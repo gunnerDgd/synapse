@@ -9,11 +9,11 @@ network::tcp::tcp(network::socket_type _sock, sockaddr_in& _addr)
 bool   network::tcp::connect()
 {
 	bool res = (::connect(socket_fd,
-		reinterpret_cast<sockaddr*>(&socket_address),
-		sizeof(sockaddr_in)) == 0) ? true : false;
+				reinterpret_cast<sockaddr*>(&socket_address),
+				sizeof(sockaddr_in)) == 0) ? true : false;
 
 	if (!res && on_error) on_error(*this, error::connect_fail);
-	return               res;
+	return                res;
 }
 
 void   network::tcp::disconnect()
@@ -27,10 +27,7 @@ void   network::tcp::disconnect()
 
 size_t network::tcp::send(uint8_t* s_ctx, size_t s_size)
 {
-	if (sync_mode == stream::stream_mode::sync) write_lock.acquire();
-
 	size_t send_res = ::send(socket_fd, (const char*)s_ctx, s_size, 0);
-	if (sync_mode == stream::stream_mode::sync) write_lock.release();
 
 	if (send_res <= 0 && on_error) { on_error(*this, error::send_fail); return 0; }
 	if (on_send) 				   { on_send (*this, send_res); 		return 0; }
@@ -39,10 +36,7 @@ size_t network::tcp::send(uint8_t* s_ctx, size_t s_size)
 
 size_t network::tcp::recv(uint8_t* r_ctx, size_t r_size)
 {
-	if (sync_mode == stream::stream_mode::sync) read_lock.acquire();
-
 	size_t recv_res = ::recv(socket_fd, (char*)r_ctx, r_size, 0);
-	if (sync_mode == stream::stream_mode::sync) read_lock.release();
 
 	if (recv_res <= 0 && on_error) { on_error  (*this, error::recv_fail); return 0; }
 	if (on_receive) 			   { on_receive(*this, r_ctx, recv_res);  return 0; }

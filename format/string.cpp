@@ -45,14 +45,12 @@ format::string_view_list format::string::split_view(std::string& target, std::st
 	size_t              seek_cur = 0, seek_next = 0;
 	for (; (seek_cur = target.find(delim, seek_next)) != std::string::npos; )
 	{
-		_res.push_back(memory::view<char>((char*)_pstr, 
-					   seek_next, 
+		_res.push_back(memory::view<char>((char*)_pstr + seek_next, 
 					   seek_cur - seek_next));
 		
 		seek_next = seek_cur + delim.length();
 	}
-	_res.push_back(memory::view<char>((char*)_pstr,
-				   seek_next,
+	_res.push_back(memory::view<char>((char*)_pstr + seek_next,
 				   target.length() - seek_next));
 
 	return   _res;

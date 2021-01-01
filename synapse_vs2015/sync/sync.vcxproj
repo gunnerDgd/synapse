@@ -113,7 +113,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\sync\event.hpp" />
-    <ClInclude Include="..\..\sync\fence.hpp" />
     <ClInclude Include="..\..\sync\signal.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

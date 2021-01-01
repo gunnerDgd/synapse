@@ -13,13 +13,6 @@ namespace stream
             virtual size_t read (uint8_t* r_ctx, size_t r_size) = 0;
             virtual size_t write(uint8_t* w_ctx, size_t w_size) = 0;
 
-            enum class stream_mode
-            {
-                sync,
-                async
-            };
-            void           mode (stream_mode s_mode) { sync_mode = s_mode; }
-
 			//stream& operator << (std::string& w_ctx);
             //stream& operator >> (std::string& r_ctx);
 
@@ -44,12 +37,6 @@ namespace stream
 
         template <class T>
         stream& operator >> (T& r_ctx);
-
-        protected:
-            stream_mode        sync_mode;
-
-            synchronous::fence read_lock,
-                               write_lock;
     };
     
 #if CPPVER >= 17

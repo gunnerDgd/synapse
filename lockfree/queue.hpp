@@ -23,12 +23,12 @@ namespace lockfree
 	public:
 		void			enqueue(T& _ctx);
 		queue_block<T>* dequeue();
-
+		
 	private:
 		std::atomic<queue_block<T>*> queue_start,
 									 queue_end;
 	};
-
+	
 	template <typename T>
 	void			queue<T>::enqueue(T& _ctx)
 	{

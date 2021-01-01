@@ -1,37 +1,58 @@
-#include <synapse/memory/mpool.hpp>
-
 #include <iostream>
-#include <thread>
-#include <list>
-#include <chrono>
-
 #include <Windows.h>
+#include <synapse/memory/view.hpp>
+#include <chrono>
+//#include <synapse/type/class/type_class.hpp>
 
-struct dummy { int _dummy[1024]; };
+template <typename T>
+class test_item
+{
+public:
+	T item;
+};
+
+template <>
+class test_item<void> {};
+
+template <typename... Types>
+class test_tuple;
+
+template <>
+class test_tuple<> {};
+
+template <typename T, typename... Types>
+class test_tuple<T, Types...> : public test_tuple<Types...>
+{
+public:
+	test_tuple() { std::cout << typeid(*this).name() << std::endl; }
+	T item;
+};
+
+template <typename T, typename... Types>
+void extract_tuple(test_tuple<T, Types...>& a)
+{
+	a.item = 2;
+	std::cout << a.item << std::endl;
+	tuple_for((test_tuple<Types...>)a);
+}
+
+template <typename... Types>
+void tuple_for(test_tuple<Types...>& a)
+{
+	extract_tuple(a);
+}
+
+
+template <>
+void tuple_for(test_tuple<>& a) {}
 
 int main()
 {
-	memory::memory_pool<dummy, 1000> a;
-	memory::memory_block<dummy>*	 b;
-	dummy*						     c;
+	char test[16] = "Hello World";
+	memory::view<char> a(test, 5);
 
-	auto start = std::chrono::high_resolution_clock::now();
-
-	for (int i = 0; i < 1000; i++)
-		b = a.acquire();
-
-	auto end   = std::chrono::high_resolution_clock::now();
-
-	std::cout << (end - start).count() << std::endl;
-
-	start = std::chrono::high_resolution_clock::now();
-
-	for (int i = 0; i < 1000; i++)
-		c = new dummy;
-
-	end = std::chrono::high_resolution_clock::now();
-
-	std::cout << (end - start).count() << std::endl;
+	auto b = a.view_pointer();
+	b = nullptr;
 
 	while (true) { Sleep(1000); }
 }

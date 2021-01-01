@@ -15,7 +15,7 @@ namespace http
             header(std::string& _ctx) : h_netmsg(_ctx)
             {
                 format::string::trim(_ctx, " ");
-                format::string_list ctx_field = format::string::split(_ctx, ":");
+                format::string_view_list ctx_field = format::string::split_view(_ctx, ":");
 
                 h_prefix                      = std::move(ctx_field[0]);
                 h_context                     = std::move(ctx_field[1]);

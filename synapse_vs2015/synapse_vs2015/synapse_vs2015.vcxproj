@@ -113,8 +113,6 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\stream.hpp" />
     <ClInclude Include="..\..\synapse.hpp" />
-    <ClInclude Include="..\..\type\array\type_array.hpp" />
-    <ClInclude Include="..\..\type\function\type_function.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\http\packet\test_http.cpp" />

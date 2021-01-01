@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\type">
+      <UniqueIdentifier>{9710f6e6-bfe5-4f2b-a1f1-00c1fa743b4a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type\array">
+      <UniqueIdentifier>{b8d1d9f3-819b-48e4-9516-fdb6170ccd62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type\function">
+      <UniqueIdentifier>{604997e1-d1ee-4d8a-ba31-3dcdf60cf7a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type_list">
+      <UniqueIdentifier>{545a30ef-c13e-4db8-b0d4-d440121fc398}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\type\class">
+      <UniqueIdentifier>{c6932738-f03c-4d7d-9094-90642fa5b463}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\type\array\type_array.hpp">
+      <Filter>Header Files\type\array</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\type\function\type_function.hpp">
+      <Filter>Header Files\type\function</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\type\type_list\type_list.hpp">
+      <Filter>Header Files\type_list</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\type\class\type_class.hpp">
+      <Filter>Header Files\type\class</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

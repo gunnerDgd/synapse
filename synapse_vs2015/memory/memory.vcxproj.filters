@@ -18,19 +18,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\memory\memory_object.hpp">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\memory\page.hpp">
+    <ClInclude Include="..\..\memory\mpool.hpp">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
     <ClInclude Include="..\..\memory\view.hpp">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\memory\heap.hpp">
-      <Filter>Header Files\memory</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\memory\mpool.hpp">
+    <ClInclude Include="..\..\memory\sequence.hpp">
       <Filter>Header Files\memory</Filter>
     </ClInclude>
   </ItemGroup>

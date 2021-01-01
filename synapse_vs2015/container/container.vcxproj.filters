@@ -13,16 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Header Files\sync">
-      <UniqueIdentifier>{39d13b4a-a40c-435d-9c1c-5ddd4fefe659}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\sync\event.hpp">
-      <Filter>Header Files\sync</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\sync\signal.hpp">
-      <Filter>Header Files\sync</Filter>
+    <ClInclude Include="..\..\container\list.hpp">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -16,15 +16,6 @@
     <Filter Include="Header Files\include">
       <UniqueIdentifier>{830d58fd-d79d-423d-9d25-bc60f167087c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\type">
-      <UniqueIdentifier>{5ba15e10-8d84-45eb-a927-104a4b5fe090}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\type\array">
-      <UniqueIdentifier>{72c42230-8fc6-4eeb-98ef-b97f2d37b219}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\type\function">
-      <UniqueIdentifier>{0fe1d569-69e8-444c-90ec-923ccb9f5a52}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\synapse.hpp">
@@ -32,12 +23,6 @@
     </ClInclude>
     <ClInclude Include="..\..\include\stream.hpp">
       <Filter>Header Files\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\type\array\type_array.hpp">
-      <Filter>Header Files\type\array</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\type\function\type_function.hpp">
-      <Filter>Header Files\type\function</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

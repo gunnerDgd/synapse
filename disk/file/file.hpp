@@ -65,6 +65,7 @@ namespace disk
 
             size_t read   (uint8_t* r_ctx, size_t r_size) override;
             size_t write  (uint8_t* w_ctx, size_t w_size) override;
+			
 			void   offset (size_t m_ptr);
 
             using error_handler = std::function<void(disk::file*, error_code)>;
