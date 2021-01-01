@@ -1,5 +1,5 @@
 #include <iostream>
-#include <synapse/include/stream.hpp>
+#include <synapse/stream/stream.hpp>
 #include <synapse/disk/disk_object.hpp>
 #include <synapse/disk/file/file_flag.hpp>
 //#include <synapse/disk/directory/directory.hpp>
@@ -25,22 +25,11 @@ namespace disk
     class file : public stream::stream, public disk::disk_object
     {
         public:
-            enum state
-            {
-                mapped,
-                general
-            };
-
-
-        public:
             file (std::string _name, file::access_mode _mode);
             ~file();
 
 			void close()
 			{
-				if (f_state == file::state::mapped)
-					this->unmap();
-
 #ifdef UNIX_MODE
 				close(f_handle);
 #else
@@ -61,19 +50,9 @@ namespace disk
             read_handler  on_read;
             write_handler on_write;
 
-        public:
-            void* map  ();
-            void  unmap();
-
-        private:
-            void*       f_mmap_pointer;
-#ifdef WIN32_MODE
-            HANDLE      f_mmap_handle;
-#endif
         private:
             std::string f_path;
             size_t      f_size;
-            state       f_state = file::state::general;
 
 #ifdef UNIX_MODE
             int         f_handle;
