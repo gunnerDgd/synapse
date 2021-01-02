@@ -6,7 +6,7 @@
 #include <atomic>
 #include <map>
 
-#include <synapse/memory/memory_object/page_memory.hpp>
+#include <synapse/memory/memory_object/type/page.hpp>
 #include <synapse/stream/stream.hpp>
 
 #define stream_block_size 4096
@@ -16,19 +16,11 @@
 
 namespace stream
 {
-    struct stream_block
-    {
-        std::atomic<bool> block_dirty;
-        uint8_t           block_context[stream_block_size];
-
-        std::mutex        block_lock;
-    };
-
     class memory_stream
     {
     public:
-        void tie_stream  (stream::stream* _tstream) { memory_stream_tied = _tstream; }
-        void untie_stream()                         { memory_stream_tied = nullptr; }
+        void connect   (stream::stream* _tstream) { memory_stream_tied = _tstream; }
+        void disconnect()                         { memory_stream_tied = nullptr; }
 
     public:
         size_t read  (uint8_t* _rbuf, size_t _rsize);
@@ -37,10 +29,11 @@ namespace stream
         void   offset(size_t _offset) { memory_stream_offset = _offset; }
 
     private:
-        stream::stream*  memory_stream_tied   = nullptr;
-        size_t           memory_stream_offset = 0;
+        stream::stream*                memory_stream_connected   = nullptr;
 
     private:
-        std::map<size_t, stream_block> memory_stream_block;
+        uint8_t* memory_stream_block  = new uint8_t[4096 * 1024];
+        size_t   memory_stream_offset = 0, 
+                 memory_block_start   = memory_stream_offset;
     }
 }

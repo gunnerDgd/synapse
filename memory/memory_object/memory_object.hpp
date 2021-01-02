@@ -2,6 +2,8 @@
 #include <iostream>
 #include <functional>
 
+#include <synapse/synapse.hpp>
+
 namespace memory
 {
       class memory_object
