@@ -1,39 +1,44 @@
 #include <iostream>
+#include <synapse/memory/memory_object/trait/pointer_trait.hpp> 
 
 namespace memory
 {
     template <typename T>
-    class view
+    class view : public pointer_trait
     {
     public:
-        view                (const T* _vptr, size_t _vsize)
-        : view_pointer_context(_vptr),
-          view_size           (_vsize) {}
-        const T& operator[] (size_t _offset) { return view_pointer_context[_offset % view_size]; }
-
-    private:
-        const T* view_pointer_context;
-        size_t   view_size;
-    };
-
-    template <>
-    class view<char>
-    {
-    public:
-        view                        (const char* _vptr, size_t _vsize)
-        : view_pointer_context(_vptr),
-          view_size           (_vsize) { }
-        view                        () { }
-        
-        const T&        operator[]  (size_t _offset) { return view_pointer_context[_offset % view_size]; }
-        friend ostream& operator << (ostream& os, view<char>& v)
+        view           (pointer_trait& _ptrait, size_t _vstart, size_t _vsize)
+        : pointer_trait(_ptrait) 
         {
-            os << v.view_pointer_context;
-            return os;
+            if(_vstart + _vsize > _ptrait.size())
+            {
+                memory_object_size     = 0;
+                memory_pointer_context = nullptr;
+            }
+            else
+            {
+                memory_object_size      = _vsize;
+                memory_pointer_context += _vstart;
+            }
+        }
+
+        view()
+        : pointer_trait(0) {}
+
+        const T& operator[] (size_t _offset) 
+        { 
+            return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size]; 
+        }
+        view<T>  operator+  (size_t _offset) 
+        { 
+            if(_offset >= memory_object_size)
+                return view<T>();
+            else
+                return view<T>(*this, _offset, memory_object_size - _offset);
         }
 
     private:
-        const char* view_pointer_context;
-        size_t      view_size;
+        void allocate  () override {}
+        void deallocate() override {}
     };
 }

@@ -1,5 +1,5 @@
 #include <iostream>
-#include <synapse/memory/memory_object/trait/memory_pointer_trait.hpp>
+#include <synapse/memory/memory_object/trait/pointer_trait.hpp>
 
 namespace memory
 {
@@ -8,13 +8,16 @@ namespace memory
       public:
             heap           (size_t _memsize)
             : pointer_trait(_memsize) 
-            {}
+            {
+                  allocate();
+            }
 
       public:
-            void allocate  () override;
             void deallocate() override;
+      private:
+            void allocate  () override;
       };
 
       void heap::allocate  () { memory_pointer_context = new uint8_t[memory_object_size]; }
-      void heap::deallocate() { delete[] memory_pointer_context;  }
+      void heap::deallocate() { delete[]                             memory_pointer_context;  }
 }

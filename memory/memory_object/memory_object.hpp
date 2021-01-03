@@ -11,12 +11,15 @@ namespace memory
       public:
             memory_object(size_t _memsize) : memory_object_size(_memsize)
             {}
-            
-      public:
+
+            size_t size() { return memory_object_size; }
+
+      private:
             virtual void allocate  () = 0;
+      public:
             virtual void deallocate() = 0;
 
-      public:
-            const size_t memory_object_size;
+      protected:
+            size_t memory_object_size;
       };
 }
