@@ -17,7 +17,7 @@ namespace memory
             }
             else
             {
-                memory_object_size     =  _csize;
+                memory_object_size      = _csize;
                 memory_pointer_context += _cstart;
             }
         }
@@ -25,42 +25,95 @@ namespace memory
         access()
         : pointer_trait(0) {}
 
-    public:
-        T&          operator[] (size_t _offset) noexcept 
-        { 
-            return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size]; 
-        }
-        
-        access<T>   operator+  (size_t _offset) noexcept
-        {
-            if(_offset >= memory_object_size)
-                return access<T>();
-            else
-                return access<T>(*this, _offset, memory_object_size - _offset);
-        }
+	public:
+		friend void copy_memory(access& _dst, access& _src);
+
+		template <size_t N>
+		void        copy_from  (const T(&_src)[N]);
+		void        copy_from  (const T* _src, size_t _cp_size);
+
+		T&          operator[] (size_t _offset)    noexcept;
+		access<T>   operator+  (size_t _offset)    noexcept;
 
         template <size_t N>
-        void       operator=   (const T(&_src)[N])
-        {
-            if(N > memory_object_size) return;
-            
-            T* _dst = reinterpret_cast<T*>(memory_pointer_context);
-            for(size_t _cpsize = 0 ; _cpsize < N ; _cpsize++)
-                _dst[_cpsize]  = _src[_cpsize];
-        }
+		void        operator=  (const T(&_src)[N]) noexcept;
 
         template <size_t N>
-        void       operator=   (T(&_src)[N])
-        {
-            if(N > memory_object_size) return;
-            
-            T* _dst = reinterpret_cast<T*>(memory_pointer_context);
-            for(size_t _cpsize = 0 ; _cpsize < N ; _cpsize++)
-                _dst[_cpsize]  = _src[_cpsize];
-        }
+		void        operator=  (T(&_src)[N])	   noexcept;
 
     private:
         void allocate  () override {}
         void deallocate() override {}
     };
+
+	template <typename T, size_t N>
+	void        memory::access<T>::copy_from(const T(&_src)[N])
+	{
+		size_t _cp_size = N;
+		if    (_cp_size > memory_object_size) return;
+
+		T*     _dst = (T*)memory_pointer_context;
+
+		while (_cp_size--)
+			*_dst++ = *_src++;
+	}
+	
+	template <typename T, size_t N>
+	void        memory::access<T>::copy_from(const T* _src, size_t _cp_size)
+	{
+		if (_cp_size > memory_object_size) return;
+		T*  _dst = (T*)memory_pointer_context;
+
+		while (_cp_size--)
+			*_dst++ = *_src++;
+	}
+
+	template <typename T>
+	void		copy_memory(access<T>& _dst, access<T>& _src)
+	{
+		size_t csize = (_dst.memory_object_size > _src.memory_object_size) ? _src.memory_object_size
+			: _dst.memory_object_size;
+
+		uint8_t* _pdst = _dst.memory_pointer_context,
+			   * _psrc = _src.memory_pointer_context;
+
+
+		while (csize--)
+			*_pdst++ = *_psrc++;
+	}
+
+	template <typename T>
+	T&			memory::access<T>::operator[] (size_t _offset) noexcept
+	{
+		return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size];
+	}
+
+	template <typename T>
+	access<T>   memory::access<T>::operator+  (size_t _offset) noexcept
+	{
+		if (_offset >= memory_object_size)
+			return access<T>();
+		else
+			return access<T>(*this, _offset, memory_object_size - _offset);
+	}
+
+	template <typename T, size_t N>
+	void        memory::access<T>::operator=   (const T(&_src)[N])
+	{
+		if (N > memory_object_size) return;
+
+		T* _dst = reinterpret_cast<T*>(memory_pointer_context);
+		for (size_t _cpsize = 0; _cpsize < N; _cpsize++)
+			_dst[_cpsize] = _src[_cpsize];
+	}
+
+	template <typename T, size_t N>
+	void       memory::access<T>::operator=   (T(&_src)[N])
+	{
+		if (N > memory_object_size) return;
+
+		T* _dst = reinterpret_cast<T*>(memory_pointer_context);
+		for (size_t _cpsize = 0; _cpsize < N; _cpsize++)
+			_dst[_cpsize] = _src[_cpsize];
+	}
 }

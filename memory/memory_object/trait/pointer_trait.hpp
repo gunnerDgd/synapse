@@ -30,24 +30,7 @@ namespace memory
             }
 
       public:
-            friend void copy_memory(pointer_trait& _dst, pointer_trait& _src)
-            {
-                  size_t csize = (_dst.memory_object_size > _src.memory_object_size) ? _src.memory_object_size
-                                                                                     : _dst.memory_object_size;
-
-                  uint8_t* _pdst = _dst.memory_pointer_context,
-                         * _psrc = _src.memory_pointer_context;
-                               
-
-                  while(csize--)
-                        *_pdst++ = *_psrc++;
-            }
-            
-            template <size_t N>
-            void        copy_from(const char(&_src)[N])
-            {
-                  strncpy((char*)memory_pointer_context, _src, N);
-            }
+ 
 
       protected:
             uint8_t*       memory_pointer_context;

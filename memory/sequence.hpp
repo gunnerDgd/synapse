@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 
-#include <synapse/include/stream.hpp>
+#include <synapse/memory/memory_object/trait/pointer_trait.hpp>
 #include <synapse/lockfree/stack.hpp>
 
 namespace memory
@@ -12,12 +12,9 @@ namespace memory
 	{
 	public:
 		template <typename T>
-		sequence& operator& (T& _add)	  { sequence_vec.push(std::make_pair(&_add, sizeof(T))); }
-
-		template <typename T, size_t N>
-		sequence& operator& (T(&_add)[N]) { sequence_vec.push(std::make_pair(_add, sizeof(T) * N)); }
+		sequence& operator& (memory::pointer_trait& _add) { sequence_vec.push(_add); }
 
 	private:
-		lockfree::stack<std::pair<void*, size_t>> sequence_vec;
+		lockfree::stack<memory::pointer_trait> sequence_vec;
 	};
 }

@@ -113,9 +113,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\memory\memory_object\memory_object.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\trait\pointer_trait.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\trait\scope_trait.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\type\access.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\type\heap.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\type\page.hpp" />
+    <ClInclude Include="..\..\memory\memory_object\type\view.hpp" />
     <ClInclude Include="..\..\memory\mpool.hpp" />
+    <ClInclude Include="..\..\memory\segment\segment.hpp" />
     <ClInclude Include="..\..\memory\sequence.hpp" />
     <ClInclude Include="..\..\memory\view.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\memory\segment\segment.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

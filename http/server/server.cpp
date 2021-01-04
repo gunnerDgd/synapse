@@ -10,11 +10,11 @@ void http::http_server::process_request(network::tcp* _cl)
 {
     if (!on_http_client) return;
 
-    char*  _cl_msg = new char[HTTP_BUFSIZE];
-    memset(_cl_msg, 0x00,     HTTP_BUFSIZE);
+    memory::memory_block<uint8_t[HTTP_BUFSIZE]>* _cl_msg = http_mpool.acquire();
+    memset										(_cl_msg->get(), 0x00, HTTP_BUFSIZE);
 
-    _cl          ->recv((uint8_t*)_cl_msg, HTTP_BUFSIZE);
+    _cl          ->recv(_cl_msg->get(), HTTP_BUFSIZE);
 
-    request*		 _cl_req = new request(_cl_msg);
+    request*		 _cl_req = new request((char*)_cl_msg->get());
     on_http_client  (_cl, _cl_req);
 }
