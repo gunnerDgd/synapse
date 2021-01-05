@@ -16,8 +16,8 @@ namespace format
 	public:
 		str(const char*& _cstr);
 
-		std::vector<memory::view<char>> split(str& delim);
-		void							trim (str& delim);
+		std::vector<memory::view<char>> split	   (str& delim);
+		void							trim 	   (str& delim);
 		
 		void							operator+  (str& _add_str);
 		void							operator+= (str& _add_str);

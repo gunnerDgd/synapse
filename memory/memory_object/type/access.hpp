@@ -7,7 +7,7 @@ namespace memory
     class access : public pointer_trait
     {
     public:
-        access         (pointer_trait& _ptrait, size_t _cstart, size_t _csize)
+        access         (pointer_trait& _ptrait, size_t _cstart, size_t _csize = 0)
         : pointer_trait(_ptrait)
         {
             if(_cstart + _csize > _ptrait.size())
@@ -17,7 +17,7 @@ namespace memory
             }
             else
             {
-                memory_object_size      = _csize;
+                memory_object_size      = (_csize == 0) ? _ptrait.memory_object_size : _csize;
                 memory_pointer_context += _cstart;
             }
         }
@@ -58,7 +58,7 @@ namespace memory
 			*_dst++ = *_src++;
 	}
 	
-	template <typename T, size_t N>
+	template <typename T>
 	void        memory::access<T>::copy_from(const T* _src, size_t _cp_size)
 	{
 		if (_cp_size > memory_object_size) return;
