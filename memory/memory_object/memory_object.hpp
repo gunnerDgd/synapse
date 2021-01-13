@@ -28,22 +28,4 @@ namespace memory
 		size_t 		 memory_object_size;
 		memory_trait memory_object_trait;
 	};
-	
-	template <typename T>
-	class view_base
-	{
-	public:
-		virtual	const T& 	  operator[] (size_t _offset) = 0;
-		virtual view_base<T>  operator+  (size_t _offset) = 0;
-	};
-	
-	template <typename T>
-	class access_base
-	{
-	public:
-		virtual	const T& 	  operator[]  (size_t _offset) 					  = 0;
-		virtual view_base<T>  operator+   (size_t _offset) 					  = 0;
-		
-		virtual size_t 		  copy_memory (const uint8_t* _ctx, size_t _size) = 0;
-	}
 }

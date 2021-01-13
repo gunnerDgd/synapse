@@ -4,7 +4,7 @@
 namespace memory
 {
     template <typename T>
-    class view : public pointer_trait, public view_base<T>
+    class view : public pointer_trait
     {
     public:
         view           (pointer_trait& _ptrait, size_t _vstart, size_t _vsize)
@@ -25,8 +25,8 @@ namespace memory
         view()
         : pointer_trait(0) {}
 
-        const T& operator[] (size_t _offset) override;
-        view<T>  operator+  (size_t _offset) override;
+        const T& operator[] (size_t _offset);
+        view<T>  operator+  (size_t _offset);
 
     private:
         void allocate  () override {}

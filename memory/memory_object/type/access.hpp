@@ -3,24 +3,17 @@
 
 namespace memory
 {
+	template <typename T>
+	using access_list  = std::vector<access<T>>;
+	using access_found = std::set	<size_t>;
+	
     template <typename T>
-    class access : public pointer_trait, public access_base<T>
+    class access : public pointer_trait
     {
-    public:
-        access         (pointer_trait& _ptrait, size_t _cstart, size_t _csize = 0)
-        : pointer_trait(_ptrait)
-        {
-            if(_cstart + _csize > _ptrait.size())
-            {
-                memory_object_size     = 0;
-                memory_pointer_context = nullptr;
-            }
-            else
-            {
-                memory_object_size      = (_csize == 0) ? _ptrait.size() : _csize;
-                memory_pointer_context += _cstart;
-            }
-        }
+    public:	
+        access         (pointer_trait& _ptrait, 
+						size_t 		   _cstart, 
+						size_t 		   _csize = 0);
 
         access()
         : pointer_trait(0) {}
@@ -28,16 +21,43 @@ namespace memory
 	public:
 		template <typename _Cp>
 		friend void copy_memory(access<_Cp>& _dst,   access<_Cp>& _src);
-		size_t		copy_memory(const uint8_t* _src, size_t _size)     override;
+		size_t		copy_memory(const uint8_t* _src, size_t _size)     ;
 
-		T&          operator[] (size_t _offset)    			  		   override noexcept;
-		access<T>   operator+  (size_t _offset)    			  		   override noexcept;
+		T&          operator[] (size_t _offset) noexcept;
+		access<T>   operator+  (size_t _offset) noexcept;
+		
+	public:
+		access_found 		find(memory::access<T>& delim);
+		access_found		find(const uint8_t* _ctx, size_t _len);
+		
+		void				trim(memory::access<T>& _delim);
+		void				trim(const uint8_t* _ctx, size_t _len);
+		
+		access_list			split(memory::access<T>& _delim);
+		access_list			split(const uint8_t* _ctx, size_t _len);
 
     private:
-        void 		allocate   () 							  override {}
-        void 		deallocate () 							  override {}
+        void 		allocate   ()				override {}
+        void 		deallocate ()				override {}
     };
 
+	template <typename T>
+	access<T>::access         (pointer_trait& _ptrait, 
+							   size_t 		   _cstart, 
+							   size_t 		   _csize) : pointer_trait(_ptrait)
+	{
+		if(_cstart + _csize > _ptrait.size())
+		{
+			memory_object_size     = 0;
+			memory_pointer_context = nullptr;
+		}
+		else
+		{
+			memory_object_size      = (_csize == 0) ? _ptrait.size() : _csize;
+			memory_pointer_context += _cstart;
+		}
+	}
+	
 	template <typename T>
 	void		copy_memory(access<T>& _dst, access<T>& _src)
 	{
@@ -63,17 +83,29 @@ namespace memory
 	}
 
 	template <typename T>
-	T&			memory::access<T>::operator[] (size_t _offset) noexcept
+	T&			memory::access<T>::operator[] (size_t _offset)
 	{
 		return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size];
 	}
 
 	template <typename T>
-	access<T>   memory::access<T>::operator+  (size_t _offset) noexcept
+	access<T>   memory::access<T>::operator+  (size_t _offset)
 	{
 		if (_offset >= memory_object_size)
 			return access<T>();
 		else
 			return access<T>(*this, _offset, memory_object_size - _offset);
 	}
+	
+	template <typename T>
+	access_found 		memory::access<T>::find(memory::access<T>& delim) { }
+	
+	template <typename T>
+	access_found		memory::access<T>::find(const uint8_t* _ctx, size_t _len);
+		
+	void				trim(memory::access<T>& _delim);
+	void				trim(const uint8_t* _ctx, size_t _len);
+		
+	access_list			split(memory::access<T>& _delim);
+	access_list			split(const uint8_t* _ctx, size_t _len);
 }
