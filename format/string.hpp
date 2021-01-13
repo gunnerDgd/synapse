@@ -11,19 +11,22 @@
 
 namespace format
 {
-	class str : public memory::segment
+	class str : public memory::heap
 	{
 	public:
 		str(const char*& _cstr);
-
-
+		str(str&		 _str);
 
 		std::vector<memory::view<char>> split	   (str& delim);
 		void							trim 	   (str& delim);
-		std::set<size_t>				find	   (str& delim);
+		std::set<size_t>				find	   (str& delim);	
 		
-		void							operator+  (str& _add_str);
-		void							operator+= (str& _add_str);
+		str&							operator+  (str& _add_str);
+		str&							operator+= (str& _add_str);
 		void							operator=  (str& _cp_str) ;
+		
+	private:
+		
+		
 	};
 }

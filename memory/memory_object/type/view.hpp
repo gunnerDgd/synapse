@@ -4,7 +4,7 @@
 namespace memory
 {
     template <typename T>
-    class view : public pointer_trait
+    class view : public pointer_trait, public view_base<T>
     {
     public:
         view           (pointer_trait& _ptrait, size_t _vstart, size_t _vsize)
@@ -25,20 +25,26 @@ namespace memory
         view()
         : pointer_trait(0) {}
 
-        const T& operator[] (size_t _offset) 
-        { 
-            return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size]; 
-        }
-        view<T>  operator+  (size_t _offset) 
-        { 
-            if(_offset >= memory_object_size)
-                return view<T>();
-            else
-                return view<T>(*this, _offset, memory_object_size - _offset);
-        }
+        const T& operator[] (size_t _offset) override;
+        view<T>  operator+  (size_t _offset) override;
 
     private:
         void allocate  () override {}
         void deallocate() override {}
     };
+    
+	template <typename T>
+	const T& view<T>::operator[] (size_t _offset)
+	{ 
+		return reinterpret_cast<T*>(memory_pointer_context)[_offset % memory_object_size]; 
+	}
+	
+	template <typename T>
+	view<T>  view<T>::operator+  (size_t _offset)
+	{
+		if(_offset >= memory_object_size)
+			return view<T>();
+		else
+			return view<T>(*this, _offset, memory_object_size - _offset);
+	}
 }

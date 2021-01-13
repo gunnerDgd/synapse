@@ -42,7 +42,7 @@ namespace memory
 		memory_block<T>* _chk;
 		do
 		{
-			_chk = mblock_entry.load(std::memory_order_relaxed);
+			_chk 			   = mblock_entry.load(std::memory_order_relaxed);
 			if (_chk == nullptr) return nullptr;
 
 		} while (!mblock_entry.compare_exchange_weak(_chk, _chk->block_next,
