@@ -13,7 +13,7 @@ network::tcp_server::tcp_server(const char* _ip, unsigned short _port)
 	server_socket				   = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 }
 
-void network::tcp_server::end_server()
+void network::tcp_server::end  ()
 {
 	server_running = false;
 
@@ -26,18 +26,15 @@ void network::tcp_server::end_server()
 	if (server_thread != nullptr) server_thread->join();
 }
 
-bool network::tcp_server::start_server()
+bool network::tcp_server::start()
 {
 	bool start_res = (::bind(server_socket,
-		reinterpret_cast<sockaddr*>(&server_address),
-		sizeof(sockaddr_in)) != -1) ? true : false;
+					  reinterpret_cast<sockaddr*>(&server_address),
+					  sizeof(sockaddr_in)) != -1) ? true : false;
 
-	if (!start_res) { if (on_error) on_error(this, error::bind_error);   return false; }
-
-	start_res = (::listen(server_socket, 20) != -1) ? true : false;
-	if (!start_res) { if (on_error) on_error(this, error::listen_error); return false; }
-
+	start_res 	   = (::listen(server_socket, 20) != -1) ? true : false;
 	server_running = true;
+	
 	server_thread = new std::thread([&]()
 	{
 		network::socket_type cl_socket;
@@ -45,19 +42,16 @@ bool network::tcp_server::start_server()
 		sockaddr_in          cl_address;
 		int                  cl_size = sizeof(sockaddr_in);
 
-		while (server_running == true)
+		while (server_running)
 		{
 			cl_socket = ::accept(server_socket,
 								 reinterpret_cast<sockaddr*>(&cl_address),
-								 (int*)&cl_size);
+								(uint32_t*)&cl_size);
 
-			if (cl_socket == -1) { on_error(this, error::server_ended); break; }
 			network::tcp   *cl = new network::tcp(cl_socket, cl_address);
-
-			on_client(cl);
+			wait 	   		   = cl;
 		}
 	});
 
-	if (on_server)  on_server(this, error::server_started);
 	return true;
 }

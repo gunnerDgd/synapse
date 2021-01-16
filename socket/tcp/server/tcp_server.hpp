@@ -1,4 +1,5 @@
 #include <synapse/socket/tcp/tcp.hpp>
+#include <synapse/sync/signal.hpp>
 #include <thread>
 
 namespace network
@@ -7,41 +8,21 @@ namespace network
     {
         public:
             tcp_server (const char* _ip, unsigned short _port);
-            ~tcp_server() { end_server(); }
+            ~tcp_server() { end(); }
 
         public:
-            bool start_server();
-            void end_server  ();
-
-        public:
-            enum error
-            {
-                server_started,
-                server_ended,
-
-                socket_error,
-                bind_error,
-                listen_error
-            };
-
-            using connection_handler = std::function<void(network::tcp*)>;
-            using error_handler      = std::function<void(network::tcp_server*, network::tcp_server::error)>;
-            using server_handler     = error_handler;
-
-            connection_handler   on_client;
-            server_handler       on_server;
-            error_handler        on_error;
-
+            bool 							   start();
+            void 							   end  ();
+			synchronous::signal<network::tcp*> wait	  ;
+		
         private:
-            sockaddr_in          server_address;
-            network::socket_type server_socket;
+            sockaddr_in          			   server_address;
+            network::socket_type 			   server_socket ;
 #ifdef WIN32_MODE
-			WSADATA				 server_ws2data;
+			WSADATA				 			   server_ws2data;
 #endif
-
 		private:
-            
-            std::thread         *server_thread = nullptr;
-            bool                 server_running;
+            std::thread         			  *server_thread = nullptr;
+            bool                			   server_running;
     };
 }

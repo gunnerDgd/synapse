@@ -3,7 +3,6 @@
 
 #include <synapse/synapse.hpp>
 #include <synapse/type/array/type_array.hpp>
-#include <synapse/sync/fence.hpp>
 
 namespace stream
 {

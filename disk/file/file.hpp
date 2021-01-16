@@ -22,7 +22,7 @@ extern int errno;
 
 namespace disk
 {
-    class file : public stream::stream, public disk::disk_object
+    class file : public stream::stream
     {
         public:
             file (std::string _name, file::access_mode _mode);
@@ -41,14 +41,6 @@ namespace disk
             size_t write  (uint8_t* w_ctx, size_t w_size) override;
 			
 			void   offset (size_t m_ptr);
-
-            using error_handler = std::function<void(disk::file*, error_code)>;
-            using read_handler  = std::function<void(disk::file*, uint8_t*, size_t)>;
-            using write_handler = std::function<void(disk::file*, size_t)>;
-
-            error_handler on_error;
-            read_handler  on_read;
-            write_handler on_write;
 
         private:
             std::string f_path;
