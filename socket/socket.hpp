@@ -38,8 +38,6 @@ namespace network
                 socket_address.sin_addr.s_addr = inet_addr(_ip);
                 socket_address.sin_port        = htons    (_port);
                 socket_address.sin_family      = AF_INET;
-
-                socket_fd                      = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             }
 
             socket_base (network::socket_type _sock, sockaddr_in& _addr) :

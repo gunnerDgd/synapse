@@ -6,38 +6,77 @@
 
 namespace lockfree
 {
-	template <class T>
-	class queue_block
-	{
-	public:
-		T& get() { return block_context; }
-
-	private:
-		T				block_context;
-		queue_block<T>* block_next = nullptr;
-	};
-
 	template <typename T>
-	class queue
+	struct cq_block
 	{
-	public:
-		void			enqueue(T& _ctx);
-		queue_block<T>* dequeue();
-		
-	private:
-		std::atomic<queue_block<T>*> queue_start,
-									 queue_end;
+		T* 						  cq_context;
+		std::atomic<cq_block<T>*> cq_next = nullptr;
 	};
 	
-	template <typename T>
-	void			queue<T>::enqueue(T& _ctx)
+	template <typename T, size_t N>
+	class cqueue
 	{
+	public:
+		cqueue ();
+		~cqueue();
+		
+		void enqueue(T* context);
+		T*   dequeue();
+		
+	private:
+		cq_block<T> 			  cq_entry[N];
+		std::atomic<cq_block<T>*> cq_read,
+								  cq_write;
+	};
+}
 
-	}
+template <typename T, size_t N>
+lockfree::cqueue<T, N>::cqueue ()
+{
+	for(size_t q_it = 0 ; q_it < N - 1 ; q_it++)
+		cq_entry[q_it].cq_next = &cq_entry[q_it + 1];
+	
+	cq_entry[N - 1].cq_next	   = cq_entry;
+	cq_read					   = cq_entry;
+	cq_write				   = cq_entry;
+}
 
-	template <typename T>
-	queue_block<T>* queue<T>::dequeue()
+template <typename T, size_t N>
+lockfree::cqueue<T, N>::~cqueue() {}
+
+template <typename T, size_t N>
+void lockfree::cqueue<T, N>::enqueue(T* context)
+{
+	cq_block<T>* cq_ptr;
+	do
 	{
+		cq_ptr = cq_write.load(std::memory_order_relaxed);
+	} while(cq_write.compare_exchange_weak(cq_ptr,
+										   cq_ptr->cq_next,
+										   std::memory_order_release,
+										   std::memory_order_relaxed
+										  ));
+	cq_ptr->cq_context = context;
+}
 
-	}
+template <typename T, size_t N>
+T*   lockfree::cqueue<T, N>::dequeue()
+{
+	cq_block<T>* cq_ptr;
+	do
+	{
+		if(cq_read == cq_write) 
+			return nullptr;
+		
+		cq_ptr = cq_read.load(std::memory_order_relaxed);
+	} while(cq_read.compare_exchange_weak(cq_ptr,
+										  cq_ptr->cq_next,
+										  std::memory_order_release,
+										  std::memory_order_relaxed
+										  ));
+	
+	if(cq_ptr == cq_write)
+		return nullptr;
+	else
+		return cq_read->cq_context;
 }

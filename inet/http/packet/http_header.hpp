@@ -1,4 +1,5 @@
 #include <iostream>
+#include <variant>
 #include <synapse/string/string_tools.hpp>
 
 namespace http
@@ -9,8 +10,8 @@ namespace http
 		header(std::string_view& hv);
 		
 	public:
-		std::string_view prefix,
-						 context;
+		std::variant<std::string_view, std::string> prefix,
+						 							context;
 	};
 }
 
@@ -19,6 +20,6 @@ http::header::header(std::string_view& hv)
 	size_t hv_border  = hv.find(':');
 	if	  (hv_border == std::string::npos) return;
 	
-	prefix 		  = hv.substr(0, hv_border);
-	context		  = hv.substr(hv_border + 1, hv.length() - prefix.length() - 1);
+	prefix 		      = hv.substr(0, hv_border);
+	context		  	  = hv.substr(hv_border + 1, hv.length() - prefix.length() - 1);
 }

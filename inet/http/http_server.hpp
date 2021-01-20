@@ -1,4 +1,4 @@
-#include <synapse/http/packet/http_message.hpp>
+#include <synapse/inet/http/packet/http_message.hpp>
 #include <synapse/socket/tcp/server/tcp_server.hpp>
 
 #include <functional>
@@ -11,12 +11,12 @@ namespace http
 		server (uint16_t port);
 		~server();
 		
-		void start_server();
-		void end_server  ();
+		void 			  sv_start();
+		void 			  sv_end  ();
 	
 	public:
 		using on_client = std::function<void(network::tcp*, http::request_message)>;
-		on_client		  client_handler;
+		on_client		  sv_handler;
 	
 	private:
 		std::thread		 *sv_thread;
@@ -27,15 +27,15 @@ namespace http
 }
 
 http::server::server(uint16_t port)
-	: network::tcp_server("0.0.0.0", port) { start_server(); }
+	: network::tcp_server("0.0.0.0", port) { sv_start(); }
 
 http::server::~server()
 {
-	end_server();
+	sv_end();
 	delete sv_thread;
 }
 
-void http::server::start_server() 
+void http::server::sv_start() 
 { 
 	if(sv_running) return;
 	start();
@@ -44,7 +44,7 @@ void http::server::start_server()
 	sv_thread  = new std::thread(&server::sv_process, this);
 }
 
-void http::server::end_server  () 
+void http::server::sv_end  () 
 { 
 	if(!sv_running) return;
 	end();
@@ -65,6 +65,6 @@ void http::server::sv_process()
 		if(!client_handler){
 			delete cl_data;
 			continue;
-		} else client_handler(cl, http::request_message(cl_data, 4096));
+		} else sv_handler(cl, http::request_message(cl_data, 4096));
 	}
 }
