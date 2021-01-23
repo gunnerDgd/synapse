@@ -13,7 +13,7 @@ namespace url
 	public:
 		std::string url_protocol,
 					url_hostname,
-					url_port;
+					url_port	;
 	};
 }
 

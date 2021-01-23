@@ -1,6 +1,4 @@
 #include <synapse/inet/dns/dns_socket.hpp>
-#include <synapse/inet/dns/dns_serialize.hpp>
-
 #include <ctime>
 
 int main()
@@ -15,13 +13,15 @@ int main()
 	dsock.write_header(0x1032,
 					   d_ff,
 					   1, 0, 0, 0);
-	dsock.write_query("www.naver.com", 
-					  dns::dns_type::ns_t_txt, 
-					  dns::dns_class::ns_c_in);
+	dsock.write_query ("www.naver.com", 
+					   dns::dns_type::ns_t_a, 
+					   dns::dns_class::ns_c_in);
 	
 	dsock.dns_send();
-	dns::dns_packet* packet = dsock.dns_recv();
+	auto packet = dsock.dns_recv();
 	
-	for(int i = 0 ; i < packet->dns_header->auth_rr ; i++)
-	std::cout << std::get<dns::answer*>(packet->dns_answer)[i].rdata << std::endl;
+	std::vector<char*> p_response = dns::parse::parse_data(packet.value());
+	
+	for(auto& r_it : p_response)
+		std::cout << r_it << std::endl;
 }
