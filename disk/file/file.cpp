@@ -1,29 +1,51 @@
 #include "file.hpp"
 
-disk::file::file        (std::string _name, file::access_mode _mode) : f_path(_name)
+disk::file::file(std::string _name, file::access_mode _mode) 
+	: f_path(_name)
+{
+	this->open(_name, _mode);
+}
+
+disk::file::~file()
+{
+	this->close();
+}
+
+bool   disk::file::open (std::string _name, file::access_mode _mode)
 {
 #ifdef UNIX_MODE
-    f_handle = open             (_name.c_str(), O_CREAT, _mode);
+    f_handle     = open(_name.c_str(), O_CREAT, _mode);
+	if(f_handle <= 0)
+		return false;
 	
     struct stat _fstat;
-    fstat       (f_handle, &_fstat);
+    fstat          (f_handle, &_fstat);
 
-    f_size = _fstat.st_size;
+    f_size   = _fstat.st_size;
+	return     true;
 
 #else
-    f_handle = CreateFile(_name.c_str(), _mode,
-                          0, NULL, OPEN_ALWAYS, 0, NULL);
+    f_handle 	 = CreateFile(_name.c_str(), _mode,
+                          	  0, NULL, OPEN_ALWAYS, 0, NULL);
+	if(f_handle == INVALID_HANDLE_VALUE)
+		return false;
 
     DWORD _hsize = 0;
     
     f_size       = GetFileSize(f_handle, &_hsize);
     f_size       = ((size_t)_hsize << 32) | f_size;
+	
+	return true;
 #endif
 }
 
-disk::file::~file()
+void   disk::file::close()
 {
-	close();
+#ifdef UNIX_MODE
+	::close	   (f_handle);
+#else
+	CloseHandle(f_handle);
+#endif
 }
 
 size_t disk::file::read (uint8_t* r_ctx, size_t r_size)

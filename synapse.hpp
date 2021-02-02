@@ -4,7 +4,7 @@
 //#define WIN32_MODE
 
 #define SYNAPSE_VER 1.0.0
-#define CPPVER 14
+#define CPPVER 17
 
 // 0 : Do Not Use SIMD
 // 1 : SSE

@@ -10,6 +10,12 @@
 
 namespace synchronous
 {
+#ifdef UNIX_MODE
+	using evt_t = int;
+#else
+	using evt_t = HANDLE;
+#endif
+
     class event
     {
         public:
@@ -42,10 +48,6 @@ namespace synchronous
             }
 
         private:
-#ifdef UNIX_MODE
-            int    event_context;
-#else
-            HANDLE event_context;
-#endif
+            evt_t event_context;
     };
 }

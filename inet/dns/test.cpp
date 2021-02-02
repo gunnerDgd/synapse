@@ -17,10 +17,14 @@ int main()
 					   dns::dns_type::ns_t_a, 
 					   dns::dns_class::ns_c_in);
 	
-	dsock.dns_send();
-	auto packet = dsock.dns_recv();
+	dsock			    	.dns_send();
+	time_t start = clock();
+	dns::dns_packet packet = dsock.dns_recv();
 	
-	std::vector<char*> p_response = dns::parse::parse_data(packet.value());
+	std::vector<char*> p_response = dns::parse::parse_data(packet);
+	time_t end = clock();
+	
+	std::cout << end - start << std::endl;
 	
 	for(auto& r_it : p_response)
 		std::cout << r_it << std::endl;

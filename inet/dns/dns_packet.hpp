@@ -38,7 +38,7 @@ namespace dns
 	};
 	
 	struct query
-	{	
+	{
 		char* 	 name;
 		struct   query_context
 		{
@@ -48,7 +48,7 @@ namespace dns
 	};
 	
 	struct answer
-	{
+	{	
 		char* 	 name;
 		struct   answer_context
 		{
@@ -62,12 +62,106 @@ namespace dns
 		char* 	 	 rdata;
 	};
 	
+	using v_dq = std::vector<query> ;
+	using v_da = std::vector<answer>;
+	
 	struct dns_packet
 	{
-		header 									  *dns_header = nullptr;
-		std::variant<query *, std::vector<query>>  dns_query  = nullptr;
-		std::variant<answer*, std::vector<answer>> dns_answer = nullptr;
+		dns_packet () 			  {}
+		dns_packet (dns_packet& cp);
+		~dns_packet()			   ;
 		
-		char*	 	 							   dns_raw	  = nullptr;
+		header 					   *dns_header = nullptr;
+		char*	 	 				dns_raw	   = nullptr;
+		
+		std::variant<query *, v_dq> dns_query  = nullptr;
+		std::variant<answer*, v_da> dns_answer = nullptr;
 	};
+}
+
+dns::dns_packet::dns_packet  (dns_packet& cp)
+{
+	switch((dns_raw != nullptr) ? true : false)
+	{
+	case true:
+	{
+		cp.dns_header = dns_header; dns_header = nullptr;
+		cp.dns_raw    = dns_raw   ; dns_raw    = nullptr;
+		
+		cp.dns_query  = dns_query ; dns_query  = nullptr;
+		cp.dns_answer = dns_answer; dns_answer = nullptr; break;
+	}
+			
+	case false:
+	{
+		cp.dns_header  = new header ;
+		*cp.dns_header = *dns_header;
+		
+		cp.dns_query   = dns_query  ;
+		cp.dns_answer  = dns_answer ; break;
+	}
+	}
+}
+
+dns::dns_packet::~dns_packet  ()
+{
+	switch((dns_raw != nullptr) ? true : false)
+	{
+	case true:
+	{
+		query * dq;
+		answer* da;
+			
+		if(dns_query.index()  == 0) {
+			dq = std::get<dns::query *>(dns_query) ;
+			
+			if(!dq) {
+				for(uint16_t q_it = 0 ; q_it < dns_header->question ; q_it++)
+					delete[] dq[q_it].name;
+				delete[] 	 dq;
+			}
+		}
+		
+		if(dns_answer.index() == 0) {
+			da = std::get<dns::answer*>(dns_answer);
+			
+			if(!da) {
+				for(uint16_t a_it = 0 ; a_it < dns_header->answer_rr
+								  		 	 + dns_header->auth_rr  ; a_it++)
+					delete[] da[a_it].name;
+				delete[]     da;
+			}
+		}
+		
+		if(dns_raw != nullptr)
+			delete[] dns_raw;
+		break				;
+	}
+			
+	case false:
+	{
+		if(dns_query.index()  == 1) {
+			v_dq& dq = std::get<std::vector<query>> (dns_query) ;
+			
+			for(auto& q_it : dq) {
+				delete[] q_it.name   ;
+				delete   q_it.context;
+			}
+		}
+		
+		if(dns_answer.index() == 1) {
+			v_da& da = std::get<std::vector<answer>>(dns_answer);
+			
+			for(auto& a_it : da) {
+				delete[] a_it.name	 ;
+				delete   a_it.context;
+				delete[] a_it.rdata  ;
+			}
+		}
+		
+		if(dns_header != nullptr)
+			delete dns_header;
+		break			 	 ;
+	}
+	}
 }

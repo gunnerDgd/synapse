@@ -1,8 +1,6 @@
 #pragma once
 #include <synapse/inet/dns/dns_parse.hpp>
-
 #include <vector>
-#include <utility>
 
 #include <cstring>
 #include <cstdlib>
@@ -10,7 +8,7 @@
 
 namespace dns
 {
-	class dns_socket : public network::udp
+	class dns_socket : private network::udp
 	{
 	public:
 		dns_socket(const char* dns_ip, uint16_t dns_port)
@@ -36,11 +34,11 @@ namespace dns
 						  uint16_t  a_rlength);
 						  
 	public:
-		void 			 				dns_send();
-		std::optional<dns::dns_packet>  dns_recv();
+		void 			  dns_send();
+		dns::dns_packet   dns_recv();
 		
 	private:
-		dns_packet		 d_packet;
+		dns_packet		  d_packet;
 	};
 }
 
@@ -50,13 +48,13 @@ void 		    			   dns::dns_socket::dns_send()
 	this  ->send(sp_pair.first, sp_pair.second); delete[] sp_pair.first;
 }
 
-std::optional<dns::dns_packet> dns::dns_socket::dns_recv()
+dns::dns_packet 			   dns::dns_socket::dns_recv()
 {
 	char  *d_buf  = new char[4096];
 	int    d_recv = (int)this->recv((uint8_t*)d_buf, 4096);
 	
 	if(d_recv <= 0)
-		return std::nullopt;
+		return dns::dns_packet();
 	else
 		return dns::parse::parse_packet(d_buf, d_recv);
 }

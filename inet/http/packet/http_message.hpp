@@ -8,23 +8,32 @@ namespace http
 	class message
 	{
 	public:
-		message(char* raw, size_t len);
 		message() {}
 		
-		void write_prefix(std::string v, unsigned short c, std::string m);
-		void write_prefix(std::string m, std::string u   , std::string v);
-		
-		void write_header(std::string prefix, std::string context);
+		void prefix(std::string v, unsigned short c, std::string m);
+		void prefix(std::string m, std::string u   , std::string v);
+		void header(std::string prefix, std::string context);
+	
+	private:
+		void parse (char* ctx, size_t len);
 		
 	public:
 		friend network::socket_base& operator >> (network::socket_base& s,
 											      message&				m)
 		{
-			char*  msg_buffer = new char[4096];
-			size_t msg_recv   = s.recv((uint8_t*)msg_buffer, 4096);
+			if(m.msg_context != nullptr)
+				delete[] m.msg_context;
+			m.msg_header.clear() 	  ;
+			
+			char*   mb = new char[4096]; // Message Buffer
+			int     mr = (int)s.recv((uint8_t*)mb, 4096); // Message Received
 
-			if(msg_recv)
-				m = message(msg_buffer, msg_recv);
+			if(mr > 0) {
+				message msg		 ;
+				msg.parse(mb, mr);
+				
+				m = msg;
+			}
 
 			return s;
 		}
@@ -32,20 +41,28 @@ namespace http
 		friend network::socket_base& operator << (network::socket_base& s,
 												  message& 			    m)
 		{
-			if(!m.msg_prefix.index())
-				s.send((uint8_t*)std::get<std::string_view>(m.msg_prefix).data(), 
-					   			 std::get<std::string_view>(m.msg_prefix).length());
-			else
-				s.send((uint8_t*)std::get<std::string>(m.msg_prefix).c_str(), 
-					   			 std::get<std::string>(m.msg_prefix).length());
+			if(!m.msg_prefix.index()) {
+				std::string_view m_pref = std::get<std::string_view>(m.msg_prefix);
+				s.send((uint8_t*)m_pref.data(), 
+					   			 m_pref.length());
+			}
+			else {
+				std::string      m_pref = std::get<std::string>(m.msg_prefix);
+				s.send((uint8_t*)m_pref.c_str(), 
+					   			 m_pref.length());
+			}
 			
 			for(auto& m_it : m.msg_header) {
-				if(!m_it.index())
-					s.send((uint8_t*)std::get<std::string_view>(m_it).data(), 
-						   			 std::get<std::string_view>(m_it).length());
-				else
-					s.send((uint8_t*)std::get<std::string>(m_it).c_str(), 
-						   			 std::get<std::string>(m_it).length());
+				if(!m_it.index()) {
+					std::string_view m_col = std::get<std::string_view>(m_it);
+					s.send((uint8_t*)m_col.data(), 
+						   			 m_col.length());
+				}
+				else {
+					std::string 	 m_col = std::get<std::string>(m_it);
+					s.send((uint8_t*)m_col.c_str(), 
+						   			 m_col.length());
+				}
 			}
 			
 			s << "\r\n";
@@ -58,12 +75,12 @@ namespace http
 		msg_col_type 			  msg_prefix;
 		std::vector<msg_col_type> msg_header;
 		
-		uint8_t*				  msg_context;
-		size_t					  msg_ctx_size;
+		uint8_t*				  msg_context  = nullptr;
+		size_t					  msg_ctx_size			;
 	};
 }
 
-http::message::message(char* raw, size_t len)
+void http::message::parse(char* raw, size_t len)
 {
 	msg_context     = (uint8_t*)strstr(raw, "\r\n\r\n");
 	
@@ -87,17 +104,17 @@ http::message::message(char* raw, size_t len)
 		msg_header.push_back(mv_col[it]);
 }
 
-void http::message::write_prefix(std::string v, unsigned short c, std::string m)
+void http::message::prefix(std::string v, unsigned short c, std::string m)
 {
 	msg_prefix = v + " " + std::to_string(c) + m + "\r\n";
 }
 
-void http::message::write_prefix(std::string m, std::string u   , std::string v)
+void http::message::prefix(std::string m, std::string u   , std::string v)
 {
 	msg_prefix = m + " " + u + " " + v;
 }
 	
-void http::message::write_header(std::string prefix, std::string context)
+void http::message::header(std::string prefix, std::string context)
 {
-	msg_header.push_back(prefix + " : " + context + "\r\n");
+	msg_header.push_back(prefix + ": " + context + "\r\n");
 }

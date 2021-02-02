@@ -1,4 +1,5 @@
 #include <synapse/sync/signal.hpp>
+#include <synapse/lockfree/queue.hpp>
 #include <queue>
 
 namespace thread
@@ -6,18 +7,26 @@ namespace thread
 	class pool_work
 	{
 	public:
-		virtual void launch() = 0;
+		virtual void 	   launch() = 0;
+		synchronous::event pw_evt;
 	};
+	
+	using th_queue = lockfree::cqueue<pool_work>;
+	using th_event = synchronous::event;
 	
 	class pool_worker
 	{
 	public:
-		std::queue<pool_work*> pt_queue;
-		synchronous::event	   pt_queue_ready;
-		bool				   pt_running = false;
+		pool_worker(th_queue& q, th_event& e)
+			: pt_queue		(q),
+			  pt_queue_ready(e) {}
 		
-		std::thread			  *pt_thread;
-		void				   pt_process()
+	private:
+		th_queue& pt_queue;
+		th_event& pt_queue_ready;
+		
+		std::thread	*pt_thread;
+		void		 pt_process();
 
 	};
 	
@@ -29,37 +38,35 @@ namespace thread
 		void enqueue(pool_work* pw);
 		
 	private:
-		pool_worker p_worker[pworker_count];
+		pool_worker 				 p_worker[pworker_count];
+		lockfree::cqueue<pool_work*> p_queue;
 	};
 }
 
 template <size_t pworker_count>
 thread::pool<pworker_count>::~pool		()
 {
-	for(int i = 0 ; i < pworker_count ; i++){
-		p_worker[i].pt_running = false;
-		p_worker   .pt_thread.join();
-	}
+
 }
 
 template <size_t pworker_count>
 void thread::pool<pworker_count>::enqueue(pool_work* pw)
 {
-	size_t  min_queued = 0;
-	for(int i = 0 ; i < pworker_count ; i++) {
-		                
-	}
+	p_queue.enqueue(pw);
 }
 
 void				   thread::pool_worker::pt_process()
 {
 	while(pt_running) {
-		pt_queue_ready			.wait();
-		pool_work* pw = pt_queue.front();
-				
-		pt_queue.pop();
-		pw->launch  ();
-				
-		if(pt_queue.size() > 0) pt_queue.alert();
+		auto pw = pt_queue.dequeue();
+		if  (!pw.has_value()) {
+			// When Queue is Empty.
+			
+		}
+		
+		pool_work* pw_ctx = pw.value();
+		
+		pw_ctx			  ->launch();
+		pw_ctx			  ->pw_evt.alert();
 	}
 }
