@@ -63,16 +63,17 @@ size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
 
 size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
 {
-#ifdef UNIX_MODE
+	
 
-    return ::write(f_handle, (void*)w_ctx, w_size);
+#ifdef UNIX_MODE
+    w_size -= ::write(f_handle, (void*)w_ctx, w_size);
 
 #else
     size_t _sz;
     bool   r_success = WriteFile(f_handle, (void*)w_ctx, w_size, (LPDWORD)&_sz, NULL);
-
-	return _sz;
+	w_size 			-= _sz;
 #endif
+	}
 }
 
 void   disk::file::offset(size_t m_ptr)
