@@ -12,7 +12,8 @@ namespace frame
         {
             rax, rbx, rcx, rdx,
             rsi, rdi,
-            r8 , r9 , r10, r11, r12, r13, r14, r15
+            r8 , r9 , r10, r11, r12, r13, r14, r15,
+            rip
         };
 
     public:
@@ -21,10 +22,7 @@ namespace frame
         inline void      IN_FUNC save_register   ();
         inline void      IN_FUNC restore_register();
         
-        inline uint64_t& IN_FUNC operator[]      (index it) { return register_set[it]; }
-
-    private:
-        uint64_t                 register_set[14];
+        uint64_t                 register_set[15];
     };
 }
 

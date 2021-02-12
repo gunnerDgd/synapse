@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
+
 #define IN_FUNC __attribute__((always_inline))
+#define this_stack static
 
 namespace frame
 {
@@ -20,15 +22,13 @@ namespace frame
             current_stack[1] = current_stack[0] + frame_size;
         }
 
-        inline void      IN_FUNC save_stack   ();
-        inline void      IN_FUNC restore_stack();
-        
-        inline uint64_t& IN_FUNC operator[] (index it) { return current_stack[it]; }
+        inline void        IN_FUNC save_stack   ();
+        inline void        IN_FUNC restore_stack();
 
-    private:
-        uint64_t current_stack[2];
+        uint64_t                 current_stack[2];
     };
 }
+
 
 inline void IN_FUNC frame::stack_frame::save_stack()
 {
