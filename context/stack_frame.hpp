@@ -18,8 +18,8 @@ namespace frame
         inline      IN_FUNC stack_frame()                    { save_stack(); }
         inline      IN_FUNC stack_frame(uint64_t frame_size)
         {
-            current_stack[0] = reinterpret_cast<uint64_t>(new uint8_t[frame_size]);
-            current_stack[1] = current_stack[0] + frame_size;
+            current_stack[1] = reinterpret_cast<uint64_t>(new uint8_t[frame_size]);
+            current_stack[0] = current_stack[0] + frame_size;
         }
 
         inline void        IN_FUNC save_stack   ();
