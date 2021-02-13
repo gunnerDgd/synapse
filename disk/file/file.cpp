@@ -19,7 +19,7 @@ bool   disk::file::open (std::string _name, file::access_mode _mode)
 		return false;
 	
     struct stat _fstat;
-    fstat          (f_handle, &_fstat);
+    fstat       (f_handle, &_fstat);
 
     f_size   = _fstat.st_size;
 	return     true;
