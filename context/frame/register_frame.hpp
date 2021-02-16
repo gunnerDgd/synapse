@@ -5,7 +5,7 @@
 
 namespace frame
 {
-    class register_frame
+    class cpu
     {
     public:
         enum index : uint16_t
@@ -17,16 +17,16 @@ namespace frame
         };
 
     public:
-        inline           IN_FUNC register_frame  ()         { save_register(); }
+        inline           IN_FUNC cpu    () { save_register(); }
       
-        inline void      IN_FUNC save_register   ();
-        inline void      IN_FUNC restore_register();
+        inline void      IN_FUNC save   ();
+        inline void      IN_FUNC restore();
         
         uint64_t                 register_set[15];
     };
 }
 
-inline void IN_FUNC frame::register_frame::save_register()
+inline void IN_FUNC frame::cpu::save()
 {
     asm volatile
     (
@@ -54,7 +54,7 @@ inline void IN_FUNC frame::register_frame::save_register()
     );
 }
 
-inline void IN_FUNC frame::register_frame::restore_register()
+inline void IN_FUNC frame::cpu::restore()
 {
     asm volatile
     (
