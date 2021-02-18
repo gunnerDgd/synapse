@@ -5,16 +5,15 @@
 
 namespace frame
 {
-    class frame : public stack_frame, 
-                  public register_frame
+    class frame : public stack, public cpu
     {
     public:
         frame()
-            : stack_frame   (),
-              register_frame() {}
+            : stack(),
+              cpu  () {}
               
         frame(uint64_t stack_size)
-            : stack_frame   (stack_size),
-              register_frame() {}
+            : stack(stack_size),
+              cpu  () {}
     };
 }

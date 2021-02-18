@@ -17,7 +17,7 @@ namespace frame
         };
 
     public:
-        inline           IN_FUNC cpu    () { save_register(); }
+        inline           IN_FUNC cpu    () { save(); }
       
         inline void      IN_FUNC save   ();
         inline void      IN_FUNC restore();
