@@ -1,7 +1,9 @@
 #pragma once
 #include <synapse/synapse.hpp>
 #include <iostream>
-#define IN_FUNC __attribute__((always_inline))
+
+#define IN_FUNC                  __attribute__((always_inline))
+#define IN_FUNC_VOID inline void __attribute__((always_inline))
 
 namespace frame
 {
@@ -17,15 +19,14 @@ namespace frame
         };
 
     public:
-        inline           IN_FUNC cpu    () { save(); }
+        inline IN_FUNC cpu    () { save(); }
       
-        inline void      IN_FUNC save   ();
-        inline void      IN_FUNC restore();
+        IN_FUNC_VOID   save   ();
+        IN_FUNC_VOID   restore();
         
         uint64_t                 register_set[15];
     };
 }
-
 inline void IN_FUNC frame::cpu::save()
 {
     asm volatile

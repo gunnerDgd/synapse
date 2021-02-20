@@ -1,6 +1,6 @@
 #pragma once
 #include <synapse/context/frame/previous.hpp>
-#include <synapse/context/frame/register_frame.hpp>
+#include <synapse/context/frame/cpu_frame.hpp>
 #include <synapse/context/frame/stack_frame.hpp>
 
 namespace frame
@@ -16,4 +16,6 @@ namespace frame
             : stack(stack_size),
               cpu  () {}
     };
+
+    extern thread_local frame current_frame;
 }

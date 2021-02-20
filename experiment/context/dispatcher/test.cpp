@@ -16,15 +16,15 @@ int main()
 
 void test_1(frame::dispatcher::dispatcher_entity* ent)
 {
-    std::cout << "Hello Test 1 #1\n";
+    //std::cout << "Hello Test 1 #1\n";
     ent->current_dispatcher->add_frame(test_2, ent);
-    std::cout << "Hello Test 1 #2\n";
+    //std::cout << "Hello Test 1 #2\n";
     ent->current_dispatcher->switch_frame(test_2, ent);
 }
 
 void test_2(frame::dispatcher::dispatcher_entity* ent)
 {
-    std::cout << "Hello Test 2 #1\n";
+    //std::cout << "Hello Test 2 #1\n";
     ent->current_dispatcher->switch_frame(test_1, ent);
-    std::cout << "Hello Test 2 #2\n";
+    //std::cout << "Hello Test 2 #2\n";
 }

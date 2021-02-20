@@ -64,7 +64,7 @@ inline void IN_FUNC frame::dispatcher::add_frame   (_out                        
                                                     dispatcher::dispatcher_entity* fr_curr       ,
                                                     uint64_t                       fr_stk_size)
 {
-    fr_curr->current_frame->save   ();
+    fr_curr->current_frame->save             (); // Scratch Stack Created.
     fr_curr->current_frame->get_stack_pointer();
     fr_curr->current_frame->get_base_pointer ();
 
