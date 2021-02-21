@@ -20,15 +20,15 @@ namespace frame
 
     public:
         template <typename _out, typename... _in>
-        inline void IN_FUNC add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in...),
-                                         _in...                         fr_fp_arg     ,
-                                         dispatcher::dispatcher_entity* fr_curr       ,
-                                         uint64_t                       fr_stk_size = 64 * 1024);
+        void add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in...),
+                          dispatcher::dispatcher_entity* fr_curr       ,
+                          uint64_t                       fr_stk_size   ,
+                          _in...                         fr_fp_arg     );
 
        template <typename _out>
-        inline void IN_FUNC add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*),
-                                         dispatcher::dispatcher_entity* fr_curr       ,
-                                         uint64_t                       fr_stk_size = 64 * 1024);
+        void add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*),
+                          dispatcher::dispatcher_entity* fr_curr                               ,
+                          uint64_t                       fr_stk_size);
 
         template <typename T>
         inline void IN_FUNC switch_frame(T ce_fp, dispatcher::dispatcher_entity* ca_fr);
@@ -60,11 +60,11 @@ namespace frame
 // External Functions, Which is exposed to users.
 
 template <typename _out>
-inline void IN_FUNC frame::dispatcher::add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*),
-                                                    dispatcher::dispatcher_entity* fr_curr       ,
-                                                    uint64_t                       fr_stk_size)
+void frame::dispatcher::add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*),
+                                     dispatcher::dispatcher_entity* fr_curr       ,
+                                     uint64_t                       fr_stk_size)
 {
-    fr_curr->current_frame->save             (); // Scratch Stack Created.
+    fr_curr->current_frame->save             ();
     fr_curr->current_frame->get_stack_pointer();
     fr_curr->current_frame->get_base_pointer ();
 
@@ -74,10 +74,10 @@ inline void IN_FUNC frame::dispatcher::add_frame   (_out                        
 }
 
 template <typename _out, typename... _in>
-inline void IN_FUNC frame::dispatcher::add_frame(_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in...),
-                                                 _in...                         fr_fp_arg     ,
-                                                 dispatcher::dispatcher_entity* fr_curr       ,
-                                                 uint64_t                       fr_stk_size)
+void frame::dispatcher::add_frame(_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in...),
+                                  dispatcher::dispatcher_entity* fr_curr       ,
+                                  uint64_t                       fr_stk_size   ,
+                                  _in...                         fr_fp_arg     )
 {
     fr_curr->current_frame->save();
     fr_curr->current_frame->get_stack_pointer();
@@ -99,13 +99,12 @@ void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size,
     fr_ent_new->current_frame                 = new frame(fr_stk_size);
     fr_ent_new->current_dispatcher            = this;
 
-    asm volatile  ("movq 0x08(%%rbp), %0" : "=g"(fr_ent_new->current_frame->register_set[14])); // Save Instruction Pointer
-    disp_rq.insert(std::make_pair((uint64_t)fr_fp, fr_ent_new));
+    asm volatile ( "movq 0x08(%%rbp), %0" 
+                 : "=g"(fr_ent_new->current_frame->register_set[14])); // Save Instruction Pointer
+    disp_rq     .insert(std::make_pair((uint64_t)fr_fp, fr_ent_new));
 
     fr_ent_new->current_frame->set_stack_pointer();
-    fr_ent_new->current_frame->set_base_pointer ();
-
-    fr_fp  (fr_ent_new, std::forward<_in>(fr_fp_arg)...);
+    fr_fp      (fr_ent_new, std::forward<_in>(fr_fp_arg)...);
 }
 
 template <typename _out>
@@ -117,8 +116,9 @@ void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size,
     fr_ent_new->current_frame                 = new frame(fr_stk_size);
     fr_ent_new->current_dispatcher            = this;
 
-    asm volatile  ("movq 0x08(%%rbp), %0" : "=g"(fr_ent_new->current_frame->register_set[14])); // Save Instruction Pointer
-    disp_rq.insert(std::make_pair((uint64_t)fr_fp, fr_ent_new));
+    asm volatile ( "movq 0x08(%%rbp), %0" 
+                 : "=g"(fr_ent_new->current_frame->register_set[14])); // Save Instruction Pointer
+    disp_rq.insert     (std::make_pair((uint64_t)fr_fp, fr_ent_new));
 
     fr_ent_new->current_frame->set_stack_pointer();
     fr_fp                     (fr_ent_new);

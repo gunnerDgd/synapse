@@ -25,21 +25,13 @@
 |                   |
 +-------------------+ <-- %%rsp
 
-
+Stack Pointer (%%rsp) must be aligned as 16 Bytes.
 */
 
 namespace frame
 {
     class stack
     {
-    public:
-        struct private_section  { void    * private_start, 
-                                          * private_end;             };
-        struct previous_section { uint64_t* previous_instruction_pointer, 
-                                          * previous_base_pointer;   };
-        struct function_section { void    * function_base_pointer,
-                                          * function_stack_pointer;  };
-
     public:
         inline IN_FUNC stack();
         inline IN_FUNC stack(size_t stack_size);
@@ -55,31 +47,26 @@ namespace frame
         void            *stack_entry  = nullptr; // Always Fixed.
                                                   // Must be nullptr when the stack isn't user defined.
 
-        private_section  sec_priv     = nullptr; // Must be nullptr when the stack isn't user defined.
-        previous_section sec_prev     = nullptr;
-        function_section sec_func     = nullptr;
+        uint64_t         stack_bottom = 0,
+                         stack_top    = 0;
     };
 }
 
 inline IN_FUNC frame::stack::stack()
 {
-    asm volatile
-    (
-        "leaq 0x00(%%rbp), %0\n\t"
-        "leaq 0x08(%%rbp), %1\n\t"
-
-        "movq %%rbp, "
-
-    :   "=g"()
-    )
+    get_stack_pointer();
+    get_base_pointer ();
 }
 
 inline IN_FUNC frame::stack::stack(size_t stack_size)
 {
+    if(stack_size % 16 != 0)
+        stack_size += (16 - (stack_size % 16));
+    
     stack_entry  = new uint64_t[stack_size];
     
-    stack_bottom = stack_entry;                      // RSP
-    stack_top    = (uint8_t*)stack_top + stack_size; // RBP
+    stack_top    = (uint64_t)stack_entry + stack_size; // RBP
+    stack_bottom = stack_top;                          // RSP
 }
 
 void inline IN_FUNC frame::stack::set_stack_pointer() { asm volatile("movq %0, %%rsp" :: "g"(stack_bottom)); }
