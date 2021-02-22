@@ -18,9 +18,9 @@ int main()
 					   dns::dns_class::ns_c_in);
 	
 	dsock			    	.dns_send();
-	time_t start = clock();
 	dns::dns_packet packet = dsock.dns_recv();
 	
+	time_t start = clock();
 	std::vector<char*> p_response = dns::parse::parse_data(packet);
 	time_t end = clock();
 	

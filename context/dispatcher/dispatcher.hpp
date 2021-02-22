@@ -25,13 +25,19 @@ namespace frame
                           uint64_t                       fr_stk_size   ,
                           _in...                         fr_fp_arg     );
 
+        template <typename _out, typename    _in>
+        void add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in),
+                          dispatcher::dispatcher_entity* fr_curr       ,
+                          uint64_t                       fr_stk_size   ,
+                          _in                            fr_fp_arg     );
+
        template <typename _out>
         void add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*),
                           dispatcher::dispatcher_entity* fr_curr                               ,
                           uint64_t                       fr_stk_size);
 
         template <typename T>
-        inline void IN_FUNC switch_frame(T ce_fp, dispatcher::dispatcher_entity* ca_fr);
+        void switch_frame(T ce_fp, dispatcher::dispatcher_entity* ca_fr);
         
         template <typename T>
         void delete_frame(T fr_fp) { disp_rq.erase((uint64_t)fr_fp); }
@@ -42,6 +48,12 @@ namespace frame
                           dispatcher::dispatcher_entity* fr_curr,
                           _out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in...),
                           _in...                         fr_fp_arg);
+
+        template <typename _out, typename    _in>
+        void add_frame   (uint64_t                       fr_stk_size, 
+                          dispatcher::dispatcher_entity* fr_curr,
+                          _out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in),
+                          _in                            fr_fp_arg);
 
         template <typename _out>
         void add_frame   (uint64_t                       fr_stk_size,
@@ -70,7 +82,20 @@ void frame::dispatcher::add_frame   (_out                         (*fr_fp)(dispa
 
     add_frame                      (fr_stk_size, fr_curr, fr_fp);
     fr_curr->current_frame->restore();
+}
 
+template <typename _out, typename    _in>
+void frame::dispatcher::add_frame   (_out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in),
+                                     dispatcher::dispatcher_entity* fr_curr       ,
+                                     uint64_t                       fr_stk_size   ,
+                                     _in                            fr_fp_arg     )
+{
+    fr_curr->current_frame->save();
+    fr_curr->current_frame->get_stack_pointer();
+    fr_curr->current_frame->get_base_pointer ();
+
+    add_frame                      (fr_stk_size, fr_curr, fr_fp, fr_fp_arg);
+    fr_curr->current_frame->restore();
 }
 
 template <typename _out, typename... _in>
@@ -107,6 +132,24 @@ void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size,
     fr_fp      (fr_ent_new, std::forward<_in>(fr_fp_arg)...);
 }
 
+template <typename _out, typename    _in>
+void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size, 
+                                     dispatcher::dispatcher_entity* fr_curr,
+                                     _out                         (*fr_fp)(dispatcher::dispatcher_entity*, _in),
+                                     _in                            fr_fp_arg)
+{
+    dispatcher::dispatcher_entity* fr_ent_new = new dispatcher::dispatcher_entity;
+    fr_ent_new->current_frame                 = new frame(fr_stk_size);
+    fr_ent_new->current_dispatcher            = this;
+
+    asm volatile ( "movq 0x08(%%rbp), %0" 
+                 : "=g"(fr_ent_new->current_frame->register_set[14])); // Save Instruction Pointer
+    disp_rq     .insert(std::make_pair((uint64_t)fr_fp, fr_ent_new));
+
+    fr_ent_new->current_frame->set_stack_pointer();
+    fr_fp      (fr_ent_new, std::forward<_in>(fr_fp_arg));
+}
+
 template <typename _out>
 void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size,
                                      dispatcher::dispatcher_entity* fr_curr,
@@ -125,11 +168,11 @@ void frame::dispatcher::add_frame   (uint64_t                       fr_stk_size,
 }
 
 template <typename T>
-inline void IN_FUNC frame::dispatcher::switch_frame(T ce_fp, dispatcher::dispatcher_entity* ca_fr)
+void frame::dispatcher::switch_frame(T ce_fp, dispatcher::dispatcher_entity* ca_fr)
 {
-    ca_fr->current_frame->save  ();
-    ca_fr->current_frame->get_stack_pointer();
-    ca_fr->current_frame->get_base_pointer ();
+    ca_fr->current_frame->save  ();            // Save Current CPU Frame.
+    ca_fr->current_frame->get_stack_pointer(); // Save Current RSP
+    ca_fr->current_frame->get_base_pointer (); // Save Current RBP
 
     switch_frame                 (ca_fr, ce_fp);
     ca_fr->current_frame->restore();
@@ -139,13 +182,13 @@ template <typename T>
 void frame::dispatcher::switch_frame(dispatcher::dispatcher_entity* ca_fr,
                                      T                              ce_fp)
 {
-    asm volatile ("movq 0x08(%%rbp), %0" : "=g"(ca_fr->current_frame->register_set[14]));
+    asm volatile ( "movq 0x08(%%rbp), %0" 
+                 : "=g"(ca_fr->current_frame->register_set[14])); // Save Previous RIP (Instruction Pointer).
     
-    auto ce_it  = disp_rq.find((uint64_t)ce_fp);
+    auto ce_it  = disp_rq.find((uint64_t)ce_fp); // Find Callee's Entity.
     if  (ce_it == disp_rq.end()) return;
 
     dispatcher::dispatcher_entity* ce_ent = ce_it->second;
-
     asm volatile ("movq %0, %%rbx" :: "g"(ce_ent->current_frame->register_set[14]) 
                                     : "rbx");
 
