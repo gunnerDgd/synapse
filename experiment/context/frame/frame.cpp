@@ -1,27 +1,24 @@
-#include <synapse/context/frame/frame.hpp>
+#include <synapse/context/stack/stack_operation.hpp>
 
-frame::frame* ca, *ce;
-
-void test(int a, int b, int* c)
+class test_class
 {
-    std::cout << "#1 : " << a << " " << b << " " << *c << std::endl;
-    *c += 1;
-    frame::switch_frame(ce, ca);
-    std::cout << "#2 : " << a << " " << b << " " << *c << std::endl;
-    frame::switch_frame(ca);
-}
+public:
+    int a;
+    float b;
+    double c;
+};
 
 int main()
 {
-    int a = 3, *b = &a;
-    ca = new frame::frame();
-    ce = new frame::frame(64 * 1024);
+    test_class a, *ptr_a;
+    a.a = 3;
+    a.b = 3.0;
+    a.c = 3.0;
 
-    std::cout << "Main #1\n";
-    frame::switch_frame(ca, ce, test, 1, 2, b);
+    stack::push_stack(&a, ptr_a);
+    std::cout << ptr_a->a << " "
+              << ptr_a->b << " "
+              << ptr_a->c << std::endl;
     
-    std::cout << "Main #2\n";
-    frame::switch_frame(ca, ce);
-
     return 0;
 }
