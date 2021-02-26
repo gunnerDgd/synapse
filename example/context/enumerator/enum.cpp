@@ -36,5 +36,5 @@ void test_2(frame::enumerator& e, int& a, int& b)
     std::cout << "Hello Test 2 # 2\n"; a++, b++;
     std::cout << a << " " << b << " " << std::endl;
     
-    e.switch_to(0);
+    e.switch_to(test_1);
 }
