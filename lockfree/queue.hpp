@@ -11,8 +11,8 @@ namespace lockfree
 	template <typename T>
 	struct cq_block
 	{
-		T 						  cq_context;
-		std::atomic<cq_block<T>*> cq_next = nullptr;
+		T 						  cq_context;		 // Saves Context
+		std::atomic<cq_block<T>*> cq_next = nullptr; // Saves Next Block's Pointer
 	};
 	
 	template <typename T, size_t N>
@@ -22,12 +22,12 @@ namespace lockfree
 		cqueue ();
 		~cqueue();
 		
-		void 			 enqueue(T context);
-		std::optional<T> dequeue();
+		void enqueue(T context);
+		T*   dequeue();
 		
 	private:
 		cq_block<T> 			  cq_entry[N];
-		std::atomic<cq_block<T>*> cq_read,
+		std::atomic<cq_block<T>*> cq_read ,
 								  cq_write;
 		
 	private:
@@ -77,5 +77,5 @@ std::optional<T> lockfree::cqueue<T, N>::dequeue()
 										   std::memory_order_relaxed
 										  ));
 	
-	return cq_ptr->cq_context;
+	return &cq_ptr->cq_context;
 }
