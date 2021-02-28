@@ -65,6 +65,17 @@ namespace dns
 	using v_dq = std::vector<query> ;
 	using v_da = std::vector<answer>;
 	
+/*
+"dns_query"
+
+header::query* Type 	: When You Received the Packet.
+std::vector<query> Type : When You Send the Packet.
+
+"dns_answer"
+header::answer* Type 	 : When You Received the Packet.
+std::vector<answer> Type : When You Send the Packet.
+*/
+
 	struct dns_packet
 	{
 		dns_packet () 			  {}
@@ -79,6 +90,7 @@ namespace dns
 	};
 }
 
+// Copy Constructor of the DNS Packet.
 dns::dns_packet::dns_packet  (dns_packet& cp)
 {
 	switch((dns_raw != nullptr) ? true : false)
@@ -103,8 +115,12 @@ dns::dns_packet::dns_packet  (dns_packet& cp)
 	}
 }
 
+// Destructor of the DNS Packet
 dns::dns_packet::~dns_packet  ()
 {
+	// dns_raw != nullptr : The Packet is Received.
+	// dns_raw == nullptr : The Packet is made by user.
+
 	switch((dns_raw != nullptr) ? true : false)
 	{
 	case true:
@@ -128,7 +144,7 @@ dns::dns_packet::~dns_packet  ()
 			if(!da) {
 				for(uint16_t a_it = 0 ; a_it < dns_header->answer_rr
 								  		 	 + dns_header->auth_rr  ; a_it++)
-					delete[] da[a_it].name;
+					delete[] da[a_it].name; // Name pointer was allocated "dynamically" by dns::parse class methods.
 				delete[]     da;
 			}
 		}

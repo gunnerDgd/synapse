@@ -6,6 +6,11 @@
 #include <cstdlib>
 #include <ctime>
 
+/*
+1) dns_socket is "NOT" thread - safe.
+2) Its base is network::udp, because DNS is based upon UDP Protocol.
+*/
+
 namespace dns
 {
 	class dns_socket : private network::udp

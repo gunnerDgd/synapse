@@ -12,6 +12,9 @@ namespace type
 	template <class _Inherited, class _Parent>
 	struct class_property<_Parent::_Inherited>
 	{
+		using parent_type = _Parent;
+		using child_type  = _Inherited;
+
 		static constexpr bool is_inherited = true;
 	};
 }

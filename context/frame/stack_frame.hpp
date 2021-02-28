@@ -33,8 +33,9 @@ namespace frame
     class stack
     {
     public:
-        inline IN_FUNC stack();
-        inline IN_FUNC stack(size_t stack_size);
+        inline IN_FUNC stack ();
+        inline IN_FUNC stack (size_t stack_size);
+        inline IN_FUNC ~stack();
 
     public:
         void inline IN_FUNC set_base_pointer ();
@@ -67,6 +68,12 @@ inline IN_FUNC frame::stack::stack(size_t stack_size)
     
     stack_top    = (uint64_t)stack_entry + stack_size; // RBP
     stack_bottom = stack_top;                          // RSP
+}
+
+inline IN_FUNC frame::stack::~stack()
+{
+    if(stack_entry == nullptr) return;
+    else                       delete[] (uint8_t*)stack_entry;
 }
 
 void inline IN_FUNC frame::stack::set_stack_pointer() { asm volatile("movq %0, %%rsp" :: "g"(stack_bottom)); }

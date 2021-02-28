@@ -6,19 +6,25 @@ namespace frame
     class enumerator
     {
     public:
-        enumerator();
+        enumerator ();
+        ~enumerator();
 
         template <typename T, typename... Args>
         void start    (T&& en_fp, Args&&... en_args);
 
         template <typename T>
-        void start    (T&& en_fp);
+        void start    (T&& en_fp)   ;
+        void start    (frame& en_fr);
 
         template <typename T>
         void end      (T&& en_fp);
 
         template <typename T>
         void switch_to(T&& en_fp);
+        void switch_to()         { switch_to(0); }
+
+        template <typename T>
+        friend void migrate  (T fp, enumerator& e_curr, enumerator& e_next);
         
     private:
         std::map<uint64_t, frame*> en_queue               ;
@@ -32,6 +38,12 @@ frame::enumerator::enumerator()
     en_current     = main_fr;
 
     en_queue.insert (std::make_pair(0, main_fr));
+}
+
+frame::enumerator::~enumerator()
+{
+    for(auto& fr_it : en_queue)
+        delete fr_it.second;
 }
 
 template <typename T, typename... Args>
@@ -58,8 +70,21 @@ void frame::enumerator::start(T&& en_fp)
     switch_frame    (*en_prev, *en_current, en_fp, *this);
 }
 
+void frame::enumerator::start    (frame& en_fr)
+{
+    frame* en_prev = en_current;
+    
+}
+
 template <typename T>
-void frame::enumerator::end  (T&& en_fp) { en_queue.erase(en_fp); }
+void frame::enumerator::end  (T&& en_fp) 
+{
+    auto fp_it  = en_queue.find((uint64_t)en_fp);
+    if  (fp_it == en_queue.end()) return;
+    
+    delete         fp_it->second;
+    en_queue.erase(fp_it);
+}
 
 template <typename T>
 void frame::enumerator::switch_to(T&& en_fp)
@@ -71,4 +96,16 @@ void frame::enumerator::switch_to(T&& en_fp)
     en_current     = ce_it->second;
 
     switch_frame(*en_prev, *en_current);
+}
+
+template <typename T>
+void frame::enumerator::migrate  (T fp, enumerator& e_curr, enumerator& e_next)
+{
+    auto mig_it  = e_curr.en_queue.find((uint64_t)fp);
+    if  (mig_it == e_curr.en_queue.end()) return;
+
+    frame* mig_fr = mig_it->second;
+    e_curr.en_queue.erase (mig_it);
+    
+    e_next.en_queue.insert(std::make_pair((uint64_t)fp, mig_fr));
 }
