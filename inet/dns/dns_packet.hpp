@@ -39,12 +39,12 @@ namespace dns
 	
 	struct query
 	{
-		char* 	 name;
-		struct   query_context
+		char* name; // only "Position" of the name field.
+		struct query_context
 		{
 			uint16_t dns_type,
 				 	 dns_class;
-		}			*context;
+		}	*context;
 	};
 	
 	struct answer

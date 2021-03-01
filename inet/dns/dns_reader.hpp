@@ -1,4 +1,4 @@
-#include <synapse/inet/dns/dns_parse.hpp>
+#include <synapse/inet/dns/dns_packet.hpp>
 #include <synapse/socket/tcp.hpp>
 #include <synapse/socket/udp.hpp>
 

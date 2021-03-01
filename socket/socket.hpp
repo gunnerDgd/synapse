@@ -1,56 +1,28 @@
 #pragma once
 
 #include <synapse/stream/stream.hpp>
-#include <functional>
+#include <synapse/inet/addr/addr.hpp>
 
-#ifdef UNIX_MODE
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#include <unistd.h>
-#endif
-
-#ifdef WIN32_MODE
-#include <WinSock2.h>
-#endif
 
 namespace network
 {
 
 #ifdef UNIX_MODE
-          using socket_type = int;
+    using socket_type = int;
 #endif
 
 #ifdef WIN32_MODE
-          using socket_type = SOCKET;
+    using socket_type = SOCKET;
 #endif
 
-    class   socket_base : public stream::stream
+    class socket_base : public stream::stream
     {
         public:
-            socket_base (const char* _ip, unsigned short _port)
-            {
-#ifdef WIN32_MODE
-				WSAStartup						(MAKEWORD(2, 2), &socket_ws2data);
-#endif
-
-                socket_address.sin_addr.s_addr = inet_addr(_ip);
-                socket_address.sin_port        = htons    (_port);
-                socket_address.sin_family      = AF_INET;
-            }
-
+            socket_base (address::ipv4& addr);
             socket_base (network::socket_type _sock, sockaddr_in& _addr) :
                 socket_fd(_sock), socket_address(_addr) {}
 
-            ~socket_base() 
-			{
-#ifdef UNIX_MODE
-				close(socket_fd); 
-#else
-				closesocket(socket_fd);
-#endif
-			}
+            ~socket_base();
 
             virtual size_t send(uint8_t* s_ctx, size_t s_size) = 0;
             virtual size_t recv(uint8_t* r_ctx, size_t r_size) = 0;
@@ -63,10 +35,25 @@ namespace network
             socket_type    socket_fd;
 
 #ifdef WIN32_MODE
-			WSADATA		  socket_ws2data;
+			WSADATA		   socket_ws2data;
 #endif
 
     };
+}
 
+network::socket_base::socket_base (address::ipv4& addr)
+                    : socket_address((sockaddr_in)addr)
+{
+#ifdef WIN32_MODE
+    WSAStartup(MAKEWORD(2, 2), &socket_ws2data);
+#endif
+}
 
+network::socket_base::~socket_base()
+{
+#ifdef UNIX_MODE
+	close      (socket_fd);
+#else
+	closesocket(socket_fd);
+#endif
 }

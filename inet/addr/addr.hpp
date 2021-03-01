@@ -51,15 +51,7 @@ namespace address
         uint16_t     ipv4_port;
     };
 
-    class ipv6
-    {
-    public:
-        ipv6(const char* addr, uint16_t port);
-
-    public:
-        union
-        {
-            uint16_t ipv6_addr[8];
-        }
-    };
+    /*
+    IPv6 Protocol Address Will be added soon.
+    */
 }

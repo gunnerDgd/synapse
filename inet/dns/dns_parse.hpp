@@ -88,6 +88,7 @@ char* dns::compress::dns_compress (char* name)
 	return dname_res;
 }
 
+
 char* dns::compress::dns_decompress(char*& name, char* raw)
 {
 	char* dc_res = new char[255],
