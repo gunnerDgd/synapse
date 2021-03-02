@@ -1,4 +1,5 @@
 #include <iostream>
+#include <synapse/string/string_tools.hpp>
 
 /*
 How to decompress DNS Message.
@@ -54,41 +55,61 @@ namespace dns
     // Struct comp_field
     // --> Saves DNS Compression Field, Which contains compression flag and offset.
 
-
-    bool        is_compressed(char& c) { return (c & 0xc0); }
-    
-    std::string ntoh_name (char* name, uint8_t* raw);
-    char*       hton_name (std::string& name);
-
-    std::string decompress(comp_field* comp, uint8_t* raw);
-    std::string decompress(char* name);
-}
-
-std::string dns::decompress(char* name)
-{
-    uint8_t n_len = *name++;
-    return std::string(name, n_len) + ".";
-}
-std::string dns::decompress(comp_field* cp_field, uint8_t* cp_raw)
-{
-    std::string decomp_result;
-    if(!cp_field.compression_flag) return decomp_result; // Nothing to decompress.
+    bool        is_compressed(char& c) { return (c & (0xc0 << 8)); }
+    class name
+    {
+    public:
+        static std::string ntoh      (char*  msg, char* raw);
+        static char*       hton      (std::string  name);
+    private:
+        static std::string decompress(char* msg, char* raw);
+    };
     
     
 }
 
-std::string dns::ntoh_name(char* name, uint8_t* raw)
+std::string dns::name::ntoh      (char* msg, char* raw)
 {
     std::string ntoh_res;
-    while(*name)
+    while(*msg)
     {
-        if(is_compressed(*name)) {
-            ntoh_res += decompress((comp_field*)name, raw); // End of the Name Field.
-            break;
-        }
+        std::string dc = decompress(msg, raw);
+        
+        msg           += (is_compressed(*msg)) ? 2 : dc.length();
+        ntoh_res      += dc;
+    }
 
-        auto d_res = decompress(name); // ntoh Result.
-        name      += d_res.length();
-        ntoh_res  += d_res;
+    ntoh_res.pop_back();
+    return   ntoh_res;
+}
+
+char*       dns::name::hton      (std::string name)
+{
+    auto  n_vec = string::split(name, ".");
+    char* n_res = new char[name.length() + 2]; size_t r_size = 0;
+    
+    for(auto& v : n_vec)
+    {
+        n_res[r_size++] = v.length();
+        memcpy           (n_res + r_size, v.c_str(), v.length());
+
+        r_size         += v.length(); 
+    }
+
+    return n_res;
+}
+
+std::string dns::name::decompress(char* msg, char* raw)
+{
+    switch(is_compressed(*msg))
+    {
+    case true:
+    {
+        comp_field* cf = reinterpret_cast<comp_field*>(msg);
+        return      decompress (raw + cf->compression_offset, raw);
+    }
+
+    case false:
+        return      std::string(msg + 1, *msg) + ".";
     }
 }

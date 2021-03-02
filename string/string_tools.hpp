@@ -9,8 +9,8 @@
 
 namespace string
 {
-	std::vector<std::string> 	  split	  (std::string& 	 context, std::string token);
-	std::vector<std::string_view> split	  (std::string_view& context, std::string token);
+	std::vector<std::string> 	  split	  (std::string& 	  context, std::string token);
+	std::vector<std::string_view> split	  (std::string_view&  context, std::string token);
 	
 	void						  trim 	  (std::string& 	 context, std::string token);
 	

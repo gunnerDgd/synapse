@@ -1,17 +1,17 @@
-#include <synapse/inet/dns/dns_packet.hpp>
+#include <synapse/inet/dns/format/raw.hpp>
 
 namespace dns
 {
 	class byte_order
 	{
 	public:
-		static void ntoh (dns::header& dh);
-		static void ntoh (dns::query&  dq);
-		static void ntoh (dns::answer& da);
+		static void ntoh (dns::raw::header& dh);
+		static void ntoh (dns::raw::query&  dq);
+		static void ntoh (dns::raw::answer& da);
 	
-		static void hton (dns::header& dh);
-		static void hton (dns::query&  dq);
-		static void hton (dns::answer& da);
+		static void hton (dns::raw::header& dh);
+		static void hton (dns::raw::query&  dq);
+		static void hton (dns::raw::answer& da);
 	};
 	
 	class compress
@@ -119,7 +119,7 @@ char* dns::compress::dns_decompress(char*& name, char* raw)
 }
 
 
-void dns::byte_order::ntoh(header& dh)
+void dns::byte_order::ntoh(raw::header& dh)
 {
 	dh.transaction_id = ::ntohs(dh.transaction_id);
 	dh.dns_flags	  = ::ntohs(dh.dns_flags);
@@ -130,13 +130,13 @@ void dns::byte_order::ntoh(header& dh)
 	dh.additional_rr  = ::ntohs(dh.additional_rr);
 }
 
-void dns::byte_order::ntoh(query&  dq)
+void dns::byte_order::ntoh(raw::query&  dq)
 {
 	dq.context->dns_type  = ::ntohs(dq.context->dns_type);
 	dq.context->dns_class = ::ntohs(dq.context->dns_class);
 }
 
-void dns::byte_order::ntoh(answer& da)
+void dns::byte_order::ntoh(raw::answer& da)
 {
 	da.context->dns_type  = ::ntohs(da.context->dns_type) ;
 	da.context->dns_class = ::ntohs(da.context->dns_class);
@@ -144,7 +144,7 @@ void dns::byte_order::ntoh(answer& da)
 	da.context->rd_length = ::ntohs(da.context->rd_length);
 }
 	
-void dns::byte_order::hton(header& dh)
+void dns::byte_order::hton(raw::header& dh)
 {
 	dh.transaction_id = ::htons(dh.transaction_id);
 	dh.dns_flags	  = ::htons(dh.dns_flags)		;
@@ -155,13 +155,13 @@ void dns::byte_order::hton(header& dh)
 	dh.additional_rr  = ::htons(dh.additional_rr);
 }
 
-void dns::byte_order::hton(query&  dq)
+void dns::byte_order::hton(raw::query&  dq)
 {
 	dq.context->dns_type  = ::htons(dq.context->dns_type) ;
 	dq.context->dns_class = ::htons(dq.context->dns_class);
 }
 
-void dns::byte_order::hton(answer& da)
+void dns::byte_order::hton(raw::answer& da)
 {
 	da.context->dns_type  = ::htons(da.context->dns_type) ;
 	da.context->dns_class = ::htons(da.context->dns_class);

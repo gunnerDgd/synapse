@@ -6,7 +6,9 @@
 #include <variant>
 
 namespace dns
-{	
+{
+namespace raw
+{
 	struct header
 	{
 		struct		 flag_field
@@ -88,6 +90,7 @@ std::vector<answer> Type : When You Send the Packet.
 		std::variant<query *, v_dq> dns_query  = nullptr;
 		std::variant<answer*, v_da> dns_answer = nullptr;
 	};
+}
 }
 
 // Copy Constructor of the DNS Packet.
