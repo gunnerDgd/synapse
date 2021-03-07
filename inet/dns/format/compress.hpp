@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <synapse/string/string_tools.hpp>
 
@@ -60,7 +61,7 @@ namespace dns
     {
     public:
         static std::string ntoh      (char*  msg, char* raw);
-        static char*       hton      (std::string  name);
+        static void        hton      (std::string  name, char* n_res);
     private:
         static std::string decompress(char* msg, char* raw);
     };
@@ -83,10 +84,10 @@ std::string dns::name::ntoh      (char* msg, char* raw)
     return   ntoh_res;
 }
 
-char*       dns::name::hton      (std::string name)
+void        dns::name::hton      (std::string name, char* n_res)
 {
-    auto  n_vec = string::split(name, ".");
-    char* n_res = new char[name.length() + 2]; size_t r_size = 0;
+    auto   n_vec = string::split(name, "."); 
+    size_t r_size = 0;
     
     for(auto& v : n_vec)
     {
