@@ -1,9 +1,7 @@
 #pragma once
 #include <synapse/synapse.hpp>
-#include <synapse/sync/event.hpp>
 
 #include <iostream>
-#include <optional>
 #include <atomic>
 
 namespace lockfree
@@ -29,9 +27,6 @@ namespace lockfree
 		cq_block<T> 			  cq_entry[N];
 		std::atomic<cq_block<T>*> cq_read ,
 								  cq_write;
-		
-	private:
-		synchronous::event		  cq_rdy;
 	};
 }
 
@@ -65,7 +60,7 @@ void lockfree::cqueue<T, N>::enqueue(T context)
 }
 
 template <typename T, size_t N>
-std::optional<T> lockfree::cqueue<T, N>::dequeue()
+T* lockfree::cqueue<T, N>::dequeue()
 {
 	cq_block<T>* cq_ptr;
 	do
