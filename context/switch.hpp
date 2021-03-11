@@ -1,4 +1,5 @@
 #include <synapse/context/frame/frame.hpp>
+#include <tuple>
 
 namespace frame
 {
@@ -7,6 +8,9 @@ namespace frame
 
     template <typename _out, typename... _in>
     void switch_frame  (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), _in&&... fp_arg);
+
+    template <typename _out, typename... _in>
+    void switch_frame  (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), std::tuple<_in...> fp_arg);
     
     template <typename _out, typename    _in>
     void switch_frame  (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in)   , _in&&    fp_arg);
@@ -20,6 +24,9 @@ namespace frame
 
     template <typename _out, typename... _in>
     void _switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), _in&&... fp_arg);
+
+    template <typename _out, typename... _in>
+    void _switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), std::tuple<_in...>& fp_arg);
     
     template <typename _out, typename    _in>
     void _switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in)   , _in&&    fp_arg);
@@ -58,6 +65,17 @@ void frame::switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), _in&
 
     _switch_frame (fr_ca, fr_ce, fp_ce, fp_arg...);
     fr_ca.restore();
+}
+
+template <typename _out, typename... _in>
+void frame::switch_frame  (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), std::tuple<_in...> fp_arg)
+{
+    fr_ca.save();
+    fr_ca.get_base_pointer ();
+    fr_ca.get_stack_pointer();
+
+    _switch_frame(fr_ca, fr_ce, fp_ce, fp_arg);
+    fr_ca.restore();    
 }
     
 template <typename _out, typename    _in>
@@ -107,9 +125,19 @@ void frame::_switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), _in
                  : "=g"(fr_ca.register_set[14])); // Save Caller's Instruction Pointer to frame::cpu.
 
     fr_ce.set_stack_pointer();
-    fp_ce                   (std::forward<_in>(fp_arg)...);
+    fp_ce                  (std::forward<_in>(fp_arg)...);
 }
     
+template <typename _out, typename... _in>
+void frame::_switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in...), std::tuple<_in...>& fp_arg)
+{
+    asm volatile ( "movq 0x08(%%rbp), %0"
+                 : "=g"(fr_ca.register_set[14])); // Save Caller's Instruction Pointer to frame::cpu.
+
+    fr_ce.set_stack_pointer();
+    std::apply             (fp_ce, fp_arg);
+}
+
 template <typename _out, typename    _in>
 void frame::_switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in)   , _in&&    fp_arg)
 {
@@ -117,7 +145,7 @@ void frame::_switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(_in)   , _in
                  : "=g"(fr_ca.register_set[14]));
 
     fr_ce.set_stack_pointer();
-    fp_ce                   (std::forward<_in>(fp_arg));
+    fp_ce                  (std::forward<_in>(fp_arg));
 }
     
 template <typename _out>
@@ -127,7 +155,7 @@ void frame::_switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(void))
                  : "=g"(fr_ca.register_set[14]));
 
     fr_ce.set_stack_pointer();
-    fp_ce                   ();
+    fp_ce                  ();
 }
 
 void frame::_switch_frame (frame& fr_ca, frame& fr_ce)
