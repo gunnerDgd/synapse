@@ -1,22 +1,11 @@
 #include "file.hpp"
+using namespace synapse;
 
-disk::file::file(std::string _name, file::access_mode _mode) 
-	: f_path(_name)
-{
-	this->open(_name, _mode);
-}
-
-disk::file::~file()
-{
-	this->close();
-}
-
-bool   disk::file::open (std::string _name, file::access_mode _mode)
+bool   disk::file::open (std::string n, file::access_mode m, file::io_mode i)
 {
 #ifdef UNIX_MODE
-    f_handle     = open(_name.c_str(), O_CREAT, _mode);
-	if(f_handle <= 0)
-		return false;
+    f_handle        = open(_name.c_str(), O_CREAT, _mode);
+	if(f_handle <= 0) return false;
 	
     struct stat _fstat;
     fstat       (f_handle, &_fstat);
@@ -27,11 +16,9 @@ bool   disk::file::open (std::string _name, file::access_mode _mode)
 #else
     f_handle 	 = CreateFile(_name.c_str(), _mode,
                           	  0, NULL, OPEN_ALWAYS, 0, NULL);
-	if(f_handle == INVALID_HANDLE_VALUE)
-		return false;
+	if(f_handle == INVALID_HANDLE_VALUE) return false;
 
-    DWORD _hsize = 0;
-    
+    DWORD _hsize = 0;   
     f_size       = GetFileSize(f_handle, &_hsize);
     f_size       = ((size_t)_hsize << 32) | f_size;
 	
