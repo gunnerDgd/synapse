@@ -35,6 +35,7 @@ namespace frame
     void _switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(void));
 }
 
+using namespace synapse;
 void frame::switch_frame (frame& fr_ce)
 {
     asm volatile ( "movq %0, %%rbx"

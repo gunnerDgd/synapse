@@ -8,6 +8,8 @@
 #include <Windows.h>
 #endif
 
+namespace synapse
+{
 namespace synchronous
 {
 #ifdef UNIX_MODE
@@ -50,4 +52,5 @@ namespace synchronous
         private:
             evt_t event_context;
     };
+}
 }

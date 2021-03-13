@@ -1,23 +1,6 @@
 #include <iostream>
 #include <synapse/stream/stream.hpp>
 #include <synapse/disk/file/file_flag.hpp>
-//#include <synapse/disk/directory/directory.hpp>
-
-#ifdef UNIX_MODE
-#include <sys/types.h> 
-#include <sys/stat.h>
-#include <sys/mman.h>
-
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <errno.h>
-
-extern int errno;
-#else
-#include <Windows.h>
-
-#endif
 
 namespace disk
 {
@@ -34,7 +17,7 @@ namespace disk
 			
             ~file();
 
-			bool open (std::string _name, file::access_mode _mode);
+			bool open (std::string n, file::access_mode m);
 			void close();
 
             size_t read   (uint8_t* r_ctx, size_t r_size) override;

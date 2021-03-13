@@ -1,6 +1,8 @@
 #include <iostream>
 #include <synapse/synapse.hpp>
 
+namespace synapse
+{
 namespace stream
 {
     class stream
@@ -22,6 +24,7 @@ namespace stream
         stream& operator >> (T& r_ctx);
     };
 }
+} using namespace synapse;
 
 template <class T, size_t N>
 stream& stream::stream::operator << (T(&w_ctx)[N])
