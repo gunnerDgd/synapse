@@ -1,9 +1,12 @@
 #include <synapse/context/frame/frame.hpp>
 #include <tuple>
+#include <utility>
 
+namespace synapse
+{
 namespace frame
 {
-    void switch_frame  (frame& fr_ca, frame& fr_ce);
+    void switch_frame  (frame& fr_ca, frame& fr_ce); // fr_ca : Caller's Frame, fr_ce : Callee's Frame
     void switch_frame  (frame& fr_ce);
 
     template <typename _out, typename... _in>
@@ -33,6 +36,7 @@ namespace frame
     
     template <typename _out>
     void _switch_frame (frame& fr_ca, frame& fr_ce, _out(*fp_ce)(void));
+}
 }
 
 using namespace synapse;

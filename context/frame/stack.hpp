@@ -28,6 +28,8 @@
 Stack Pointer (%%rsp) must be aligned as 16 Bytes.
 */
 
+namespace synapse
+{
 namespace frame
 {
     class stack
@@ -52,6 +54,7 @@ namespace frame
                          stack_top    = 0;
     };
 }
+} using namespace synapse;
 
 inline IN_FUNC frame::stack::stack()
 {

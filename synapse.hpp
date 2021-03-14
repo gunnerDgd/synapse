@@ -29,6 +29,3 @@
 #elif SYNAPSE_SIMD_VER == 5
 #include <smmintrin.h>
 #endif
-
-namespace synapse {}
-using namespace synapse;

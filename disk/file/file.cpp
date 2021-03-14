@@ -1,76 +1,143 @@
-#include "file.hpp"
+#include <synapse/disk/file/file.hpp>
 using namespace synapse;
 
-bool   disk::file::open (std::string n, file::access_mode m, file::io_mode i)
+disk::file::file(std::string n, access_mode m, open_mode o, io_mode i)
+	: stream   (i),
+      file_path(n)  { this->open(n, m, o, i); }
+
+disk::file::~file() { this->close(); }
+
+bool disk::file::open_block   (std::string& n, access_mode m, open_mode o)
 {
 #ifdef UNIX_MODE
-    f_handle        = open(_name.c_str(), O_CREAT, _mode);
-	if(f_handle <= 0) return false;
+	if(o == open_mode::create)
+		file_handle  = ::open(n.c_str(), m | O_CREAT | O_EXCL, S_IRWXU);
+	else
+		file_handle  = ::open(n.c_str(), m | O_CREAT		 , S_IRWXU);
 	
-    struct stat _fstat;
-    fstat       (f_handle, &_fstat);
-
-    f_size   = _fstat.st_size;
-	return     true;
-
+	if(file_handle <= 0) return false;
+	else			     return true;
 #else
-    f_handle 	 = CreateFile(_name.c_str(), _mode,
-                          	  0, NULL, OPEN_ALWAYS, 0, NULL);
-	if(f_handle == INVALID_HANDLE_VALUE) return false;
-
-    DWORD _hsize = 0;   
-    f_size       = GetFileSize(f_handle, &_hsize);
-    f_size       = ((size_t)_hsize << 32) | f_size;
+	file_handle     = CreateFile(n.c_str(), m, 0, NULL, o, NULL, NULL);
 	
-	return true;
+	if(file_handle == INVALID_HANDLE_VALUE) return false;
+	else								    return true;
 #endif
+}
+
+bool disk::file::open_nonblock(std::string& n, access_mode m, open_mode o)
+{
+#ifdef UNIX_MODE
+	if(o == open_mode::create)
+		file_handle  = ::open(n.c_str(), m | O_CREAT | O_EXCL | O_NONBLOCK, S_IRWXU);
+	else
+		file_handle  = ::open(n.c_str(), m | O_CREAT | O_NONBLOCK	 	  , S_IRWXU);
+	
+	if(file_handle <= 0) return false;
+	else			     return true;
+#else
+	file_handle 	= CreateFile(n.c_str(), m, 0, NULL,
+						  	  	 o, FILE_FLAG_OVERLAPPED, NULL);
+	
+	if(file_handle == INVALID_HANDLE_VALUE) return false;
+	else								    return true;
+#endif
+}
+
+bool   disk::file::open (std::string n, disk::access_mode m, disk::open_mode o, io_mode i)
+{
+	if(i == io_mode::block) {
+		if(!open_block(n, m, o))    return false;
+	}
+	else {
+		if(!open_nonblock(n, m, o)) return false;
+	}
+
+	this->size();
+	return true ;
 }
 
 void   disk::file::close()
 {
 #ifdef UNIX_MODE
-	::close	   (f_handle);
+	::close	   (file_handle);
 #else
-	CloseHandle(f_handle);
+	CloseHandle(file_handle);
 #endif
 }
 
-size_t disk::file::read (uint8_t* r_ctx, size_t r_size)
+size_t disk::file::read (uint8_t* c, size_t s)
 {
 #ifdef UNIX_MODE
-    return ::read(f_handle, (void*)r_ctx, r_size);
-
+    return ::read(file_handle, (void*)c, s);
 #else
-    size_t _sz;
-    bool   r_success = ReadFile(f_handle, (void*)r_ctx, r_size, (LPDWORD)&_sz, NULL);
+    size_t r_size;
+	bool   r_success;
 
-	return _sz;
-#endif
-}
-
-size_t disk::file::write(uint8_t* w_ctx, size_t w_size)
-{
-	
-
-#ifdef UNIX_MODE
-    w_size -= ::write(f_handle, (void*)w_ctx, w_size);
-
-#else
-    size_t _sz;
-    bool   r_success = WriteFile(f_handle, (void*)w_ctx, w_size, (LPDWORD)&_sz, NULL);
-	w_size 			-= _sz;
-#endif
+	switch(stream_mode)
+	{
+	case io_mode::block:
+    	r_success = ReadFile(file_handle, (void*)c, s, (LPDWORD)&r_size, NULL);
+		break;
+	case io_mode::non_block:
+		r_success = ReadFile(file_handle, (void*)c, s, (LPDWORD)&r_size, &file_overlapped);
+		break;
 	}
+
+	return (!r_success) ? 0 : r_size;
+#endif
 }
+
+size_t disk::file::write(uint8_t* c, size_t s)
+{
+#ifdef UNIX_MODE
+    return ::write(file_handle, (void*)c, s);
+#else
+    size_t w_size;
+	bool   w_success;
+
+	switch(stream_mode)
+	{
+	case io_mode::block:
+    	w_flag = WriteFile(file_handle, (void*)c, s, (LPDWORD)&w_size, NULL);
+		break;
+
+	case io_mode::non_block:
+		w_flag = WriteFile(file_handle, (void*)c, s, (LPDWORD)&w_size, &file_overlapped);
+		break;
+	}
+
+	return (!w_flag) ? 0 : w_size;
+#endif
+}
+
 
 void   disk::file::offset(size_t m_ptr)
 {
 #ifdef WIN32_MODE
 	LONG _hptr   = m_ptr >> 32;
-	SetFilePointer(f_handle,
+	SetFilePointer(file_handle,
 				   m_ptr & 0xFFFFFFFF, &_hptr,
 				   FILE_BEGIN);
 #else
-	lseek		  (f_handle, m_ptr, SEEK_SET);
+	lseek		  (file_handle, m_ptr, SEEK_SET);
+#endif
+}
+
+size_t disk::file::size  ()
+{
+#ifdef UNIX_MODE	
+    struct stat _fstat;
+    fstat       (file_handle, &_fstat);
+
+    file_size = _fstat.st_size;
+	return      file_size;
+
+#else
+    DWORD size_high = 0;   
+    file_size       = GetFileSize(file_handle, &size_high);
+    file_size       = ((size_t)size_high << 32) | f_size;
+	
+	return file_size;
 #endif
 }

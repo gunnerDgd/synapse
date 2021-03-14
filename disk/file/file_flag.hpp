@@ -18,12 +18,20 @@ namespace synapse
 namespace disk
 {
 #ifdef UNIX_MODE
-      enum access_mode
+      enum access_mode : int
       {
             read_only    = O_RDONLY,
             write_only   = O_WRONLY,
             all          = O_RDWR
       };
+      
+      // Not valid in UNIX System.
+      enum open_mode   : int
+      {
+            create,
+            open_existing
+      };
+
       using error_code = int;
 #else
       enum access_mode
@@ -32,6 +40,13 @@ namespace disk
             write_only   = GENERIC_WRITE,
             all          = GENERIC_ALL
       };
+
+      enum open_mode
+      {
+            create        = CREATE_ALWAYS,
+            open_existing = OPEN_ALWAYS
+      };
+
       using error_code = DWORD;
 #endif
 }

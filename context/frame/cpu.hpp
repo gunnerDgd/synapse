@@ -5,6 +5,8 @@
 #define IN_FUNC                  __attribute__((always_inline))
 #define IN_FUNC_VOID inline void __attribute__((always_inline))
 
+namespace synapse
+{
 namespace frame
 {
     class cpu
@@ -27,6 +29,9 @@ namespace frame
         uint64_t                 register_set[15];
     };
 }
+}
+
+using namespace synapse;
 inline void IN_FUNC frame::cpu::save()
 {
     asm volatile
