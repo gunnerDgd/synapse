@@ -5,7 +5,9 @@ namespace synapse
 {
 namespace stream
 {
-    enum  io_mode { block, non_block };
+    enum  io_mode  { block, non_block };
+    enum  io_state { normal, error }   ;
+    
     class stream
     {
     public:

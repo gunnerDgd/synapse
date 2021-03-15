@@ -1,13 +1,13 @@
 #include <synapse/disk/file/file.hpp>
 using namespace synapse;
 
-disk::file::file(std::string n, access_mode m, open_mode o, io_mode i)
-	: stream   (i),
-      file_path(n)  { this->open(n, m, o, i); }
+disk::file::file(std::string n, access_mode m, open_mode o)
+	: stream   (io_mode::block),
+      file_path(n)  		   { this->open(n, m, o); }
 
-disk::file::~file() { this->close(); }
+disk::file::~file() 		   { this->close(); }
 
-bool disk::file::open_block   (std::string& n, access_mode m, open_mode o)
+bool   disk::file::open (std::string n, disk::access_mode m, disk::open_mode o)
 {
 #ifdef UNIX_MODE
 	if(o == open_mode::create)
@@ -16,45 +16,19 @@ bool disk::file::open_block   (std::string& n, access_mode m, open_mode o)
 		file_handle  = ::open(n.c_str(), m | O_CREAT		 , S_IRWXU);
 	
 	if(file_handle <= 0) return false;
-	else			     return true;
+	else {
+		this->size();
+		return  true;
+	}
 #else
 	file_handle     = CreateFile(n.c_str(), m, 0, NULL, o, NULL, NULL);
 	
 	if(file_handle == INVALID_HANDLE_VALUE) return false;
-	else								    return true;
-#endif
-}
-
-bool disk::file::open_nonblock(std::string& n, access_mode m, open_mode o)
-{
-#ifdef UNIX_MODE
-	if(o == open_mode::create)
-		file_handle  = ::open(n.c_str(), m | O_CREAT | O_EXCL | O_NONBLOCK, S_IRWXU);
-	else
-		file_handle  = ::open(n.c_str(), m | O_CREAT | O_NONBLOCK	 	  , S_IRWXU);
-	
-	if(file_handle <= 0) return false;
-	else			     return true;
-#else
-	file_handle 	= CreateFile(n.c_str(), m, 0, NULL,
-						  	  	 o, FILE_FLAG_OVERLAPPED, NULL);
-	
-	if(file_handle == INVALID_HANDLE_VALUE) return false;
-	else								    return true;
-#endif
-}
-
-bool   disk::file::open (std::string n, disk::access_mode m, disk::open_mode o, io_mode i)
-{
-	if(i == io_mode::block) {
-		if(!open_block(n, m, o))    return false;
-	}
 	else {
-		if(!open_nonblock(n, m, o)) return false;
+		this->size();
+		return  true;
 	}
-
-	this->size();
-	return true ;
+#endif
 }
 
 void   disk::file::close()

@@ -1,3 +1,4 @@
+#pragma once
 #ifdef UNIX_MODE
 #include <sys/types.h> 
 #include <sys/stat.h>
@@ -18,6 +19,7 @@ namespace synapse
 namespace disk
 {
 #ifdef UNIX_MODE
+      using handle_t = int;
       enum access_mode : int
       {
             read_only    = O_RDONLY,
@@ -34,6 +36,7 @@ namespace disk
 
       using error_code = int;
 #else
+      using handle_t = HANDLE;
       enum access_mode
       {
             read_only    = GENERIC_READ,

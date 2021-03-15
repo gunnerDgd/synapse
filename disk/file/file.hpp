@@ -10,26 +10,13 @@ namespace disk
     class file : public stream::stream
     {
     public:
-#ifdef UNIX_MODE
-	    using handle_t = int;
-#else
-	    using handle_t = HANDLE;
-#endif
-    public:
-        file (std::string       n, 
-              disk::access_mode a, 
-              disk::open_mode   o,
-              io_mode           i);
-		file (io_mode i) : stream(i) {}
+        file (std::string n, disk::access_mode a, disk::open_mode o);
+		file () : stream(io_mode::block) {}
 			
         ~file();
 
-		bool open (std::string n, access_mode m, open_mode o, io_mode i);
+		bool open (std::string n, access_mode m, open_mode o);
 		void close();
-
-    private:
-        bool open_block   (std::string& n, access_mode m, open_mode o);
-        bool open_nonblock(std::string& n, access_mode m, open_mode o);
 
     public:
         size_t read  (uint8_t* r_ctx, size_t r_size) override;

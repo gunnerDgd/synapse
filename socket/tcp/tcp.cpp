@@ -1,14 +1,27 @@
 #include "tcp.hpp"
+using namespace synapse;
 
-network::tcp::tcp(const char* _ip, unsigned short _port) 
-	: network::socket_base(_ip, _port)
+network::tcp::tcp(address::ipv4 a, stream::io_mode i) 
+			: network::socket_base(a)
 {
-	socket_fd = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	if(i == stream::io_mode::block)
+		open_block   ();
+	else
+		open_nonblock();
 }
 
 
-network::tcp::tcp(network::socket_type _sock, sockaddr_in& _addr)
-	: network::socket_base(_sock, _addr) {}
+network::tcp::tcp(network::socket_type s, sockaddr_in& a, stream::io_mode i)
+	: network::socket_base(s, a) {}
+
+void   network::tcp::open_block	  () { socket_descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); }
+void   network::tcp::open_nonblock()
+{
+	socket_descriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+	int socket_flag   = fcntl (socket_descriptor, F_GETFL, 0);
+	
+	fcntl(socket_descriptor, F_SETFL, socket_flag | O_NONBLOCK);
+}
 
 bool   network::tcp::connect()
 {
