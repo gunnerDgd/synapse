@@ -27,7 +27,7 @@ namespace address
     class ipv4
     {
     public:
-        ipv4      (const char* addr, uint16_t port);
+        ipv4(const char* addr, uint16_t port);
         
         byte_order current_byte_order() { return ipv4_byte_order; }
         void       network_byte_order() { htonl(ipv4_addr_uint); htons(ipv4_port); ipv4_byte_order = byte_order::network_order; }
@@ -50,9 +50,9 @@ namespace address
     IPv6 Protocol Address Will be added soon.
     */
 }
-} using namespace synapse;
+}
 
-address::ipv4::ipv4(const char* addr, uint16_t port)
+synapse::address::ipv4::ipv4(const char* addr, uint16_t port)
 {
     sscanf(addr, "%hhu.%hhu.%hhu.%hhu", &ipv4_addr[0],
                                         &ipv4_addr[1],
@@ -63,7 +63,7 @@ address::ipv4::ipv4(const char* addr, uint16_t port)
     ipv4_addr_uint = htonl(ipv4_addr_uint);
 }
 
-address::ipv4::operator sockaddr_in()
+synapse::address::ipv4::operator sockaddr_in()
 {
     sockaddr_in saddr;
             

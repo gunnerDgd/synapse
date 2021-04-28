@@ -8,24 +8,20 @@ namespace synapse
 namespace network
 {
 
-#ifdef UNIX_MODE
+#ifdef ENV_UNIX
     using socket_handle = int;
-    using error_type    = int;
-#endif
-
-#ifdef WIN32_MODE
+#else
     using socket_handle = SOCKET;
-    using error_type    = int   ;
 #endif
 
     class socket_base : public stream::stream
     {
         public:
-            socket_base (address::ipv4& a        , io_mode i);
-            socket_base (network::socket_handle s, sockaddr_in& a, io_mode i) :
-                socket_descriptor(s),
-                socket_address   (a),
-                stream::stream   (i) {}
+            socket_base (address::ipv4& sck_addr);
+            socket_base (network::socket_handle sck_handle,
+                         sockaddr_in&           sck_addr) 
+                : socket_descriptor(sck_handle),
+                  socket_address   (sck_addr)  { }
 
             ~socket_base();
 
@@ -36,8 +32,8 @@ namespace network
             size_t 		   write(uint8_t* w_ctx, size_t w_size) override { return send(w_ctx, w_size); }
 
         protected:
-            sockaddr_in    socket_address;
-            socket_type    socket_descriptor;
+            sockaddr_in   socket_address;
+            socket_handle socket_descriptor;
 
 #ifdef WIN32_MODE
 			WSADATA		   socket_ws2data;
@@ -47,7 +43,7 @@ namespace network
 }
 }
 
-network::socket_base::socket_base   (address::ipv4& addr, stream::io_mode i)
+network::socket_base::socket_base   (address::ipv4& sck_addr)
                     : socket_address((sockaddr_in)addr),
                       stream::stream(i)
 {

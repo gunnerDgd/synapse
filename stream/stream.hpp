@@ -5,59 +5,47 @@ namespace synapse
 {
 namespace stream
 {
-    enum  io_mode  { block, non_block };
-    enum  io_state { normal, error }   ;
+    enum class stream_state
+    { 
+        normal, 
+        io_error,      // Failed in I/O Operation.
+        internal_error // Failed in Initialization / System Operation.
+    };
     
     class stream
     {
     public:
-        stream(io_mode m) : stream_mode(m) {}
+        stream()
+            : stream_state_flag(stream_state::normal) { }
 
+    public:
         virtual size_t read (uint8_t* r_ctx, size_t r_size) = 0;
         virtual size_t write(uint8_t* w_ctx, size_t w_size) = 0;
 
 		template <class T, size_t N>
-		stream& operator << (T(&w_ctx)[N]);
+		stream& operator << (T(&w_ctx)[N]) { write((uint8_t*)w_ctx, sizeof(T) * N); return *this; }
 
 		template <class T, size_t N>
-		stream& operator >> (T(&r_ctx)[N]);
+		stream& operator >> (T(&r_ctx)[N]) { read ((uint8_t*)r_ctx, sizeof(T) * N); return *this; }
 
         template <class T>
-        stream& operator << (T& w_ctx);
+        stream& operator << (T& w_ctx)     { write((uint8_t*)&w_ctx, sizeof(T));    return *this; }
 
         template <class T>
-        stream& operator >> (T& r_ctx);
+        stream& operator >> (T& r_ctx)     { read ((uint8_t*)&r_ctx, sizeof(T));    return *this; }
 
-    private:
-        io_mode stream_mode;
+        template <class T>
+        stream& operator << (T&& w_ctx)    { write((uint8_t*)&w_ctx, sizeof(T));    return *this; }
+
+        template <class T>
+        stream& operator >> (T&& r_ctx)    { read ((uint8_t*)&r_ctx, sizeof(T));    return *this; }
+
+
+    public:
+        stream_state state() { return stream_state_flag; }
+
+    protected:
+        stream_state stream_state_flag;
     };
 }
-} using namespace synapse;
-
-template <class T, size_t N>
-stream::stream& stream::stream::operator << (T(&w_ctx)[N])
-{
-	write((uint8_t*)w_ctx, N);
-	return *this;
-}
-
-template <class T, size_t N>
-stream::stream& stream::stream::operator >> (T(&r_ctx)[N])
-{
-	read((uint8_t*)r_ctx, N);
-	return *this;
-}
-
-template <class T>
-stream::stream& stream::stream::operator << (T& w_ctx)
-{
-    write((uint8_t*)&w_ctx, sizeof(T));
-    return *this;
-}
-
-template <class T>
-stream::stream& stream::stream::operator >> (T& r_ctx)
-{
-    read((uint8_t*)&r_ctx, sizeof(T));
-    return *this;
 }

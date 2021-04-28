@@ -1,7 +1,7 @@
 #pragma once
 
-#define UNIX_MODE
-//#define WIN32_MODE
+#define ENV_UNIX
+//#define ENV_WINDOWS
 
 #define SYNAPSE_VER 1.0.0
 #define CPPVER 17
