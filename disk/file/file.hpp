@@ -1,4 +1,3 @@
-#include <iostream>
 #include <synapse/stream/stream.hpp>
 #include <synapse/disk/file/file_flag.hpp>
 
@@ -15,9 +14,7 @@ namespace disk
         using handle_t = HANDLE;
 #endif
 
-        file (std::string f_name);
-		file () : stream() {}
-			
+        file (std::string f_name);			
         ~file();
 
 		bool open (disk::access_mode f_ac = disk::access_mode::all,
@@ -26,15 +23,13 @@ namespace disk
 		bool close();
 
     public:
-        size_t read  (uint8_t* r_ctx, size_t r_size) override;
-        size_t write (uint8_t* w_ctx, size_t w_size) override;
+        size_t   read  (uint8_t* r_ctx, size_t r_size) override;
+        size_t   write (uint8_t* w_ctx, size_t w_size) override;
 
-    public:
-        size_t size  ();
-		size_t offset(size_t f_ptr);
+        size_t   size  ();
+		size_t   offset(size_t f_ptr);
 
-    public:
-        handle_t native_handle() { return file_handle; }
+        handle_t handle() { return file_handle; }
 
     protected:
         std::string file_name;
@@ -61,8 +56,7 @@ bool synapse::disk::file::open (disk::access_mode f_ac,
                             (int)f_ac | (int)f_op,
                              S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
     else
-        file_handle = ::open(file_name.c_str(),
-                            (int)f_ac | (int)f_op);
+        file_handle = ::open(file_name.c_str(), (int)f_ac);
 
     if (file_handle < 0)
     {

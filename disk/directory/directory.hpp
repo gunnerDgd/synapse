@@ -3,20 +3,17 @@
 #include <iostream>
 #include <string>
 
+namespace synapse
+{
 namespace disk
 {
-    class directory : public disk::disk_object
+    class directory
     {
-        public:
-            directory(std::string _path);
+    public:
+        directory(std::string dir_path);
 
-            void         add_object   (disk_object* _d);
-            void         delete_object(disk_object* _d);
-
-            disk_object* operator[]   (std::string _name);
-
-        private:
-            
+    private:
 
     }
+}
 }
