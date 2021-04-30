@@ -41,6 +41,9 @@ synapse::memory::vmem::vmem(size_t vm_size    ,
 
 synapse::memory::vmem::~vmem()
 {
+    if(memory_lock_type == synapse::memory::lock_type::locked)
+        this->unlock();
+    
     int um_res = munmap(memory_address, memory_size);
     if (um_res < 0 && vmem_state == synapse::memory::memory_state::normal)
     {

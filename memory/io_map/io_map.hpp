@@ -53,4 +53,10 @@ bool  synapse::memory::io_map::sync()
     return (sync_res < 0) ? false : true;
 }
 
-synapse::memory::io_map::~io_map() { munmap(memory_address, memory_block_size); }
+synapse::memory::io_map::~io_map() 
+{
+    if(memory_lock_type == synapse::memory::lock_type::locked)
+        this->unlock();
+    
+    munmap(memory_address, memory_block_size); 
+}

@@ -1,13 +1,11 @@
 #pragma once
 
 #include <synapse/stream/stream.hpp>
-#include <synapse/inet/addr/addr.hpp>
+#include <synapse/inet/address/ip/ipv4.hpp>
 
-namespace synapse
-{
-namespace network
-{
-
+namespace synapse {
+namespace network {
+    
 #ifdef ENV_UNIX
     using socket_handle = int;
 #else
@@ -17,11 +15,11 @@ namespace network
     class socket_base : public stream::stream
     {
         public:
-            socket_base (address::ipv4& sck_addr);
-            socket_base (network::socket_handle sck_handle,
-                         sockaddr_in&           sck_addr) 
-                : socket_descriptor(sck_handle),
-                  socket_address   (sck_addr)  { }
+            socket_base (synapse::network::ip::v4& sock_addr) ;
+            socket_base (network::socket_handle    sock_handle,
+                         synapse::network::ip::v4& sock_addr) ;
+                : socket_descriptor(sock_handle),
+                  socket_address   (sock_addr)  { }
 
             ~socket_base();
 
@@ -32,20 +30,19 @@ namespace network
             size_t 		   write(uint8_t* w_ctx, size_t w_size) override { return send(w_ctx, w_size); }
 
         protected:
-            sockaddr_in   socket_address;
-            socket_handle socket_descriptor;
+            synapse::network::ip::v4 socket_address   ;
+            socket_handle            socket_descriptor;
 
 #ifdef WIN32_MODE
-			WSADATA		   socket_ws2data;
+			WSADATA		             socket_ws2data;
 #endif
 
     };
 }
 }
 
-network::socket_base::socket_base   (address::ipv4& sck_addr)
-                    : socket_address((sockaddr_in)addr),
-                      stream::stream(i)
+network::socket_base::socket_base   (address::ipv4& sock_addr)
+                    : socket_address(sock_addr)
 {
 #ifdef WIN32_MODE
     WSAStartup(MAKEWORD(2, 2), &socket_ws2data);
@@ -55,8 +52,8 @@ network::socket_base::socket_base   (address::ipv4& sck_addr)
 network::socket_base::~socket_base()
 {
 #ifdef UNIX_MODE
-	close      (socket_fd);
+	close      (socket_descriptor);
 #else
-	closesocket(socket_fd);
+	closesocket(socket_descriptor);
 #endif
 }
