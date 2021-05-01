@@ -1,20 +1,11 @@
 #pragma once
 #include <synapse/synapse.hpp>
-
-#include <atomic>
-#include <utility>
+#include <synapse/lockfree/block.hpp>
 
 namespace synapse
 {
 namespace lockfree
 {
-	template <typename T>
-	struct block 
-	{ 
-		T 		  block_context;
-		block<T>* block_next   ;
-	};
-
 	template <typename T>
 	class stack
 	{

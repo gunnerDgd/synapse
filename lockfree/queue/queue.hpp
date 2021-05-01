@@ -1,78 +1,100 @@
 #pragma once
 #include <synapse/synapse.hpp>
+#include <synapse/lockfree/block.hpp>
 
-#include <iostream>
-#include <atomic>
+namespace synapse  {
+namespace lockfree {
 
-namespace lockfree
-{
-	template <typename T>
-	struct cq_block
-	{
-		T 						  cq_context;		 // Saves Context
-		std::atomic<cq_block<T>*> cq_next = nullptr; // Saves Next Block's Pointer
-	};
-	
-	template <typename T, size_t N>
-	class cqueue
+	template <typename T, size_t N = 256>
+	class queue
 	{
 	public:
-		cqueue ();
-		~cqueue();
+		queue ();
 		
-		void enqueue(T&  context);
-		void enqueue(T&& context);
+		bool 	  enqueue(T&  context);
+		bool      enqueue(T&& context);
 		
-		T*   dequeue();
+		block<T>* dequeue();
 		
 	private:
-		cq_block<T> 			  cq_entry[N];
-		std::atomic<cq_block<T>*> cq_read ,
-								  cq_write;
+		synapse::lockfree::block<T> queue_block[N];
+		std::atomic<block<T>*>      queue_read 	  ,
+								    queue_write	  ;
 	};
+
+	template <typename T>
+	class queue<T, 1> { };
+
+	template <typename T>
+	class queue<T, 2> { };
+}
 }
 
 template <typename T, size_t N>
-lockfree::cqueue<T, N>::cqueue ()
+synapse::lockfree::queue<T, N>::queue ()
 {
-	for(size_t q_it = 0 ; q_it < N - 1 ; q_it++)
-		cq_entry[q_it].cq_next = &cq_entry[q_it + 1];
+	for(size_t it = 0 ; it < N - 1 ; it++)
+		queue_block[it].block_next = &queue_block[it + 1];
+	queue_block[N - 1].block_next  = queue_block;
 	
-	cq_entry[N - 1].cq_next	   = cq_entry;
-	cq_read					   = cq_entry;
-	cq_write				   = cq_entry;
+	queue_write 				   = &queue_block[0];
+	queue_read  				   = &queue_block[0];
 }
 
 template <typename T, size_t N>
-lockfree::cqueue<T, N>::~cqueue() {}
-
-template <typename T, size_t N>
-void lockfree::cqueue<T, N>::enqueue(T context)
+bool synapse::lockfree::queue<T, N>::enqueue(T& context)
 {
-	cq_block<T>* cq_ptr;
+	block<T>* enq_ptr = queue_write.load();
 	do	
 	{
-		cq_ptr   = cq_write.load(std::memory_order_relaxed);
-	} while(!cq_write.compare_exchange_weak(cq_ptr,
-										    cq_ptr->cq_next,
-										    std::memory_order_release,
-										    std::memory_order_relaxed
-										   ));
-	cq_ptr->cq_context = context;
+		enq_ptr   = queue_write.load();
+		if(enq_ptr->block_next == queue_read.load())
+			return false;
+
+	} while(!queue_write.compare_exchange_weak(enq_ptr					,
+										       enq_ptr->block_next		,
+										       std::memory_order_release,
+										       std::memory_order_relaxed
+										      ));
+	enq_ptr->block_context = context;
+	return   true;
 }
 
 template <typename T, size_t N>
-T* lockfree::cqueue<T, N>::dequeue()
+bool synapse::lockfree::queue<T, N>::enqueue(T&& context)
 {
-	cq_block<T>* cq_ptr;
+	block<T>* enq_ptr = queue_write.load();
+	do	
+	{
+		enq_ptr   = queue_write.load();
+		if(enq_ptr->block_next == queue_read.load())
+			return false;
+
+	} while(!queue_write.compare_exchange_weak(enq_ptr					,
+										       enq_ptr->block_next		,
+										       std::memory_order_release,
+										       std::memory_order_relaxed
+										      ));
+	enq_ptr->block_context = context;
+	return   true;
+}
+
+template <typename T, size_t N>
+synapse::lockfree::block<T>* synapse::lockfree::queue<T, N>::dequeue()
+{
+	block<T>* deq_ptr;
 	do
 	{
-		cq_ptr 	   			= cq_read.load(std::memory_order_relaxed);
-	} while(!cq_read.compare_exchange_weak(cq_ptr,	
-										   cq_ptr->cq_next,
-										   std::memory_order_release,
-										   std::memory_order_relaxed
-										  ));
+		deq_ptr 	   		    = queue_read .load();
+		if(deq_ptr->block_next == queue_write.load() ||
+		   deq_ptr			   == queue_write.load())
+			return nullptr;
+		
+	} while(!queue_read.compare_exchange_weak(deq_ptr,	
+										   	  deq_ptr->block_next,
+										      std::memory_order_release,
+										      std::memory_order_relaxed
+										     ));
 	
-	return &cq_ptr->cq_context;
+	return deq_ptr;
 }

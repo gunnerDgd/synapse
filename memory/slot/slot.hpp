@@ -5,10 +5,10 @@
 namespace synapse {
 namespace memory  {
 	
-	class slot : private synapse::lockfree::stack<synapse::memory::memory*>
+	class slot : private synapse::lockfree::stack<synapse::memory::memory>
 	{
 	private:
-		using lf_block = synapse::lockfree::block<synapse::memory::memory*>;
+		using lf_block = synapse::lockfree::block<synapse::memory::memory>;
 
 	public:
 		slot(size_t mp_count = 1024);
@@ -22,7 +22,8 @@ namespace memory  {
 
 synapse::memory::slot::slot(size_t mp_count)
 {
-
+	for(int i = 0 ; i < mp_count ; i++)
+		this->push(synapse::memory::vmem());
 }
 
 synapse::memory::memory* synapse::memory::slot::acquire()

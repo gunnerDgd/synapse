@@ -39,10 +39,10 @@ void* synapse::memory::io_map::view(size_t v_size,
                                     void*  v_addr)
 {
     memory_block_size = (!v_size) ? iomap_file.size() : v_size;
-    memory_address    = mmap(v_addr           ,
-                             memory_block_size,
-                             v_prot           ,
-                             MAP_PRIVATE      ,
+    memory_address    = mmap(v_addr               ,
+                             memory_block_size    ,
+                             v_prot               ,
+                             MAP_SHARED | MAP_FILE,
                              iomap_file.handle(), v_off);
 
     if(memory_address)

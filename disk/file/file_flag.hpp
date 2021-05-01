@@ -24,8 +24,9 @@ namespace disk
       // Not valid in UNIX System.
       enum open_mode   : int
       {
-            create = O_CREAT | O_EXCL,
-            open
+            create   = O_CREAT | O_EXCL,
+            open     ,
+            truncate = O_TRUNC
       };
       
 #else
