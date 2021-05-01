@@ -10,9 +10,9 @@ namespace lockfree {
 	{
 	public:
 		queue ();
-		
-		bool 	  enqueue(T&  context);
-		bool      enqueue(T&& context);
+
+		bool 	  enqueue   (T&  context);
+		bool      enqueue   (T&& context);
 		
 		block<T>* dequeue();
 		
