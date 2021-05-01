@@ -26,17 +26,16 @@ namespace disk
         size_t   read  (uint8_t* r_ctx, size_t r_size) override;
         size_t   write (uint8_t* w_ctx, size_t w_size) override;
 
+    public:
         size_t   size  ();
-		size_t   offset(size_t f_ptr);
+        bool     resize(size_t f_size);
+		size_t   offset(size_t f_ptr) ;
 
         handle_t handle() { return file_handle; }
 
     protected:
         std::string file_name;
-        size_t      file_size;
-
         handle_t    file_handle;
-        
     };
 }
 }
@@ -113,8 +112,8 @@ size_t synapse::disk::file::write(uint8_t* c, size_t s)
 size_t synapse::disk::file::offset(size_t f_ptr)
 {
 #ifdef ENV_UNIX
-	size_t off_res = lseek(file_handle, f_ptr, SEEK_SET);
-    if    (off_res == -1)
+	off_t off_res = lseek(file_handle, f_ptr, SEEK_SET);
+    if   (off_res == -1)
     {
         stream_state_flag = synapse::stream::stream_state::internal_error;
         return 0;
@@ -138,4 +137,13 @@ size_t synapse::disk::file::size  ()
     else
 	    return st_ctx.st_size;
 #endif
+}
+
+bool   synapse::disk::file::resize(size_t f_size)
+{
+    int rs_res = ftruncate(file_handle, f_size);
+    if (rs_res < 0)
+        stream_state_flag = synapse::stream::stream_state::internal_error;
+
+    return (rs_res >= 0) ? true : false;
 }

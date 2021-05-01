@@ -11,7 +11,8 @@ namespace memory
         memory(void*  mem_addr = nullptr, 
                size_t mem_size = 0)
             : memory_block_size(mem_size),
-              memory_address   (mem_addr) { }
+              memory_address   (mem_addr),
+              memory_lock_type (synapse::memory::lock_type::unlocked) { }
 
         void*  memory_pointer() { return memory_address   ; }
         size_t memory_size   () { return memory_block_size; }

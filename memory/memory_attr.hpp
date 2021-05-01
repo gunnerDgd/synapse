@@ -23,5 +23,11 @@ namespace memory
         normal        ,
         allocate_error
     };
+
+    enum io_map_state
+    {
+        mapped,
+        unmapped
+    };
 }
 }

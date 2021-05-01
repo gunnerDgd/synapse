@@ -20,7 +20,9 @@ namespace lockfree
 		cqueue ();
 		~cqueue();
 		
-		void enqueue(T context);
+		void enqueue(T&  context);
+		void enqueue(T&& context);
+		
 		T*   dequeue();
 		
 	private:
