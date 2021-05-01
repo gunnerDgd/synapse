@@ -1,11 +1,10 @@
-#include <synapse/stream/stream.hpp>
-#include <synapse/disk/file/file_flag.hpp>
+#include <synapse/io/io.hpp>
+#include <synapse/device/file/file_flag.hpp>
 
-namespace synapse
-{
-namespace disk
-{
-    class file : public stream::stream
+namespace synapse {
+namespace device  {
+    
+    class file : public synapse::io::io
     {
     public:
 #ifdef ENV_UNIX
@@ -17,8 +16,8 @@ namespace disk
         file (std::string f_name);			
         ~file();
 
-		bool open (disk::access_mode f_ac = disk::access_mode::all,
-                   disk::open_mode   f_op = disk::open_mode::create);
+		bool open (device::access_mode f_ac = device::access_mode::all,
+                   device::open_mode   f_op = device::open_mode::create);
                 
 		bool close();
 
@@ -40,17 +39,17 @@ namespace disk
 }
 }
 
-synapse::disk::file::file(std::string f_name)
-	: stream   ( ),
+synapse::device::file::file(std::string f_name)
+	: io       ( ),
       file_name(std::move(f_name)) { }
 
-synapse::disk::file::~file() { this->close(); }
+synapse::device::file::~file() { this->close(); }
 
-bool synapse::disk::file::open (disk::access_mode f_ac, 
-                                disk::open_mode   f_op)
+bool synapse::device::file::open (device::access_mode f_ac, 
+                                  device::open_mode   f_op)
 {
 #ifdef ENV_UNIX
-    if(f_op == disk::open_mode::create)
+    if(f_op == device::open_mode::create)
         file_handle = ::open(file_name.c_str(), 
                             (int)f_ac | (int)f_op,
                              S_IRWXU | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
@@ -59,7 +58,7 @@ bool synapse::disk::file::open (disk::access_mode f_ac,
 
     if (file_handle < 0)
     {
-        stream_state_flag = synapse::stream::stream_state::internal_error;
+        io_state_flag = synapse::io::io_state::internal_error;
         return false;
     }
     else
@@ -67,13 +66,13 @@ bool synapse::disk::file::open (disk::access_mode f_ac,
 #endif
 }
 
-bool   synapse::disk::file::close()
+bool   synapse::device::file::close()
 {
 #ifdef ENV_UNIX
 	int cl_res = ::close(file_handle);
     if (cl_res < 0)
     {
-        stream_state_flag = synapse::stream::stream_state::internal_error;
+        io_state_flag = synapse::io::io_state::internal_error;
         return false;
     }
     else
@@ -81,13 +80,13 @@ bool   synapse::disk::file::close()
 #endif
 }
 
-size_t synapse::disk::file::read(uint8_t* c, size_t s)
+size_t synapse::device::file::read(uint8_t* c, size_t s)
 {
 #ifdef ENV_UNIX
     ssize_t r_res = ::read(file_handle, (void*)c, s);
     if     (r_res < 0)
     {
-        stream_state_flag = synapse::stream::stream_state::io_error;
+        io_state_flag = synapse::io::io_state::io_error;
         return 0;
     }
     else
@@ -95,13 +94,13 @@ size_t synapse::disk::file::read(uint8_t* c, size_t s)
 #endif
 }
 
-size_t synapse::disk::file::write(uint8_t* c, size_t s)
+size_t synapse::device::file::write(uint8_t* c, size_t s)
 {
 #ifdef ENV_UNIX
     ssize_t w_res = ::write(file_handle, (void*)c, s);
     if     (w_res < 0)
     {
-        stream_state_flag = synapse::stream::stream_state::io_error;
+        io_state_flag = synapse::io::io_state::io_error;
         return 0;
     }
     else
@@ -109,13 +108,13 @@ size_t synapse::disk::file::write(uint8_t* c, size_t s)
 #endif
 }
 
-size_t synapse::disk::file::offset(size_t f_ptr)
+size_t synapse::device::file::offset(size_t f_ptr)
 {
 #ifdef ENV_UNIX
 	off_t off_res = lseek(file_handle, f_ptr, SEEK_SET);
     if   (off_res == -1)
     {
-        stream_state_flag = synapse::stream::stream_state::internal_error;
+        io_state_flag = synapse::io::io_state::internal_error;
         return 0;
     }
     else
@@ -123,7 +122,7 @@ size_t synapse::disk::file::offset(size_t f_ptr)
 #endif
 }
 
-size_t synapse::disk::file::size  ()
+size_t synapse::device::file::size  ()
 {
 #ifdef ENV_UNIX	
     struct stat st_ctx;
@@ -131,7 +130,7 @@ size_t synapse::disk::file::size  ()
 
     if(st_res < 0)
     {
-        stream_state_flag = synapse::stream::stream_state::internal_error;
+        io_state_flag = synapse::io::io_state::internal_error;
         return 0;
     }
     else
@@ -139,11 +138,11 @@ size_t synapse::disk::file::size  ()
 #endif
 }
 
-bool   synapse::disk::file::resize(size_t f_size)
+bool   synapse::device::file::resize(size_t f_size)
 {
     int rs_res = ftruncate(file_handle, f_size);
     if (rs_res < 0)
-        stream_state_flag = synapse::stream::stream_state::internal_error;
+        io_state_flag = synapse::io::io_state::internal_error;
 
     return (rs_res >= 0) ? true : false;
 }

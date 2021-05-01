@@ -1,22 +1,13 @@
-#include <iostream>
-#include <synapse/synapse.hpp>
+#include <synapse/io/io_flag.hpp>
 
-namespace synapse
-{
-namespace stream
-{
-    enum class stream_state
-    { 
-        normal, 
-        io_error,      // Failed in I/O Operation.
-        internal_error // Failed in Initialization / System Operation.
-    };
+namespace synapse {
+namespace io      {
     
-    class stream
+    class io
     {
     public:
-        stream()
-            : stream_state_flag(stream_state::normal) { }
+        io()
+            : io_state_flag(io_state::normal) { }
 
     public:
         virtual size_t read (uint8_t* r_ctx, size_t r_size) = 0;
@@ -43,10 +34,10 @@ namespace stream
 
 
     public:
-        stream_state state() { return stream_state_flag; }
+        io_state state() { return io_state_flag; }
 
     protected:
-        stream_state stream_state_flag;
+        io_state io_state_flag;
     };
 }
 }

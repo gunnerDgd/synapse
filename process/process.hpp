@@ -12,8 +12,8 @@ namespace process {
         process (std::string pr_name);
         ~process();
         
-        bool     start_process(char** pr_param)     ;
-        int      wait_process ()                    ;
+        bool     start(char** pr_param);
+        int      wait ()               ;
     
     public:
         handle_t native_handle()                    { return process_handle; }

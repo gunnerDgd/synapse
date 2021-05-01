@@ -1,4 +1,4 @@
-#include <synapse/disk/file/file.hpp>
+#include <synapse/device/file/file.hpp>
 
 #include <synapse/memory/memory.hpp>
 #include <synapse/memory/memory_attr.hpp>
@@ -9,7 +9,7 @@ namespace memory  {
     class io_map : public synapse::memory::memory
     {
     public:
-        io_map(synapse::disk::file& io_file);
+        io_map(synapse::device::file& io_file);
         ~io_map();
         
     public:
@@ -22,13 +22,13 @@ namespace memory  {
         bool  sync  ();
 
     protected:
-        synapse::disk::file&          iomap_file;
+        synapse::device::file&          iomap_file;
         synapse::memory::io_map_state iomap_state;
     };
 }
 }
 
-synapse::memory::io_map::io_map(synapse::disk::file& io_file)
+synapse::memory::io_map::io_map(synapse::device::file& io_file)
     : memory     (nullptr, 0),
       iomap_file (io_file)   ,
       iomap_state(synapse::memory::io_map_state::unmapped)   { }

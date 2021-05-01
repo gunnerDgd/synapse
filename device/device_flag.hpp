@@ -9,10 +9,8 @@
 
 #endif
 
-namespace synapse
-{
-namespace disk
-{
+namespace synapse {
+namespace device  {
 #ifdef ENV_UNIX
       enum access_mode : int
       {
