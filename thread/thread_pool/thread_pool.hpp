@@ -11,10 +11,11 @@ namespace thread  {
 	public:
 		thread_pool(uint16_t tp_size);
 
-		
-
 	private:
 		std::thread* thread_pool_worker;
 	};
 }
 }
+
+synapse::thread::thread_pool::thread_pool(uint16_t tp_size)
+	: 

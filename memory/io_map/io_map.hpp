@@ -22,7 +22,7 @@ namespace memory  {
         bool  sync  ();
 
     protected:
-        synapse::device::file&          iomap_file;
+        synapse::device::file&        iomap_file;
         synapse::memory::io_map_state iomap_state;
     };
 }
@@ -46,7 +46,9 @@ void* synapse::memory::io_map::view(size_t v_size,
                              iomap_file.handle(), v_off);
 
     if(memory_address)
-        iomap_state = synapse::memory::io_map_state::mapped;
+        iomap_state       = synapse::memory::io_map_state::mapped;
+    else
+        memory_state_flag = synapse::memory::memory_state::allocate_error;
 
     return memory_address;
 }
@@ -62,9 +64,11 @@ bool  synapse::memory::io_map::unview()
     if(iomap_state == synapse::memory::io_map_state::unmapped)
         return true;
 
-    int uv_res      = munmap(memory_address, memory_block_size);
+    int uv_res            = munmap(memory_address, memory_block_size);
     if (uv_res >= 0)
-        iomap_state = synapse::memory::io_map_state::unmapped;
+        iomap_state       = synapse::memory::io_map_state::unmapped;
+    else
+        memory_state_flag = synapse::memory::memory_state::deallocate_error;
 
     return (uv_res < 0) ? false: true;
 }

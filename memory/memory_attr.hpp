@@ -21,7 +21,8 @@ namespace memory
     enum memory_state
     {
         normal        ,
-        allocate_error
+        allocate_error,
+        deallocate_error
     };
 
     enum io_map_state

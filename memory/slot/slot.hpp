@@ -15,7 +15,7 @@ namespace memory  {
 
 	public:
 		synapse::memory::memory* acquire();
-		void					 release(synapse::memory::memory& mp_rel) { this->push(mp_rel); }
+		void					 release(synapse::memory::memory& mp_rel);
 	};
 }
 }

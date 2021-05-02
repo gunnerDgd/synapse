@@ -13,12 +13,6 @@ namespace memory
               void*  vm_addr    = nullptr);
 
         ~vmem();
-        
-    public:
-        synapse::memory::memory_state state() { return vmem_state; }
-
-    protected:
-        synapse::memory::memory_state vmem_state;
     };
 }
 }
@@ -26,6 +20,7 @@ namespace memory
 synapse::memory::vmem::vmem(size_t vm_size    ,
                             int    vm_protect ,
                             void*  vm_addr    )
+    : memory(nullptr, vm_size)
 {
     memory_address = mmap(vm_addr                    , 
                           vm_size                    ,
@@ -36,7 +31,7 @@ synapse::memory::vmem::vmem(size_t vm_size    ,
                          );
     
     if(!memory_address)
-        vmem_state = synapse::memory::memory_state::allocate_error;    
+        memory_state_flag = synapse::memory::memory_state::allocate_error;    
 }
 
 synapse::memory::vmem::~vmem()
@@ -44,8 +39,8 @@ synapse::memory::vmem::~vmem()
     if(memory_lock_type == synapse::memory::lock_type::locked)
         this->unlock();
     
-    int um_res = munmap(memory_address, memory_size);
-    if (um_res < 0 && vmem_state == synapse::memory::memory_state::normal)
+    int um_res = munmap(memory_address, memory_block_size);
+    if (um_res < 0 && memory_state_flag == synapse::memory::memory_state::normal)
     {
         std::cerr << "FATAL ## MUNMAP Failed...\n";
         exit(1);

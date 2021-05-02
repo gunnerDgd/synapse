@@ -1,25 +1,34 @@
 #pragma once
 #include <synapse/synapse.hpp>
 #include <synapse/lockfree/block.hpp>
+#include <synapse/sync/event/event.hpp>
 
 namespace synapse  {
 namespace lockfree {
+
+	enum  queue_state { normal, error };
 
 	template <typename T, size_t N = 256>
 	class queue
 	{
 	public:
-		queue ();
+		queue (synapse::memory::memory& q_mem);
 
-		bool 	  enqueue   (T&  context);
-		bool      enqueue   (T&& context);
+	public:
+		bool 	    enqueue  (T&  context);
+		bool        enqueue  (T&& context);
 		
-		block<T>* dequeue();
+		T* 		    dequeue  ();
 		
 	private:
 		synapse::lockfree::block<T> queue_block[N];
-		std::atomic<block<T>*>      queue_read 	  ,
-								    queue_write	  ;
+		synapse::memory::memory&    queue_memory  ;
+		
+	private:
+		std::atomic<block<T>*>      queue_read 	    ,
+								    queue_write	    ;
+		queue_state					queue_state_flag;
+
 	};
 
 	template <typename T>
@@ -31,14 +40,35 @@ namespace lockfree {
 }
 
 template <typename T, size_t N>
-synapse::lockfree::queue<T, N>::queue ()
+synapse::lockfree::queue<T, N>::queue (synapse::memory::memory& q_mem)
+	: queue_memory    (q_mem),
+	  queue_state_flag(synapse::lockfree::queue_state::normal)
 {
-	for(size_t it = 0 ; it < N - 1 ; it++)
-		queue_block[it].block_next = &queue_block[it + 1];
-	queue_block[N - 1].block_next  = queue_block;
+	queue_notify_event.reset();
 	
-	queue_write 				   = &queue_block[0];
-	queue_read  				   = &queue_block[0];
+	if(queue_memory.state() != synapse::memory::memory_state::normal)
+	{
+		queue_state_flag = synapse::lockfree::queue_state::error;
+		return;
+	}
+
+	if(queue_memory.size() < sizeof(T) * N)
+	{
+		queue_state_flag = synapse::lockfree::queue_state::error;
+		return;
+	}
+
+	for(size_t it = 0 ; it < N - 1 ; it++)
+	{
+		queue_block[it].block_context = &reinterpret_cast<T*>(memory_address)[it];
+		queue_block[it].block_next    = &queue_block[it + 1];
+	}
+
+	queue_block[N - 1].block_context  = &reinterpret_cast<T*>(memory_address)[N - 1];
+	queue_block[N - 1].block_next     = queue_block;
+	
+	queue_write 				     = &queue_block[0];
+	queue_read  				     = &queue_block[0];
 }
 
 template <typename T, size_t N>
@@ -56,7 +86,7 @@ bool synapse::lockfree::queue<T, N>::enqueue(T& context)
 										       std::memory_order_release,
 										       std::memory_order_relaxed
 										      ));
-	enq_ptr->block_context = context;
+	*enq_ptr->block_context = context;
 	return   true;
 }
 
@@ -75,13 +105,14 @@ bool synapse::lockfree::queue<T, N>::enqueue(T&& context)
 										       std::memory_order_release,
 										       std::memory_order_relaxed
 										      ));
-	enq_ptr->block_context = context;
+	*enq_ptr->block_context = context;
 	return   true;
 }
 
 template <typename T, size_t N>
-synapse::lockfree::block<T>* synapse::lockfree::queue<T, N>::dequeue()
+T* synapse::lockfree::queue<T, N>::dequeue()
 {
+	if()
 	block<T>* deq_ptr;
 	do
 	{
@@ -96,5 +127,5 @@ synapse::lockfree::block<T>* synapse::lockfree::queue<T, N>::dequeue()
 										      std::memory_order_relaxed
 										     ));
 	
-	return deq_ptr;
+	return deq_ptr->block_context;
 }
