@@ -1,5 +1,4 @@
-#include <iostream>
-#include <string>
+#include <synapse/synapse.hpp>
 
 #include <sys/types.h> 
 #include <sys/sem.h> 

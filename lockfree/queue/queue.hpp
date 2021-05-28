@@ -3,6 +3,8 @@
 #include <synapse/lockfree/block.hpp>
 #include <synapse/sync/event/event.hpp>
 
+#include <xmmintrin.h>
+
 namespace synapse  {
 namespace lockfree {
 
@@ -44,8 +46,6 @@ synapse::lockfree::queue<T, N>::queue (synapse::memory::memory& q_mem)
 	: queue_memory    (q_mem),
 	  queue_state_flag(synapse::lockfree::queue_state::normal)
 {
-	queue_notify_event.reset();
-	
 	if(queue_memory.state() != synapse::memory::memory_state::normal)
 	{
 		queue_state_flag = synapse::lockfree::queue_state::error;
@@ -67,19 +67,18 @@ synapse::lockfree::queue<T, N>::queue (synapse::memory::memory& q_mem)
 	queue_block[N - 1].block_context  = &reinterpret_cast<T*>(memory_address)[N - 1];
 	queue_block[N - 1].block_next     = queue_block;
 	
-	queue_write 				     = &queue_block[0];
+	queue_write 				     = &queue_block[1];
 	queue_read  				     = &queue_block[0];
 }
 
 template <typename T, size_t N>
 bool synapse::lockfree::queue<T, N>::enqueue(T& context)
 {
-	block<T>* enq_ptr = queue_write.load();
+	block<T>* enq_ptr;
 	do	
 	{
-		enq_ptr   = queue_write.load();
-		if(enq_ptr->block_next == queue_read.load())
-			return false;
+		while((enq_ptr = queue_write.load()) == queue_read.load())
+			_mm_pause();
 
 	} while(!queue_write.compare_exchange_weak(enq_ptr					,
 										       enq_ptr->block_next		,
@@ -93,12 +92,11 @@ bool synapse::lockfree::queue<T, N>::enqueue(T& context)
 template <typename T, size_t N>
 bool synapse::lockfree::queue<T, N>::enqueue(T&& context)
 {
-	block<T>* enq_ptr = queue_write.load();
+	block<T>* enq_ptr;
 	do	
 	{
-		enq_ptr   = queue_write.load();
-		if(enq_ptr->block_next == queue_read.load())
-			return false;
+		while((enq_ptr = queue_write.load()) == queue_read.load())
+			_mm_pause();
 
 	} while(!queue_write.compare_exchange_weak(enq_ptr					,
 										       enq_ptr->block_next		,
@@ -112,14 +110,11 @@ bool synapse::lockfree::queue<T, N>::enqueue(T&& context)
 template <typename T, size_t N>
 T* synapse::lockfree::queue<T, N>::dequeue()
 {
-	if()
 	block<T>* deq_ptr;
 	do
 	{
-		deq_ptr 	   		    = queue_read .load();
-		if(deq_ptr->block_next == queue_write.load() ||
-		   deq_ptr			   == queue_write.load())
-			return nullptr;
+		while(deq_ptr = queue_read.load(); deq_ptr->block_next == queue_write.load())
+			_mm_pause();
 		
 	} while(!queue_read.compare_exchange_weak(deq_ptr,	
 										   	  deq_ptr->block_next,

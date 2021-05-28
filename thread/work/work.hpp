@@ -1,14 +1,13 @@
-#include <iostream>
-#include <synapse/sync/event.hpp>
+#include <synapse/sync/event/message_event.hpp>
 
 namespace thread
 {
 	class work_base
 	{
 	public:
-		virtual synchronous::event& wk_launch() = 0;
+		virtual synchronous::event& run() = 0;
 	private:
-		synchronous::event			wk_event;
+		synchronous::signal			wk_signal;
 	};
 	
 	template <typename wk_out, typename... wk_in>
