@@ -24,7 +24,9 @@ namespace lockfree {
 		
 	private:
 		synapse::lockfree::block<T> queue_block[N];
-		synapse::memory::memory&    queue_memory  ;
+		
+		synapse::memory::memory&    queue_memory  		;
+		void*						queue_memory_pointer;
 		
 	private:
 		std::atomic<block<T>*>      queue_read 	    ,
@@ -43,16 +45,18 @@ namespace lockfree {
 
 template <typename T, size_t N>
 synapse::lockfree::queue<T, N>::queue (synapse::memory::memory& q_mem)
-	: queue_memory    (q_mem),
-	  queue_state_flag(synapse::lockfree::queue_state::normal)
+	: queue_memory        (q_mem),
+	  queue_memory_pointer(q_mem.memory_pointer()),
+	  queue_state_flag	  (synapse::lockfree::queue_state::normal)
 {
+	std::cout << "Test !";
 	if(queue_memory.state() != synapse::memory::memory_state::normal)
 	{
 		queue_state_flag = synapse::lockfree::queue_state::error;
 		return;
 	}
 
-	if(queue_memory.size() < sizeof(T) * N)
+	if(queue_memory.memory_size() < sizeof(T) * N)
 	{
 		queue_state_flag = synapse::lockfree::queue_state::error;
 		return;
@@ -60,11 +64,11 @@ synapse::lockfree::queue<T, N>::queue (synapse::memory::memory& q_mem)
 
 	for(size_t it = 0 ; it < N - 1 ; it++)
 	{
-		queue_block[it].block_context = &reinterpret_cast<T*>(memory_address)[it];
+		queue_block[it].block_context = &reinterpret_cast<T*>(queue_memory_pointer)[it];
 		queue_block[it].block_next    = &queue_block[it + 1];
 	}
 
-	queue_block[N - 1].block_context  = &reinterpret_cast<T*>(memory_address)[N - 1];
+	queue_block[N - 1].block_context  = &reinterpret_cast<T*>(queue_memory_pointer)[N - 1];
 	queue_block[N - 1].block_next     = queue_block;
 	
 	queue_write 				     = &queue_block[1];
@@ -77,8 +81,8 @@ bool synapse::lockfree::queue<T, N>::enqueue(T& context)
 	block<T>* enq_ptr;
 	do	
 	{
-		while((enq_ptr = queue_write.load()) == queue_read.load())
-			_mm_pause();
+		if((enq_ptr = queue_write.load()) == queue_read.load())
+			return false;
 
 	} while(!queue_write.compare_exchange_weak(enq_ptr					,
 										       enq_ptr->block_next		,
@@ -95,8 +99,8 @@ bool synapse::lockfree::queue<T, N>::enqueue(T&& context)
 	block<T>* enq_ptr;
 	do	
 	{
-		while((enq_ptr = queue_write.load()) == queue_read.load())
-			_mm_pause();
+		if((enq_ptr = queue_write.load()) == queue_read.load())
+			return false;
 
 	} while(!queue_write.compare_exchange_weak(enq_ptr					,
 										       enq_ptr->block_next		,
@@ -113,8 +117,8 @@ T* synapse::lockfree::queue<T, N>::dequeue()
 	block<T>* deq_ptr;
 	do
 	{
-		while(deq_ptr = queue_read.load(); deq_ptr->block_next == queue_write.load())
-			_mm_pause();
+		if(deq_ptr = queue_read.load(); deq_ptr->block_next == queue_write.load())
+			return nullptr;
 		
 	} while(!queue_read.compare_exchange_weak(deq_ptr,	
 										   	  deq_ptr->block_next,

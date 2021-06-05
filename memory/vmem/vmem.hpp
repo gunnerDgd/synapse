@@ -29,7 +29,7 @@ synapse::memory::vmem::vmem(size_t vm_size    ,
                           -1                         ,
                           0
                          );
-    
+
     if(!memory_address)
         memory_state_flag = synapse::memory::memory_state::allocate_error;    
 }

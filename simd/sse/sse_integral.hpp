@@ -6,10 +6,11 @@ namespace simd    {
     class sse_integral
     {
     public:
-        sse_integral(__m128i* sse_init);
+        sse_integral(__m128i& sse_init);
+
         sse_integral()                 { }
 
-        void load   (__m128i* sse_ctx);
+        void load   (void* );
         void store  (__m128i* sse_ctx);
 
     private:

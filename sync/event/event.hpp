@@ -1,4 +1,4 @@
-#include <iostream>
+#pragma once
 
 #include <synapse/synapse.hpp>
 #include <sys/eventfd.h>

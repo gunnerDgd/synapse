@@ -5,7 +5,7 @@ namespace synapse {
 namespace network {
 namespace ip      {
 
-    class v4 : private sockaddr_in
+    class v4
     {
     public:
         v4(std::string v4_addr, uint16_t v4_port);
@@ -18,8 +18,9 @@ namespace ip      {
         synapse::network::byte_order current_byte_order() { return ipv4_byte_order; }
         operator                     sockaddr_in&      () { return reinterpret_cast<sockaddr_in&>(*this); }
 
-    private:
+    protected:
         synapse::network::byte_order ipv4_byte_order;
+        sockaddr_in                  ipv4_address_context;
     };
 }
 }
@@ -27,9 +28,9 @@ namespace ip      {
 
 synapse::network::ip::v4::v4(sockaddr_in v4_addr)
 {
-    sin_family      = AF_INET;
-    sin_addr.s_addr = v4_addr.sin_addr.s_addr;
-    sin_port        = v4_port.sin_port;
+    ipv4_address_context.sin_family      = AF_INET;
+    ipv4_address_context.sin_addr.s_addr = v4_addr.sin_addr.s_addr;
+    ipv4_address_context.sin_port        = v4_port.sin_port;
 
     host_byte_order();
 }
