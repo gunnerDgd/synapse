@@ -9,7 +9,7 @@ namespace memory
     {
     public:
         vmem (size_t vm_size,
-              int    vm_protect = (int)protect_type::read | (int)protect_type::write,
+              int    vm_protect = protect_type::read | protect_type::write,
               void*  vm_addr    = nullptr);
 
         ~vmem();
@@ -30,7 +30,7 @@ synapse::memory::vmem::vmem(size_t vm_size    ,
                           0
                          );
 
-    if(!memory_address)
+    if(!memory_address) // If Memory Allocation Failed.
         memory_state_flag = synapse::memory::memory_state::allocate_error;    
 }
 

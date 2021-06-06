@@ -1,24 +1,16 @@
 #include <iostream>
 
-template <bool i, typename t_True, typename t_False>
-struct compile_if {};
-
-template <typename t_True, typename t_False>
-struct compile_if<true, t_True, t_False>
+enum class test_enum : int
 {
-    using Type = t_True;
+    a = 1,
+    b = (1 << 1)
 };
 
-template <typename t_True, typename t_False>
-struct compile_if<false, t_True, t_False>
-{
-    using Type = t_False;
-};
+int operator| (const test_enum& rhs, const test_enum& lhs) { return (int)rhs | (int)lhs; }
 
-
+void print_enum(int a) { std::cout << a << std::endl; }
 
 int main()
 {
-    for(int i = 0; i < 5 ; i++)
-        std::cout << i << std::endl;
+    print_enum(test_enum::a | test_enum::b);
 }

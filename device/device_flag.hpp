@@ -1,4 +1,5 @@
 #pragma once
+#include <synapse/synapse.hpp>
 
 #ifdef ENV_UNIX
 #include <sys/types.h> 
@@ -18,15 +19,21 @@ namespace device  {
             write_only   = O_WRONLY,
             all          = O_RDWR
       };
+
+      int operator| (const access_mode& lhs, const access_mode& rhs) { return (int)lhs | (int)rhs; }
+      int operator| (const access_mode& lhs, const int& rhs)         { return (int)lhs | rhs;      }
       
       // Not valid in UNIX System.
       enum open_mode   : int
       {
             create   = O_CREAT | O_EXCL,
-            open     ,
+            open     = O_CREAT         ,
             truncate = O_TRUNC
       };
       
+      int operator| (const open_mode& lhs, const open_mode& rhs) { return (int)lhs | (int)rhs; }
+      int operator| (const open_mode& lhs, const int& rhs)       { return (int)lhs | rhs;      }
+
 #else
       using handle_t = HANDLE;
       enum access_mode

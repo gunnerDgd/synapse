@@ -7,7 +7,7 @@ namespace io      {
     enum class io_state
     { 
         normal       ,
-        io_error     ,      // Failed in I/O Operation.
+        io_error     , // Failed in I/O Operation.
         internal_error // Failed in Initialization / System Operation.
     };
 }

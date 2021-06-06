@@ -7,16 +7,16 @@ namespace network {
     class tcp : public socket_base
     {
     public:
-        tcp (synapse::network::ip::v4& t_addr);
+        tcp (synapse::network::ip::v4 t_addr);
         tcp (socket_type               t_fd   ,
-             synapse::network::ip::v4& t_addr);
+             synapse::network::ip::v4 t_addr);
 
         bool connect   ();
         bool disconnect();
 
-        public:
-            size_t send(uint8_t* s_ctx, size_t s_size) override;
-            size_t recv(uint8_t* r_ctx, size_t r_size) override;
+    public:
+        size_t send(uint8_t* s_ctx, size_t s_size) override;
+        size_t recv(uint8_t* r_ctx, size_t r_size) override;
     };
 }
 }
@@ -31,13 +31,13 @@ synapse::network::tcp::tcp (synapse::network::ip::v4& t_addr)
 }
 
 synapse::network::tcp::tcp (socket_type               t_fd  ,
-                            synapse::network::ip::v4& t_addr)
+                            synapse::network::ip::v4 t_addr)
     : socket_base(t_fd, t_addr) { }
 
 bool synapse::network::tcp::connect   ()
 {
-    int conn_res = ::connect(socket_descriptor        ,
-                            (sockaddr*)&socket_address,
+    int conn_res = ::connect(socket_descriptor             ,
+                            &socket_address.address_context,
                              sizeof(sockaddr_in));
 
     return (conn_res < 0) ? false : true;

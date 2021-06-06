@@ -1,10 +1,8 @@
 #include <iostream>
 #include <synapse/memory/memory_attr.hpp>
 
-namespace synapse
-{
-namespace memory
-{
+namespace synapse {
+namespace memory  {
     class memory
     {
     public:
@@ -22,7 +20,9 @@ namespace memory
     public:
         bool                          lock  ();
         bool                          unlock();
-        synapse::memory::memory_state state () { return memory_state_flag; }
+
+        synapse::memory::memory_state current_state()                                 { return memory_state_flag; }
+        void                          set_state    (synapse::memory::memory_state& s) { memory_state_flag = s; }
 
     protected:
         synapse::memory::memory_state memory_state_flag;

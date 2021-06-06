@@ -1,8 +1,9 @@
 #pragma once
 #include <synapse/socket/socket.hpp>
 
-namespace network
-{
+namespace synapse {
+namespace network {
+
 	class udp : public socket_base
 	{
 	public:
@@ -26,4 +27,6 @@ namespace network
 	private:
 		sockaddr_in udp_last_sender;
 	};
+	
+}
 }
