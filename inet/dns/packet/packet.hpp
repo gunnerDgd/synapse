@@ -1,12 +1,12 @@
 #pragma once
-#include <iostream>
 
-namespace dns
-{
-    struct flag_field
+namespace synapse {
+namespace network {
+namespace dns     {
+namespace packet  {
+
+    struct flag
 	{
-        operator uint16_t() { return *(uint16_t*)this;}
-
 		uint8_t  response  		 : 1;
 		uint8_t  opcode	   		 : 4;
 		uint8_t  auth	   		 : 1;
@@ -26,8 +26,8 @@ namespace dns
         uint16_t   transaction_id;
         union
         {
-            flag_field flag    ;
-            uint16_t   flag_int;
+            synapse::network::dns::packet::flag flag    ;
+            uint16_t                            flag_int;
         };
 
         uint16_t   query_count     ,
@@ -39,8 +39,8 @@ namespace dns
     class query
     {
     public:
-        std::string query_name;
-        uint16_t    query_type,
+        std::string query_name ;
+        uint16_t    query_type ,
                     query_class;
     };
 
@@ -56,4 +56,8 @@ namespace dns
 
         std::string answer_data;
     };
+
+}
+}
+}
 }
