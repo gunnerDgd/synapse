@@ -1,4 +1,5 @@
 #pragma once
+#include <synapse/synapse.hpp>
 
 namespace synapse {
 namespace network {
@@ -54,7 +55,14 @@ namespace packet  {
         uint32_t    answer_ttl;
         uint16_t    answer_length;
 
-        std::string answer_data;
+        void*       answer_data;
+    };
+
+    class packet
+    {
+        synapse::network::dns::packet::header              dns_header;
+        std::vector<synapse::network::dns::packet::query>  dns_query ;
+        std::vector<synapse::network::dns::packet::answer> dns_answer;
     };
 
 }

@@ -60,11 +60,9 @@ namespace compress {
     // --> Saves DNS Compression Field, Which contains compression flag and offset.
 
     // Check this flag is compressed.
-    bool        check_compression(char& ch)       { return (ch & 0xc0); }
-    
-    // Find the Compression Offset.
-    size_t      find_offset(char* find_raw) { return (compression_flag*)find_raw->compression_offset; }
-    char*       find_name  (char* cp_name, char* cp_raw);
+    bool        check_compressed(char* find_raw) { return (compression_flag*)find_raw->compression_flag  ; }
+    size_t      find_offset     (char* find_raw) { return (compression_flag*)find_raw->compression_offset; }
+    char*       find_name       (char* cp_name, char* cp_raw);
 
     std::string decompress_name(char*& cp_name, char* cp_raw);
 }
@@ -72,11 +70,28 @@ namespace compress {
 }
 }
 
+/*
+
+1) find_name(char*, char*)
+
+[1] Parameters
+
+cp_name : Pointer of the Compressed Name.
+cp_raw  : Start Point of the raw packet, which includes header, queries, and answers.
+
+[2] Working
+
+<1> Check the First Byte to Find if the name is compressed.
+<2> If the name is compressed, follow the compression_offset flag until function finds original name string.\
+
+*/
+
+
 char*  synapse::network::dns::compress::find_name(char* cp_name, char* cp_raw)
 {
-    while(check(*cp_name))
-        cp_name = cp_raw + offset(cp_name);
-        
+    while(check_compressed(cp_name))
+        cp_name = cp_raw + find_offset(cp_name);
+
     return cp_name;
 }
 
@@ -85,20 +100,22 @@ std::string synapse::network::dns::compress::decompress_name(char*& cp_name, cha
     std::string dc_res;
     while     (*cp_name != NULL)
     {
-        if(check(*cp_name)) 
+        if(check_compressed(cp_name)) // If the name is compressed.
         {
             char* dc_name  = find_name(cp_name, cp_raw);
-            dc_res        += synapse::network::dns::name_format::network_to_host(dc_name);
-
-            cp_name += *dc_name + 2;
+            
+            dc_res        += synapse::network::dns::name_format::network_to_host(dc_name) + ".";
+            cp_name       += 2; // Compression Flag is 2 Byte.
         }
         else
         {
-            dc_res     .append(cp_name + 1, *cp_name);
-            cp_name += *cp_name + 2;
+            dc_res.append(cp_name + 1, *cp_name);
+            
+            dc_res  += ".";
+            cp_name += *cp_name + 1;
         }
     }
 
-    cp_name    ++;
+    cp_name    ++; // For Skipping NULL Byte.
     return dc_res;
 }
