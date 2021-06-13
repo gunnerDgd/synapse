@@ -1,4 +1,5 @@
-#include <synapse/inet/dns/packet/packet.hpp>
+#include <synapse/inet/dns/packet/dns_packet.hpp>
+#include <arpa/inet.h>
 
 namespace synapse    {
 namespace network    {

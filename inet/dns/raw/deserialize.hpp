@@ -1,49 +1,38 @@
-#include <synapse/inet/dns/packet/packet.hpp>
+#include <synapse/inet/dns/packet/dns_packet.hpp>
 
 namespace synapse {
 namespace network {
 namespace dns     {
 namespace raw     {
 
-    synapse::network::dns::packet::header deserialize(char*& raw_ptr);
-    synapse::network::dns::packet::query  deserialize(char*& raw_ptr, char* packet_raw);
-    synapse::network::dns::packet::answer deserialize(char*& raw_ptr, char* packet_raw);
+    void deserialize(synapse::network::dns::packet::header& h, char*& raw_ptr);
+    void deserialize(synapse::network::dns::packet::query & q, char*& raw_ptr, char* packet_raw);
+    void deserialize(synapse::network::dns::packet::answer& a, char*& raw_ptr, char* packet_raw);
 
 }
 }
 }
 }
 
-synapse::network::dns::packet::header synapse::network::dns::raw::deserialize(char*& raw_ptr)
+void synapse::network::dns::raw::deserialize(synapse::network::dns::packet::header& h, char*& raw_ptr)
 {
-    synapse::network::dns::packet::header header_res;
-    std::memcpy                         (&header_res, 12, raw_ptr, 12); raw_ptr += 2;
-
-    synapse::network::dns::byte_order::network_to_host(header_res);
-    return header_res;
+    std::memcpy                                       (&h, raw_ptr, 12); raw_ptr += 2;
+    synapse::network::dns::byte_order::network_to_host(h);
 }
 
-synapse::network::dns::packet::query synapse::network::dns::raw::deserialize (char*& raw_ptr, char* packet_raw)
+void synapse::network::dns::raw::deserialize (synapse::network::dns::packet::query& q, char*& raw_ptr, char* packet_raw)
 {
-    synapse::network::dns::packet::query query_res;
-    
-    query_res.query_name  = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
-    query_res.query_type  = *(uint16_t*)raw_ptr; raw_ptr += 2;
-    query_res.query_class = *(uint16_t*)raw_ptr; raw_ptr += 2;
-
-    return query_res;
+    q.query_name  = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
+    q.query_type  = *(uint16_t*)raw_ptr; raw_ptr += 2;
+    q.query_class = *(uint16_t*)raw_ptr; raw_ptr += 2;
 }
 
-synapse::network::dns::packet::answer synapse::network::dns::raw::deserialize(char*& raw_ptr, char* packet_raw)
+void synapse::network::dns::raw::deserialize(synapse::network::dns::packet::answer& a, char*& raw_ptr, char* packet_raw)
 {
-    synapse::network::dns::packet::answer answer_res;
-   
-    answer_res.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
-    answer_res.answer_type   = *(uint16_t*)raw_ptr; raw_ptr += 2;
-    answer_res.answer_class  = *(uint16_t*)raw_ptr; raw_ptr += 2;
-    answer_res.answer_ttl    = *(uint32_t*)raw_ptr; raw_ptr += 4;
-    answer_res.answer_length = *(uint16_t*)raw_ptr; raw_ptr += 2;
-    answer_res.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
- 
-    return answer_res;
+    a.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
+    a.answer_type   = *(uint16_t*)raw_ptr; raw_ptr += 2;
+    a.answer_class  = *(uint16_t*)raw_ptr; raw_ptr += 2;
+    a.answer_ttl    = *(uint32_t*)raw_ptr; raw_ptr += 4;
+    a.answer_length = *(uint16_t*)raw_ptr; raw_ptr += 2;
+    a.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
 }

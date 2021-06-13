@@ -1,5 +1,7 @@
 #pragma once
 #include <synapse/string/string_tools.hpp>
+#include <cstdlib>
+#include <cstring>
 
 namespace synapse     {
 namespace network     {
@@ -7,8 +9,8 @@ namespace dns         {
 namespace name_format {
 
     std::string network_to_host(char*       net_name);
-    char*       host_to_network(std::string hst_name, uint16_t& hst_len);
-    void        host_to_network(std::string hst_name, char*     hst_dst);
+    char*       host_to_network(std::string hst_name, uint16_t& hst_len); // Allocate String to the Newly Allocated Buffer.
+    void        host_to_network(std::string hst_name, char*     hst_dst); // Copy String to the Dedicated Buffer.
 
 }
 }

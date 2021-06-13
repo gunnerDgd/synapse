@@ -30,7 +30,7 @@ synapse::network::ip::v4::v4(sockaddr_in& v4_addr)
 {
     ipv4_address_context.sin_family      = AF_INET;
     ipv4_address_context.sin_addr.s_addr = v4_addr.sin_addr.s_addr;
-    ipv4_address_context.sin_port        = v4_port.sin_port;
+    ipv4_address_context.sin_port        = v4_addr.sin_port;
 
     host_byte_order();
 }

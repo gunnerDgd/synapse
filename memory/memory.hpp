@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <synapse/memory/memory_attr.hpp>
 

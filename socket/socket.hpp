@@ -14,28 +14,28 @@ namespace network {
 
     class socket_base : public synapse::io::io
     {
-        public:
-            socket_base (synapse::network::ip::v4 sock_addr) ;
-            socket_base (network::socket_handle   sock_handle,
-                         synapse::network::ip::v4 sock_addr) ;
-                : socket_descriptor(sock_handle),
-                  socket_address   (sock_addr)  { }
+    public:
+        socket_base (synapse::network::ip::v4        sock_addr) ;
+        socket_base (synapse::network::socket_handle sock_handle,
+                     synapse::network::ip::v4        sock_addr )
+            : socket_descriptor(sock_handle),
+              socket_address   (sock_addr)  { }
 
-            ~socket_base();
+        ~socket_base();
 
-            virtual size_t                  send (uint8_t* s_ctx, size_t s_size) = 0;
-            virtual size_t                  recv (uint8_t* r_ctx, size_t r_size) = 0;
+        virtual size_t                  send (uint8_t* s_ctx, size_t s_size) = 0;
+        virtual size_t                  recv (uint8_t* r_ctx, size_t r_size) = 0;
 
-            size_t 		                    read (uint8_t* r_ctx, size_t r_size) override { return recv(r_ctx, r_size); }
-            size_t 		                    write(uint8_t* w_ctx, size_t w_size) override { return send(w_ctx, w_size); }
+        size_t 		                    read (uint8_t* r_ctx, size_t r_size) override { return recv(r_ctx, r_size); }
+        size_t 		                    write(uint8_t* w_ctx, size_t w_size) override { return send(w_ctx, w_size); }
 
-            const synapse::network::ip::v4& address() { return socket_address; }
+        const synapse::network::ip::v4& address() { return socket_address; }
 
-        protected:
-            synapse::network::ip::v4 socket_address   ;
-            socket_handle            socket_descriptor;
+    protected:
+        synapse::network::ip::v4 socket_address   ;
+        socket_handle            socket_descriptor;
 
-#ifdef WIN32_MODE
+#ifdef ENV_WINDOWS
 			WSADATA		             socket_ws2data;
 #endif
 
@@ -43,17 +43,17 @@ namespace network {
 }
 }
 
-network::socket_base::socket_base   (address::ipv4& sock_addr)
-                    : socket_address(sock_addr)
+synapse::network::socket_base::socket_base   (synapse::network::ip::v4 sock_addr)
+    : socket_address(sock_addr)
 {
-#ifdef WIN32_MODE
+#ifdef ENV_WINDOWS
     WSAStartup(MAKEWORD(2, 2), &socket_ws2data);
 #endif
 }
 
-network::socket_base::~socket_base()
+synapse::network::socket_base::~socket_base()
 {
-#ifdef UNIX_MODE
+#ifdef ENV_UNIX
 	close      (socket_descriptor);
 #else
 	closesocket(socket_descriptor);

@@ -1,14 +1,14 @@
 #pragma once
 
-#include <iostream>
+#include <synapse/synapse.hpp>
+
+#include <string_view>
+#include <string>
 #include <vector>
 
-#include <cstring>
-#include <string>
-#include <string_view>
+namespace synapse {
+namespace string  {
 
-namespace string
-{
 	std::vector<std::string> 	  split	  (std::string& 	  context, std::string token);
 	std::vector<std::string_view> split	  (std::string_view&  context, std::string token);
 	
@@ -17,8 +17,9 @@ namespace string
 	std::vector<size_t>			  find_all(std::string& 	 context, std::string token);
 	std::vector<size_t>			  find_all(std::string_view& context, std::string token);
 }
+}
 
-std::vector<std::string> 	  string::split	  (std::string& context, std::string token)
+std::vector<std::string> 	  synapse::string::split	  (std::string& context, std::string token)
 {
 	size_t ptr_split = 0,
 		   ptr_seek  = 0;
@@ -34,7 +35,7 @@ std::vector<std::string> 	  string::split	  (std::string& context, std::string t
 	return			 res;
 }
 
-std::vector<std::string_view> string::split	  (std::string_view& context, std::string token)
+std::vector<std::string_view> synapse::string::split	  (std::string_view& context, std::string token)
 {
 	size_t ptr_split = 0,
 		   ptr_seek  = 0;
@@ -50,14 +51,14 @@ std::vector<std::string_view> string::split	  (std::string_view& context, std::s
 	return			 res;
 }
 
-void						  string::trim 	  (std::string& context, std::string token)
+void						  synapse::string::trim 	  (std::string& context, std::string token)
 {
 	size_t ptr_seek = 0;
 	while((ptr_seek = context.find(token, ptr_seek)) != std::string::npos)
 		context.erase(ptr_seek, token.length());
 }
 
-std::vector<size_t>			  string::find_all(std::string& context, std::string token)
+std::vector<size_t>			  synapse::string::find_all(std::string& context, std::string token)
 {
 	size_t 				ptr_seek = 0;
 	std::vector<size_t> ptr_res;
@@ -71,7 +72,7 @@ std::vector<size_t>			  string::find_all(std::string& context, std::string token
 	return ptr_res;
 }
 
-std::vector<size_t>			  string::find_all(std::string_view& context, std::string token)
+std::vector<size_t>			  synapse::string::find_all(std::string_view& context, std::string token)
 {
 	size_t 				ptr_seek = 0;
 	std::vector<size_t> ptr_res;

@@ -7,9 +7,9 @@ namespace dns     {
 
     enum packet_type { request, response };
 
-    enum dns_type
+    enum dns_type : uint16_t
     {
-        invalid = 0,
+        invalid_type = 0,
         a = 1,
         ns = 2,
         md = 3,
@@ -88,26 +88,24 @@ namespace dns     {
         axfr = 252,
         mailb = 253,
         maila = 254,
-        any = 255,
+        any_type = 255,
         uri = 256,
         caa = 257,
         avc = 258,
         ta = 32768,
-        dlv = 32769,
-        max = 65536
-};
-	
-    enum dns_class
+        dlv = 32769
+    };
+
+    enum dns_class : uint16_t
     {
-	    invalid = 0,	/*%< Cookie. */
+	    invalid_class = 0,	/*%< Cookie. */
 	    in = 1,		/*%< Internet. */
 	    unsupported = 2,		/*%< unallocated/unsupported. */
 	    chaos = 3,		/*%< MIT Chaos-net. */
 	    hs = 4,		/*%< MIT Hesiod. */
 	/* Query class values which do not appear in resource records */
 	    none = 254,	/*%< for prereq. sections in update requests */
-	    any = 255,		/*%< Wildcard match. */
-	    max = 65536
+	    any_class = 255		/*%< Wildcard match. */
     };
 
     enum dns_opcode
@@ -118,7 +116,6 @@ namespace dns     {
 				/* Opcode 3 is undefined/reserved. */
 	    notify = 4,	/*%< Zone change notification. */
 	    update = 5,	/*%< Zone update message. */
-	    max = 6
     };
 
     enum dns_rcode
@@ -135,7 +132,6 @@ namespace dns     {
 	    nxrrset = 8,	/*%< RRset does not exist */
 	    notauth = 9,	/*%< Not authoritative for zone */
 	    notzone = 10,	/*%< Zone of record different from zone section */
-	    max = 11,
 	/* The following are EDNS extended rcodes */
 	    badvers = 16,
 	/* The following are TSIG errors */
