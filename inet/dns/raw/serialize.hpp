@@ -26,10 +26,12 @@ size_t synapse::network::dns::raw::serialize(synapse::network::dns::packet::quer
 {
     uint16_t q_name_length;
     char*    q_name = synapse::network::dns::name_format::host_to_network(s_query.query_name, q_name_length);
-    memcpy  (s_memory, q_name, q_name_length); s_memory += q_name_length;
 
-    *(uint16_t*)s_memory = htons(s_query.query_type) ; s_memory += 2;
-    *(uint16_t*)s_memory = htons(s_query.query_class); s_memory += 2;
+    synapse::network::dns::byte_order::host_to_network(s_query);
+    memcpy(s_memory, q_name, q_name_length)   ; s_memory += q_name_length;
+
+    *(uint16_t*)s_memory = s_query.query_type ; s_memory += 2;
+    *(uint16_t*)s_memory = s_query.query_class; s_memory += 2;
 
     return q_name_length + 4;
 }
@@ -38,12 +40,14 @@ size_t synapse::network::dns::raw::serialize(synapse::network::dns::packet::answ
 {
     uint16_t a_name_length;
     char*    a_name       = synapse::network::dns::name_format::host_to_network(s_answer.answer_name, a_name_length);
-    memcpy  (s_memory, a_name, a_name_length)           ; s_memory += a_name_length;
+
+    synapse::network::dns::byte_order::host_to_network(s_answer);
+    memcpy  (s_memory, a_name, a_name_length)    ; s_memory += a_name_length;
     
-    *(uint16_t*)s_memory = htons(s_answer.answer_type)  ; s_memory += 2;
-    *(uint16_t*)s_memory = htons(s_answer.answer_class) ; s_memory += 2;
-    *(uint32_t*)s_memory = htonl(s_answer.answer_ttl)   ; s_memory += 4;
-    *(uint16_t*)s_memory = htons(s_answer.answer_length); s_memory += 2;
+    *(uint16_t*)s_memory = s_answer.answer_type  ; s_memory += 2;
+    *(uint16_t*)s_memory = s_answer.answer_class ; s_memory += 2;
+    *(uint32_t*)s_memory = s_answer.answer_ttl   ; s_memory += 4;
+    *(uint16_t*)s_memory = s_answer.answer_length; s_memory += 2;
 
     memcpy(s_memory, s_answer.answer_data, s_answer.answer_length);
     return a_name_length + s_answer.answer_length + 10;

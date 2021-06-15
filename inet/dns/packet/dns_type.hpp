@@ -108,7 +108,7 @@ namespace dns     {
 	    any_class = 255		/*%< Wildcard match. */
     };
 
-    enum dns_opcode
+    enum dns_opcode : uint16_t
     {
 	    query = 0,		/*%< Standard query. */
 	    iquery = 1,	/*%< Inverse query (deprecated/unsupported). */

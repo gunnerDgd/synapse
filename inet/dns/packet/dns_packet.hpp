@@ -27,6 +27,7 @@ namespace packet  {
     class header
     {
     public:
+        header() { }
         header(uint16_t                            h_trans_id, 
                synapse::network::dns::packet::flag h_flag    ,
                uint16_t                            h_qc   = 0, 
@@ -56,6 +57,7 @@ namespace packet  {
     class query
     {
     public:
+        query() { }
         query(std::string                      q_name,
               synapse::network::dns::dns_type  q_type  = synapse::network::dns::dns_type::a  ,
               synapse::network::dns::dns_class q_class = synapse::network::dns::dns_class::in)
@@ -72,6 +74,7 @@ namespace packet  {
     class answer
     {
     public:
+        answer() { }
         answer(std::string                      a_name   ,
                void*                            a_ctx    ,
                uint16_t                         a_ctx_len,
@@ -97,12 +100,6 @@ namespace packet  {
         void*       answer_data;
     };
 
-    class packet
-    {
-        synapse::network::dns::packet::header              dns_header;
-        std::vector<synapse::network::dns::packet::query>  dns_query ;
-        std::vector<synapse::network::dns::packet::answer> dns_answer;
-    };
 
 }
 }
