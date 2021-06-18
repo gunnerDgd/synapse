@@ -45,13 +45,12 @@ synapse::network::dns::answer_vector synapse::network::dns::write_query(synapse:
 
     size_t q_flag    = q_socket.send((uint8_t*)q_buffer.memory_pointer(), 
                                      (size_t) (q_writer_pointer - (char*)q_buffer.memory_pointer()));
-
-    q_flag           = q_socket.recv(q_buffer);
-    q_writer_pointer = q_raw_pointer;
-    
-    if(q_flag == 0) return q_res;
+    if    (q_flag == 0) return q_res;
     
     synapse::network::dns::packet::header   a_header;
+    q_flag                  = q_socket.recv(q_buffer);
+    
+    q_writer_pointer = q_raw_pointer;
     synapse::network::dns::raw::deserialize(a_header, q_writer_pointer);
     
     synapse::network::dns::query_vector     aq_res;

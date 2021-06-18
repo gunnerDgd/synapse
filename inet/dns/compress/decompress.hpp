@@ -61,7 +61,7 @@ namespace compress {
 
     // Check this flag is compressed.
     bool        check_compressed(char* find_raw) { return *find_raw & 0xc0; }
-    size_t      find_offset     (char* find_raw) { return reinterpret_cast<compression_flag*>(find_raw)->compression_offset; }
+    size_t      find_offset     (char* find_raw);
     char*       find_name       (char* cp_name, char* cp_raw);
 
     std::string decompress_name(char*& cp_name, char* cp_raw);
@@ -105,23 +105,42 @@ char*  synapse::network::dns::compress::find_name(char* cp_name, char* cp_raw)
 {
     while(check_compressed(cp_name))
     {
-        std::cout << "## Compressed !!\n";
+        std::cout << (uint64_t)cp_name << std::endl;
         cp_name = cp_raw + find_offset(cp_name);
     }
 
     return cp_name;
 }
 
+size_t synapse::network::dns::compress::find_offset(char* find_raw) 
+{
+    if(!check_compressed(find_raw)) 
+        return 0;
+    else
+        return ((find_raw[0] ^ 0xc0) << 8) | find_raw[1];
+}
+
 std::string synapse::network::dns::compress::decompress_name(char*& cp_name, char* cp_raw)
 {
     std::string dc_res;
+    std::cout << (uint16_t)cp_name << std::endl;
     while     (*cp_name != NULL)
     {
-        char* dc_name = find_name(cp_name, cp_raw);
-        std::cout << std::hex << (uint32_t)*dc_name << std::endl;
+        switch(check_compressed(cp_name))
+        {
+        case true:
+            std::cout << "## Compressed !!\n";
+            std::cout << "## Compression Offset : " << std::dec << (uint16_t)find_offset(cp_name) << std::endl;
 
-        dc_res       += synapse::network::dns::name_format::network_to_host(dc_name) + ".";
-        cp_name      += (check_compressed(cp_name)) ? 2 : (*cp_name + 1);
+            dc_res  += synapse::network::dns::name_format::network_to_host(find_name(cp_name, cp_raw));
+            cp_name += 2;
+
+            return  dc_res;
+
+        case false:
+            dc_res  += synapse::network::dns::name_format::network_to_host(cp_name) + ".";
+            cp_name += *cp_name + 1; break;
+        }
     }
 
     cp_name    ++; // For Skipping NULL Byte.
