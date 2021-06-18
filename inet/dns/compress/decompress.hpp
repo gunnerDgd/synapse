@@ -53,14 +53,14 @@ namespace compress {
 
     struct compression_flag
     {
-        uint16_t compression_offset : 14;
         uint16_t compression_flag   : 2;
+        uint16_t compression_offset : 14;
     };
     // Struct comp_field
     // --> Saves DNS Compression Field, Which contains compression flag and offset.
 
     // Check this flag is compressed.
-    bool        check_compressed(char* find_raw) { return reinterpret_cast<compression_flag*>(find_raw)->compression_flag  ; }
+    bool        check_compressed(char* find_raw) { return *find_raw & 0xc0; }
     size_t      find_offset     (char* find_raw) { return reinterpret_cast<compression_flag*>(find_raw)->compression_offset; }
     char*       find_name       (char* cp_name, char* cp_raw);
 
@@ -104,7 +104,10 @@ cp_raw  : Start Point of the raw packet, which includes header, queries, and ans
 char*  synapse::network::dns::compress::find_name(char* cp_name, char* cp_raw)
 {
     while(check_compressed(cp_name))
+    {
+        std::cout << "## Compressed !!\n";
         cp_name = cp_raw + find_offset(cp_name);
+    }
 
     return cp_name;
 }
@@ -115,9 +118,10 @@ std::string synapse::network::dns::compress::decompress_name(char*& cp_name, cha
     while     (*cp_name != NULL)
     {
         char* dc_name = find_name(cp_name, cp_raw);
-        
+        std::cout << std::hex << (uint32_t)*dc_name << std::endl;
+
         dc_res       += synapse::network::dns::name_format::network_to_host(dc_name) + ".";
-        cp_name      += (check_compressed(cp_name)) ? 2 : *cp_name + 1;
+        cp_name      += (check_compressed(cp_name)) ? 2 : (*cp_name + 1);
     }
 
     cp_name    ++; // For Skipping NULL Byte.

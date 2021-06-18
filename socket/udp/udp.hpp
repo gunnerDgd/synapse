@@ -46,6 +46,11 @@ bool   synapse::network::udp::connect()
 
     if(conn_res < 0)
         io_state_flag = synapse::io::io_state::internal_error;
+    else
+    {
+        std::cerr << "## Socket Connection Successful\n";
+        std::cerr << "## Address : " << socket_address.ipv4_address() << " : " << socket_address.ipv4_port() << std::endl;
+    }
 
     return (conn_res == 0) ? true : false;
 }
@@ -60,12 +65,12 @@ size_t synapse::network::udp::send(uint8_t* s_ctx, size_t s_size)
                              s_size,
                              0);
     
-    if(snd_res < 0) {
+    if(snd_res < 0) 
+    {
         io_state_flag = synapse::io::io_state::io_error;
         return 0;
-    } else {
+    } else
         return snd_res ;
-    }
 }
 
 size_t synapse::network::udp::recv(uint8_t* r_ctx, size_t r_size)
@@ -78,10 +83,10 @@ size_t synapse::network::udp::recv(uint8_t* r_ctx, size_t r_size)
                              r_size,
                              0);
     
-    if(rcv_res < 0) {
+    if(rcv_res < 0) 
+    {
         io_state_flag = synapse::io::io_state::io_error;
         return 0;
-    } else {
+    } else
         return rcv_res;
-    }
 }

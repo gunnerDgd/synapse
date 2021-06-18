@@ -43,18 +43,13 @@ synapse::network::dns::answer_vector synapse::network::dns::write_query(synapse:
     for(auto& q_it : q_context)
         q_writer_pointer += synapse::network::dns::raw::serialize(q_it, q_writer_pointer);
 
-    // Prepare to Send Query Packet (Serialization Progress)
-    std::cerr << "## Prepared to Send Query Packet.\n";
-
     size_t q_flag    = q_socket.send((uint8_t*)q_buffer.memory_pointer(), 
-                                    (size_t)  (q_writer_pointer - (char*)q_buffer.memory_pointer()));
-    std::cerr << "## Successfully Sent Packet (Size : " << q_flag <<")\n"; q_flag = 0;
+                                     (size_t) (q_writer_pointer - (char*)q_buffer.memory_pointer()));
 
     q_flag           = q_socket.recv(q_buffer);
-    std::cerr << "## Successfully Received Packet (Size : " << q_flag <<")\n";
     q_writer_pointer = q_raw_pointer;
-    if(q_flag == 0)
-        return q_res;
+    
+    if(q_flag == 0) return q_res;
     
     synapse::network::dns::packet::header   a_header;
     synapse::network::dns::raw::deserialize(a_header, q_writer_pointer);

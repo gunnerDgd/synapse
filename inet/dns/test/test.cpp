@@ -6,8 +6,12 @@ int main()
     synapse::network::ip::v4 dns_addr  ("10.64.192.62", 53);
     synapse::network::udp    dns_socket(dns_addr);
     
-    std::cerr << dns_socket           .connect   () << std::endl;
-    std::cerr << "## Socket Creation Successful\n";
+    if(!dns_socket.connect())
+    {
+        std::cerr << "## Socket Disconnected !!\n";
+        return 1;
+    }
  
-    std::vector<std::string> url = synapse::network::dns::query_url(dns_socket, "www.naver.com");
+    std::vector<std::string> url = synapse::network::dns::query_url(dns_socket, "www.google.com");
+    std::cout << url[0] << std::endl;
 }
