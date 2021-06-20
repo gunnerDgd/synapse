@@ -61,10 +61,12 @@ namespace compress {
 
     // Check this flag is compressed.
     bool        check_compressed(char* find_raw) { return *find_raw & 0xc0; }
-    size_t      find_offset     (char* find_raw);
+    
+    uint16_t    find_offset     (char* find_raw);
     char*       find_name       (char* cp_name, char* cp_raw);
 
     std::string decompress_name(char*& cp_name, char* cp_raw);
+    void        decompress_name(char*& cp_name, char* cp_raw, char* cp_dest);
 }
 }
 }
@@ -104,45 +106,46 @@ cp_raw  : Start Point of the raw packet, which includes header, queries, and ans
 char*  synapse::network::dns::compress::find_name(char* cp_name, char* cp_raw)
 {
     while(check_compressed(cp_name))
-    {
-        std::cout << (uint64_t)cp_name << std::endl;
         cp_name = cp_raw + find_offset(cp_name);
-    }
 
     return cp_name;
 }
 
-size_t synapse::network::dns::compress::find_offset(char* find_raw) 
+uint16_t synapse::network::dns::compress::find_offset(char* find_raw) 
 {
-    if(!check_compressed(find_raw)) 
+    if(!check_compressed(find_raw))
         return 0;
     else
-        return ((find_raw[0] ^ 0xc0) << 8) | find_raw[1];
+        return (uint16_t)((find_raw[0] ^ 0xc0) << 8) | find_raw[1];
 }
 
 std::string synapse::network::dns::compress::decompress_name(char*& cp_name, char* cp_raw)
 {
     std::string dc_res;
-    std::cout << (uint16_t)cp_name << std::endl;
     while     (*cp_name != NULL)
     {
         switch(check_compressed(cp_name))
         {
         case true:
-            std::cout << "## Compressed !!\n";
-            std::cout << "## Compression Offset : " << std::dec << (uint16_t)find_offset(cp_name) << std::endl;
-
             dc_res  += synapse::network::dns::name_format::network_to_host(find_name(cp_name, cp_raw));
             cp_name += 2;
 
             return  dc_res;
 
         case false:
-            dc_res  += synapse::network::dns::name_format::network_to_host(cp_name) + ".";
+            dc_res  += synapse::network::dns::name_format::network_to_host_partial(cp_name) + ".";
             cp_name += *cp_name + 1; break;
         }
     }
 
     cp_name    ++; // For Skipping NULL Byte.
     return dc_res;
+}
+
+void        synapse::network::dns::compress::decompress_name(char*& cp_name, char* cp_raw, char* cp_dest)
+{
+    std::string dc_res = decompress_name(cp_name, cp_raw);
+    cp_dest            = new char[dc_res.length()];
+
+    memcpy     (cp_dest, dc_res.c_str(), dc_res.length());
 }

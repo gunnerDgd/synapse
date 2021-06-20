@@ -1,5 +1,6 @@
 #pragma once
 #include <synapse/string/string_tools.hpp>
+
 #include <cstdlib>
 #include <cstring>
 
@@ -8,7 +9,9 @@ namespace network     {
 namespace dns         {
 namespace name_format {
 
-    std::string network_to_host(char*       net_name);
+    std::string network_to_host        (char* net_name);
+    std::string network_to_host_partial(char* net_name) { return std::string(net_name + 1, (size_t)*net_name); }
+
     char*       host_to_network(std::string hst_name, uint16_t& hst_len); // Allocate String to the Newly Allocated Buffer.
     void        host_to_network(std::string hst_name, char*     hst_dst); // Copy String to the Dedicated Buffer.
 
@@ -39,7 +42,19 @@ hst_col[2] = com
            --> *hst_wrptr++ for name field writing operation.
 */
 
-std::string synapse::network::dns::name_format::network_to_host(char* net_name) { return std::string(net_name + 1, (size_t)*net_name); }
+std::string synapse::network::dns::name_format::network_to_host(char* net_name) 
+{
+    std::string ntoh_res;
+
+    while(*net_name != NULL)
+    {
+        ntoh_res += std::string(net_name + 1, (size_t)(*net_name)) + ".";
+        net_name += *net_name + 1;
+    }
+
+    return ntoh_res;
+}
+
 char*       synapse::network::dns::name_format::host_to_network(std::string hst_name, uint16_t& hst_len)
 {
     std::vector<std::string> hst_col   = synapse::string::split(hst_name, ".");

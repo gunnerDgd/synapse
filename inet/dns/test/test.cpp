@@ -13,5 +13,5 @@ int main()
     }
  
     std::vector<std::string> url = synapse::network::dns::query_url(dns_socket, "www.google.com");
-    std::cout << url[0] << std::endl;
+    //std::cout << url[0] << std::endl;
 }

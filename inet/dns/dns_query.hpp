@@ -1,4 +1,6 @@
 #include <synapse/inet/dns/dns.hpp>
+#include <synapse/inet/dns/dns_query_parse.hpp>
+
 #include <random>
 
 namespace synapse {
@@ -22,10 +24,7 @@ std::vector<std::string> synapse::network::dns::query_url(synapse::network::sock
     q_vec                                .push_back(synapse::network::dns::packet::query(q_url));
 
     std::vector<std::string> r_vec;
-    auto                     a_vec = synapse::network::dns::write_query(q_sock, q_header, q_vec);
-
-    for(auto& a_it : a_vec)
-        r_vec.push_back(a_it.answer_name);
+    auto                     a_vec = synapse::network::dns::write_query(q_sock, q_header, q_vec, synapse::network::dns::parse::parse_ipv4);
 
     return r_vec;
 }

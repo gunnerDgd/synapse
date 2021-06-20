@@ -5,7 +5,10 @@ namespace synapse {
 namespace network {
 namespace dns     {
 
-    enum packet_type { request, response };
+    using answer_parser = void*(*)(uint16_t, char*&, char*);
+    // uint16_t : Answer Type
+    // void*    : Answer Data
+    // char*    : Answer Packet Raw Pointer
 
     enum dns_type : uint16_t
     {

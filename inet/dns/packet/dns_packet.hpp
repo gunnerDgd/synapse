@@ -3,6 +3,7 @@
 #include <synapse/inet/dns/packet/dns_type.hpp>
 
 #include <vector>
+#include <variant>
 
 namespace synapse {
 namespace network {
@@ -71,6 +72,7 @@ namespace packet  {
                     query_class;
     };
 
+    using answer_data_type = std::variant<std::string, void*>;
     class answer
     {
     public:
@@ -90,14 +92,14 @@ namespace packet  {
 
 
     public:
-        std::string answer_name;
-        uint16_t    answer_type,
-                    answer_class;
+        std::string     answer_name;
+        uint16_t        answer_type,
+                        answer_class;
 
-        uint32_t    answer_ttl;
-        uint16_t    answer_length;
+        uint32_t        answer_ttl;
+        uint16_t        answer_length;
 
-        void*       answer_data;
+       answer_data_type answer_data;
     };
 
 

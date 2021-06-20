@@ -7,7 +7,7 @@ namespace network {
 namespace dns     {
 namespace raw     {
 
-    void   serialize(synapse::network::dns::packet::header& s_header, char* s_memory);
+    size_t serialize(synapse::network::dns::packet::header& s_header, char* s_memory);
     size_t serialize(synapse::network::dns::packet::query & s_query , char* s_memory);
     size_t serialize(synapse::network::dns::packet::answer& s_answer, char* s_memory);
     
@@ -16,10 +16,12 @@ namespace raw     {
 }
 }
 
-void   synapse::network::dns::raw::serialize(synapse::network::dns::packet::header& s_header, char* s_memory)
+size_t synapse::network::dns::raw::serialize(synapse::network::dns::packet::header& s_header, char* s_memory)
 {
     synapse::network::dns::byte_order::host_to_network(s_header);
     memcpy(s_memory, &s_header, 12);
+
+    return 12;
 }
 
 size_t synapse::network::dns::raw::serialize(synapse::network::dns::packet::query& s_query, char* s_memory)
@@ -49,6 +51,10 @@ size_t synapse::network::dns::raw::serialize(synapse::network::dns::packet::answ
     *(uint32_t*)s_memory = s_answer.answer_ttl   ; s_memory += 4;
     *(uint16_t*)s_memory = s_answer.answer_length; s_memory += 2;
 
-    memcpy(s_memory, s_answer.answer_data, s_answer.answer_length);
+    if(s_answer.answer_data.index() == 1)
+        memcpy(s_memory, std::get<1>(s_answer.answer_data), ntohs(s_answer.answer_length));
+    else
+        synapse::network::dns::name_format::host_to_network(std::get<0>(s_answer.answer_data), s_memory);
+
     return a_name_length + s_answer.answer_length + 10;
 }
