@@ -22,7 +22,6 @@ namespace network {
 	
 }
 }
-#include "udp.hpp"
 
 synapse::network::udp::udp(synapse::network::ip::v4 u_addr)
 	: socket_base(u_addr)
@@ -46,11 +45,6 @@ bool   synapse::network::udp::connect()
 
     if(conn_res < 0)
         io_state_flag = synapse::io::io_state::internal_error;
-    else
-    {
-        std::cerr << "## Socket Connection Successful\n";
-        std::cerr << "## Address : " << socket_address.ipv4_address() << " : " << socket_address.ipv4_port() << std::endl;
-    }
 
     return (conn_res == 0) ? true : false;
 }

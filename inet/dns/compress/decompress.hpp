@@ -127,25 +127,28 @@ std::string synapse::network::dns::compress::decompress_name(char*& cp_name, cha
         switch(check_compressed(cp_name))
         {
         case true:
-            dc_res  += synapse::network::dns::name_format::network_to_host(find_name(cp_name, cp_raw));
+        {
+            char* dc_ptr = find_name(cp_name, cp_raw);
+            dc_res      += synapse::network::dns::compress::decompress_name(dc_ptr, cp_raw);
+            
             cp_name += 2;
-
-            return  dc_res;
+            return     dc_res;
+        }
 
         case false:
             dc_res  += synapse::network::dns::name_format::network_to_host_partial(cp_name) + ".";
-            cp_name += *cp_name + 1; break;
+            cp_name += *cp_name + 1; // 1 for Padding Byte. 
+            
+            break;
         }
-    }
-
-    cp_name    ++; // For Skipping NULL Byte.
-    return dc_res;
+    }       cp_name ++; // For Skipping NULL Byte.
+    
+    if(!dc_res.empty()) dc_res.erase(dc_res.length() - 1, 1);
+    return              dc_res;
 }
 
 void        synapse::network::dns::compress::decompress_name(char*& cp_name, char* cp_raw, char* cp_dest)
 {
     std::string dc_res = decompress_name(cp_name, cp_raw);
-    cp_dest            = new char[dc_res.length()];
-
     memcpy     (cp_dest, dc_res.c_str(), dc_res.length());
 }

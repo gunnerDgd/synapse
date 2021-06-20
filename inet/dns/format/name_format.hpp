@@ -45,13 +45,13 @@ hst_col[2] = com
 std::string synapse::network::dns::name_format::network_to_host(char* net_name) 
 {
     std::string ntoh_res;
-
     while(*net_name != NULL)
     {
         ntoh_res += std::string(net_name + 1, (size_t)(*net_name)) + ".";
         net_name += *net_name + 1;
     }
 
+    ntoh_res.erase(ntoh_res.length() - 1, 1);
     return ntoh_res;
 }
 

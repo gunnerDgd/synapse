@@ -7,6 +7,8 @@
 #include <synapse/inet/dns/raw/serialize.hpp>
 #include <synapse/inet/dns/raw/deserialize.hpp>
 
+#include <chrono>
+
 namespace synapse {
 namespace network {
 namespace dns     {
@@ -23,8 +25,10 @@ namespace dns     {
                                query_vector &                        a_query ,
                                answer_vector&                        a_context);
 
-    answer_vector read_answer (synapse::network::socket_base&        q_socket ,
-                               answer_parser                         q_parser = nullptr);
+    answer_vector read_answer (synapse::network::socket_base&        a_socket ,
+                               answer_parser                         a_parser = nullptr);
+
+    query_vector  read_query  (synapse::network::socket_base&        a_socket);
 
 }
 }
@@ -44,14 +48,9 @@ synapse::network::dns::answer_vector synapse::network::dns::read_answer (synapse
            
 
     synapse::network::dns::packet::header   a_header;
-    
     synapse::network::dns::raw::deserialize(a_header, a_writer_pointer);
-    synapse::network::dns::query_vector     aq_res;
-
-    std::cerr << "[REQUEST] ## RCODE  : " << (int)a_header.flag.reply   << std::endl;
-    std::cerr << "[REQUEST] ## QCOUNT : " << (int)a_header.query_count  << std::endl;
-    std::cerr << "[REQUEST] ## ACOUNT : " << (int)a_header.answer_count << std::endl;
-
+    
+    synapse::network::dns::query_vector         aq_res;
     for(uint16_t aq_it = 0 ; aq_it < a_header.query_count ; aq_it++) {
         synapse::network::dns::packet::query    aq;
         synapse::network::dns::raw::deserialize(aq, a_writer_pointer, a_raw_pointer);
@@ -60,6 +59,20 @@ synapse::network::dns::answer_vector synapse::network::dns::read_answer (synapse
     }
 
     for(uint16_t aa_it = 0 ; aa_it < a_header.answer_count ; aa_it++) {
+        synapse::network::dns::packet::answer   aa;
+        synapse::network::dns::raw::deserialize(aa, a_writer_pointer, a_raw_pointer, a_parser);
+
+        a_res .push_back(aa);
+    }
+
+    for(uint16_t au_it = 0 ; au_it < a_header.authorized_count ; au_it++) {
+        synapse::network::dns::packet::answer   aa;
+        synapse::network::dns::raw::deserialize(aa, a_writer_pointer, a_raw_pointer, a_parser);
+
+        a_res .push_back(aa);
+    }
+
+    for(uint16_t ad_it = 0 ; ad_it < a_header.additional_count ; ad_it++) {
         synapse::network::dns::packet::answer   aa;
         synapse::network::dns::raw::deserialize(aa, a_writer_pointer, a_raw_pointer, a_parser);
 

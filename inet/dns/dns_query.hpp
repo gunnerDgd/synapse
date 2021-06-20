@@ -24,10 +24,9 @@ std::vector<std::string> synapse::network::dns::query_url(synapse::network::sock
     q_vec                                .push_back(synapse::network::dns::packet::query(q_url));
 
     std::vector<std::string> r_vec;
-    
     synapse::network::dns::write_query(q_sock, q_header, q_vec);
-    auto                       a_vec = synapse::network::dns::read_answer(q_sock, synapse::network::dns::parse::parse_ipv4);
 
+    auto             a_vec = synapse::network::dns::read_answer(q_sock, synapse::network::dns::parse::parse_ipv4);
     for(auto& a_it : a_vec)
         r_vec.push_back(a_it.answer_resolved);
 
