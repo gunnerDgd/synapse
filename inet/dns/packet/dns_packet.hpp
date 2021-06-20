@@ -72,7 +72,6 @@ namespace packet  {
                     query_class;
     };
 
-    using answer_data_type = std::variant<std::string, void*>;
     class answer
     {
     public:
@@ -88,18 +87,18 @@ namespace packet  {
           answer_class ((uint16_t)a_class),
           answer_ttl   (a_ttl)            ,
           answer_length(a_ctx_len)        ,
-          answer_data  (a_ctx)            { }
-
+          answer_data  ((uint8_t*)a_ctx)  { }
 
     public:
-        std::string     answer_name;
-        uint16_t        answer_type,
-                        answer_class;
+        std::string answer_name;
+        uint16_t    answer_type,
+                    answer_class;
 
-        uint32_t        answer_ttl;
-        uint16_t        answer_length;
+        uint32_t    answer_ttl;
+        uint16_t    answer_length;
 
-       answer_data_type answer_data;
+        uint8_t*    answer_data = nullptr;
+        std::string answer_resolved      ;
     };
 
 

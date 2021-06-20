@@ -7,10 +7,9 @@ namespace raw     {
 
     void deserialize(synapse::network::dns::packet::header& h, char*& raw_ptr);
     void deserialize(synapse::network::dns::packet::query & q, char*& raw_ptr, char* packet_raw);
-    void deserialize(synapse::network::dns::packet::answer& a           , 
-                     char*&                                 a_raw_ptr   , 
-                     char*                                  a_packet_raw, 
-                     answer_parser                          a_parser    = nullptr);
+    void deserialize(synapse::network::dns::packet::answer& a, char*& raw_ptr, char* packet_raw, answer_parser a_parser = nullptr);
+
+    // answer_parser : Parses answer_data to std::string format.
 
 }
 }
@@ -46,8 +45,7 @@ void synapse::network::dns::raw::deserialize(synapse::network::dns::packet::answ
     a.answer_length = *(uint16_t*)raw_ptr; raw_ptr += 2;
 
     synapse::network::dns::byte_order::network_to_host(a);
-    if(a_parser)
-        a.answer_data = a_parser(a.answer_type, raw_ptr, packet_raw);
-    
+    a.answer_resolved                       = a_parser(a.answer_type, raw_ptr, packet_raw);
+
     raw_ptr   += a.answer_length;
 }

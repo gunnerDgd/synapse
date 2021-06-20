@@ -1,11 +1,12 @@
 #pragma once
 #include <iostream>
+#include <string>
 
 namespace synapse {
 namespace network {
 namespace dns     {
 
-    using answer_parser = void*(*)(uint16_t, char*&, char*);
+    using answer_parser   = std::string(*)(uint16_t, char*&, char*);
     // uint16_t : Answer Type
     // void*    : Answer Data
     // char*    : Answer Packet Raw Pointer

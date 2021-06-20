@@ -3,7 +3,7 @@
 
 int main()
 {
-    synapse::network::ip::v4 dns_addr  ("10.64.192.62", 53);
+    synapse::network::ip::v4 dns_addr  ("8.8.8.8", 53);
     synapse::network::udp    dns_socket(dns_addr);
     
     if(!dns_socket.connect())
@@ -13,5 +13,6 @@ int main()
     }
  
     std::vector<std::string> url = synapse::network::dns::query_url(dns_socket, "www.google.com");
-    //std::cout << url[0] << std::endl;
+    std::cout << url.size() << std::endl;
+    std::cout << url[0] << std::endl;
 }
