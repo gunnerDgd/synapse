@@ -122,7 +122,7 @@ uint16_t synapse::network::dns::compress::find_offset(char* find_raw)
 std::string synapse::network::dns::compress::decompress_name(char*& cp_name, char* cp_raw)
 {
     std::string dc_res;
-    while     (*cp_name != NULL)
+    while     (*cp_name != '\0')
     {
         switch(check_compressed(cp_name))
         {

@@ -1,0 +1,5 @@
+#include <synapse/
+
+namespace synapse {
+
+}

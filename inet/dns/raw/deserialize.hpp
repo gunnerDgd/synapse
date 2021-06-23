@@ -28,7 +28,7 @@ void synapse::network::dns::raw::deserialize (synapse::network::dns::packet::que
     
     q.query_type  = *(uint16_t*)raw_ptr; raw_ptr += 2;
     q.query_class = *(uint16_t*)raw_ptr; raw_ptr += 2;
-
+    
     synapse::network::dns::byte_order::network_to_host(q);
 }
 
@@ -37,7 +37,7 @@ void synapse::network::dns::raw::deserialize(synapse::network::dns::packet::answ
                                              char*                                  packet_raw,
                                              answer_parser                          a_parser  )
 {
-    a.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw);
+    a.answer_name   = synapse::network::dns::compress::decompress_name(raw_ptr, packet_raw); 
     a.answer_type   = *(uint16_t*)raw_ptr; raw_ptr += 2;
     a.answer_class  = *(uint16_t*)raw_ptr; raw_ptr += 2;
     a.answer_ttl    = *(uint32_t*)raw_ptr; raw_ptr += 4;

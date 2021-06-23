@@ -6,11 +6,13 @@
 namespace synapse {
 namespace network {
 namespace http    {
+namespace prefix  {
 
-    class response_prefix
+    class response
     {
     public:
         response_prefix(std::string prefix_str);
+        
 
         const std::string& http_version  () { return prefix_http_version  ; }
         void               http_version  () { }
@@ -23,16 +25,13 @@ namespace http    {
         uint8_t     prefix_status_code   ;
     };
 
-    class response
+    class request
     {
     public:
-        response(synapse::mem);
-
-    protected:
-        response_prefix                                        prefix ;
-        std::unordered_map<std::string_view, std::string_view> context;
+        request(std::string prefix_str);
     };
+}
+}
+}
+}
 
-}
-}
-}

@@ -24,7 +24,7 @@ std::string synapse::network::dns::parse::parse_ipv4(uint16_t c_type, char* c_da
         return parse_cname(c_type, c_data, c_raw);
 
     if(c_type != (uint16_t)synapse::network::dns::dns_type::a)
-        return std::string("");
+        return std::string(""); // Wrong type.
 
     std::string parse_res = std::to_string((uint8_t)c_data[0]) + "."
                           + std::to_string((uint8_t)c_data[1]) + "."

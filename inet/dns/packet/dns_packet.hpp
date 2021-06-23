@@ -36,23 +36,23 @@ namespace packet  {
                uint16_t                            h_auc  = 0, 
                uint16_t                            h_adc  = 0)
             : transaction_id  (h_trans_id),
-              flag            (h_flag),
-              query_count     (h_qc),
-              answer_count    (h_ac),
-              authorized_count(h_auc),
-              additional_count(h_adc) { }    
+              flag            (h_flag)    ,
+              query_count     (h_qc)      ,
+              answer_count    (h_ac)      ,
+              authorized_count(h_auc)     ,
+              additional_count(h_adc)     { }
 
-        uint16_t   transaction_id;
+        uint16_t  transaction_id;
         union
         {
             synapse::network::dns::packet::flag flag    ;
             uint16_t                            flag_int;
         };
 
-        uint16_t   query_count     ,
-                   answer_count    ,
-                   authorized_count,
-                   additional_count;
+        uint16_t  query_count     ,
+                  answer_count    ,
+                  authorized_count,
+                  additional_count;
     };
 
     class query
@@ -103,6 +103,9 @@ namespace packet  {
 
 
 }
+    using query_vector  = std::pair<synapse::network::dns::packet::query *, uint16_t>;
+    using answer_vector = std::pair<synapse::network::dns::packet::answer*, uint16_t>;
 }
 }
 }
+
