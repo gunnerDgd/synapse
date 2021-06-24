@@ -5,6 +5,7 @@
 
 namespace synapse {
 namespace memory  {
+    
     class memory
     {
     public:
@@ -32,7 +33,7 @@ namespace memory  {
         void*                         memory_address   ;
 
     protected:
-        synapse::memory::lock_type memory_lock_type;
+        synapse::memory::lock_type    memory_lock_type ;
     };
 }
 }

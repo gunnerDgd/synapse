@@ -1,4 +1,5 @@
 #pragma once
+#include <synapse/debug_tool/runtime_timer.hpp>
 
 #define ENV_UNIX
 //#define ENV_WINDOWS
