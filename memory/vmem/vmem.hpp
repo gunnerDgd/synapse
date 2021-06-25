@@ -1,10 +1,11 @@
+#pragma once
+
 #include <synapse/memory/memory.hpp>
 #include <synapse/memory/memory_attr.hpp>
 
-namespace synapse
-{
-namespace memory
-{
+namespace synapse {
+namespace memory  {
+    
     class vmem : public synapse::memory::memory
     {
     public:

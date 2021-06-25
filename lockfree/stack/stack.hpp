@@ -2,49 +2,33 @@
 #include <synapse/synapse.hpp>
 #include <synapse/lockfree/block.hpp>
 
-namespace synapse
-{
-namespace lockfree
-{
+#include <xmmintrin.h>
+
+namespace synapse  {
+namespace lockfree {
+	
 	template <typename T>
 	class stack
 	{
 	public:
-		stack(size_t st_count = 0);
-
-	public:
-		void	  push (T&  pu_ctx);
-		void	  push (T&& pu_ctx);
-		block<T>* pop  ()		   ;
-		size_t    count() 		   { return stack_count.load(); }
+		stack()
+			: stack_entry(nullptr) { }
+		
+		void   push (T&  pu_ctx);
+		void   push (T&& pu_ctx);
+		T&     pop  ()		    ;
 
 	private:
 		std::atomic<block<T>*> stack_entry;
-		std::atomic<size_t>	   stack_count;
 	};
 }
 }
 
-template <typename T>
-synapse::lockfree::stack<T>::stack(size_t st_count) 
-	: stack_entry(nullptr) ,
-	  stack_count(st_count) 
-{
-	if(st_count != 0)
-	{
-		block<T>* stack_entry_ptr = new block<T>[st_count];
-		
-		for(size_t it = 0 ; it < st_count - 1 ; it++)
-			stack_entry_ptr[it].block_next = &stack_entry_ptr[it + 1];
-		
-		stack_entry = stack_entry_ptr;
-	}
-}
 
 template <typename T>
 void synapse::lockfree::stack<T>::push(T& pu_ctx)
 {
-	block<T>* bl_new 	  = new block<T>;
+	block<T>* bl_new 	  = new block<T>(pu_ctx);
 	bl_new->block_context = pu_ctx;
 
 	do
@@ -76,19 +60,21 @@ void synapse::lockfree::stack<T>::push(T&& pu_ctx)
 }
 
 template <typename T>
-synapse::lockfree::block<T>* synapse::lockfree::stack<T>::pop()
+T& synapse::lockfree::stack<T>::pop()
 {
 	block<T>* po_res;
 	do
 	{
 		po_res      = stack_entry.load();
-		if (po_res == nullptr) return nullptr;
+		if (po_res == nullptr) {
+			_mm_pause();
+			continue   ;
+		}
 
 	} while (!stack_entry.compare_exchange_weak(po_res		      , 
 												po_res->block_next,
 												std::memory_order_release,
 												std::memory_order_relaxed));
-	
-	stack_count--;
-	return po_res;
+
+	return po_res->block_context;
 }

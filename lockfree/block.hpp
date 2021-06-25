@@ -9,9 +9,15 @@ namespace synapse  {
 namespace lockfree {
 
 	template <typename T>
-	struct block
+	class block
 	{
-		T		* block_context;
+	public:
+		block(T&  ctx) : block_context(ctx) { }
+		block(T&& ctx) : block_context(ctx) { }
+		block()		    					{ }
+
+	public:
+		T		  block_context;
 		block<T>* block_next   ;
 	};
 }
