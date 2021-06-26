@@ -14,9 +14,11 @@ namespace lockfree {
 		stack()
 			: stack_entry(nullptr) { }
 		
-		void   push (T&  pu_ctx);
-		void   push (T&& pu_ctx);
-		T&     pop  ()		    ;
+		void   						 push (T&  pu_ctx);
+		void   						 push (T&& pu_ctx);
+		void						 push (synapse::lockfree::block<T>& pu_ctx);
+
+		synapse::lockfree::block<T>* pop  ();
 
 	private:
 		std::atomic<block<T>*> stack_entry;
@@ -24,6 +26,17 @@ namespace lockfree {
 }
 }
 
+template <typename T>
+void synapse::lockfree::stack<T>::push (synapse::lockfree::block<T>& pu_ctx)
+{
+	do
+	{
+		pu_ctx->block_next = stack_entry.load();
+	} while (!stack_entry.compare_exchange_weak(pu_ctx->block_next,
+												pu_ctx	      	  ,
+												std::memory_order_release,
+												std::memory_order_relaxed));
+}
 
 template <typename T>
 void synapse::lockfree::stack<T>::push(T& pu_ctx)
@@ -38,14 +51,12 @@ void synapse::lockfree::stack<T>::push(T& pu_ctx)
 												bl_new	      	  ,
 												std::memory_order_release,
 												std::memory_order_relaxed));
-	
-	stack_count++;
 }
 
 template <typename T>
 void synapse::lockfree::stack<T>::push(T&& pu_ctx)
 {
-	block<T>* bl_new 	  = new block<T>;
+	block<T>* bl_new 	  = new block<T>(pu_ctx);
 	bl_new->block_context = pu_ctx;
 
 	do
@@ -55,26 +66,24 @@ void synapse::lockfree::stack<T>::push(T&& pu_ctx)
 												bl_new	      	  ,
 												std::memory_order_release,
 												std::memory_order_relaxed));
-	
-	stack_count++;
 }
 
 template <typename T>
-T& synapse::lockfree::stack<T>::pop()
+synapse::lockfree::block<T>* synapse::lockfree::stack<T>::pop()
 {
 	block<T>* po_res;
+
 	do
 	{
-		po_res      = stack_entry.load();
-		if (po_res == nullptr) {
-			_mm_pause();
-			continue   ;
-		}
+		do
+		{
+			    po_res = stack_entry.load();
+		} while(po_res == nullptr);
 
 	} while (!stack_entry.compare_exchange_weak(po_res		      , 
 												po_res->block_next,
 												std::memory_order_release,
 												std::memory_order_relaxed));
 
-	return po_res->block_context;
+	return po_res;
 }

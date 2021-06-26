@@ -1,5 +1,6 @@
 #pragma once
 #include <synapse/memory/memory.hpp>
+#include <synapse/memory/vmem/vmem.hpp>
 #include <synapse/lockfree/stack/stack.hpp>
 
 namespace synapse {
@@ -7,32 +8,29 @@ namespace memory  {
 	
 	class slot : private synapse::lockfree::stack<synapse::memory::memory>
 	{
-	private:
-		using lf_block = synapse::lockfree::block<synapse::memory::memory>;
+	public:
+		slot(size_t slot_memory_size = 4096,
+			 size_t slot_init_size   = 1024);
 
 	public:
-		slot(size_t mp_count = 1024);
-
-	public:
-		synapse::memory::memory* acquire();
-		void					 release(synapse::memory::memory& mp_rel);
+		synapse::lockfree::block<synapse::memory::memory>* acquire();
+		void				     						   release(synapse::memory::memory& mp_rel);
 	};
 }
 }
 
-synapse::memory::slot::slot(size_t mp_count)
+synapse::memory::slot::slot(size_t slot_memory_size, size_t slot_init_size)
 {
-	for(int i = 0 ; i < mp_count ; i++)
-		this->push(synapse::memory::vmem());
+	for(size_t i = 0 ; i < slot_init_size ; i++)
+		this->push(synapse::memory::vmem(slot_memory_size));
 }
 
-synapse::memory::memory* synapse::memory::slot::acquire()
+synapse::lockfree::block<synapse::memory::memory>* synapse::memory::slot::acquire()
 {
-	lf_block* ac_blk;
-	do 		{ ac_blk = this->pop(); } while(!ac_blk);
+	return this->pop();
+}
 
-	synapse::memory::memory* ac_mem = ac_blk->block_context;
-	delete 					 ac_blk;
-
-	return ac_mem;
+void synapse::memory::slot::release(synapse::memory::memory& mp_rel)
+{
+	this->push(mp_rel);
 }

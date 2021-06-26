@@ -3,7 +3,6 @@
 #include <utility>
 #include <atomic>
 
-#include <synapse/memory/vmem/vmem.hpp>
 
 namespace synapse  {
 namespace lockfree {
