@@ -6,15 +6,8 @@ namespace simd    {
     class sse_integral
     {
     public:
-        sse_integral(__m128i& sse_init);
-
-        sse_integral()                 { }
-
         void load   (void* );
         void store  (__m128i* sse_ctx);
-
-    private:
-        __m128i sse_integral_context;
     };
 
     friend sse_integral& operator+ (sse_integral& l, sse_integral& r);

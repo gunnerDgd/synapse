@@ -89,7 +89,8 @@ T& synapse::lockfree::queue<T, N>::dequeue()
 	block<T>* deq_ptr;
 	do
 	{
-		if(deq_ptr = queue_read.load(); deq_ptr->block_next == queue_write.load()) {
+		if(deq_ptr = queue_read.load(); deq_ptr->block_next == queue_write.load()) 
+		{
 			_mm_pause();
 			continue   ;
 		}

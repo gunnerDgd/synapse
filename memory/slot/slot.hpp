@@ -13,8 +13,8 @@ namespace memory  {
 			 size_t slot_init_size   = 1024);
 
 	public:
-		synapse::lockfree::block<synapse::memory::memory>* acquire();
-		void				     						   release(synapse::memory::memory& mp_rel);
+		synapse::memory::memory acquire();
+		void				    release(synapse::memory::memory& mp_rel);
 	};
 }
 }
@@ -25,12 +25,5 @@ synapse::memory::slot::slot(size_t slot_memory_size, size_t slot_init_size)
 		this->push(synapse::memory::vmem(slot_memory_size));
 }
 
-synapse::lockfree::block<synapse::memory::memory>* synapse::memory::slot::acquire()
-{
-	return this->pop();
-}
-
-void synapse::memory::slot::release(synapse::memory::memory& mp_rel)
-{
-	this->push(mp_rel);
-}
+synapse::memory::memory synapse::memory::slot::acquire() 								{ return synapse::memory::memory(this->pop()); }
+void 					synapse::memory::slot::release(synapse::memory::memory& mp_rel) { this->push(mp_rel); }

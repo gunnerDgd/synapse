@@ -62,13 +62,9 @@ synapse::memory::vmem::vmem(size_t vm_size    ,
 
 synapse::memory::vmem::~vmem()
 {
-    (*memory_reference_count)--;
-    
-    if(*memory_reference_count > 0)
+    if(*memory_reference_count > 1)
         return;
-    else
-        delete memory_reference_count;
-    
+
     int um_res = munmap(memory_address, memory_block_size);
     if (um_res < 0 && memory_state_flag == synapse::memory::memory_state::normal)
     {

@@ -14,11 +14,11 @@ namespace lockfree {
 		stack()
 			: stack_entry(nullptr) { }
 		
-		void   						 push (T&  pu_ctx);
-		void   						 push (T&& pu_ctx);
-		void						 push (synapse::lockfree::block<T>& pu_ctx);
+		void push (T&  pu_ctx);
+		void push (T&& pu_ctx);
+		void push (synapse::lockfree::block<T>& pu_ctx);
 
-		synapse::lockfree::block<T>* pop  ();
+		T&   pop  ();
 
 	private:
 		std::atomic<block<T>*> stack_entry;
@@ -69,10 +69,9 @@ void synapse::lockfree::stack<T>::push(T&& pu_ctx)
 }
 
 template <typename T>
-synapse::lockfree::block<T>* synapse::lockfree::stack<T>::pop()
+T& synapse::lockfree::stack<T>::pop()
 {
 	block<T>* po_res;
-
 	do
 	{
 		do
@@ -85,5 +84,5 @@ synapse::lockfree::block<T>* synapse::lockfree::stack<T>::pop()
 												std::memory_order_release,
 												std::memory_order_relaxed));
 
-	return po_res;
+	return po_res->block_context;
 }
