@@ -1,4 +1,4 @@
-#include <synapse/sync/event/event.hpp>
+#include <synapse/sync/lock.hpp>
 #include <functional>
 
 namespace synapse {
@@ -7,11 +7,14 @@ namespace thread  {
 	class work_base
 	{
 	public:
-		virtual void 				 run	 () = 0;
-		synapse::synchronize::event& notifier() { return work_notifier; }
+		work_base(synapse::synchronize::lock& wb_lock)
+			: work_notifier(wb_lock) { }
+	
+		virtual void 				run	 	() = 0;
+		synapse::synchronize::lock& notifier() { return work_notifier; }
 
 	protected:
-		synapse::synchronize::event work_notifier;
+		synapse::synchronize::lock work_notifier;
 	};
 	
 	template <typename T>

@@ -1,3 +1,6 @@
+#pragma once
+#include <synapse/sync/lock.hpp>
+
 #include <atomic>
 #include <xmmintrin.h>
 
@@ -5,7 +8,7 @@ namespace synapse     {
 namespace synchronize {
 namespace atomic_lock {
 
-    class spinlock
+    class spinlock : public synapse::synchronize::lock
     {
     public:
         void acquire() { while(spinlock_flag.test_and_set(std::memory_order_acquire)) _mm_pause();  }

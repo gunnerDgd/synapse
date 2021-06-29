@@ -18,8 +18,12 @@ namespace lockfree {
 		T&     pop  ()		    ;
 
 	private:
-        alignas(16) T   fixed_stack_context[N];
+        T   			fixed_stack_context[N];
 		std::atomic<T*> fixed_stack_pointer   ;
+
+	private:
+		T*				fixed_stack_start = fixed_stack_context		   ,
+	     *			    fixed_stack_end   = &fixed_stack_context[N];
 	};
 }
 }
@@ -36,8 +40,8 @@ void synapse::lockfree::fixed_stack<T, N>::push(T& pu_ctx)
 	{
         do
         {
-		    push_block        =  fixed_stack_pointer.load(std::memory_order_acquire);
-        }   while(push_block == &fixed_stack_pointer[N])   ;
+		    push_block        = fixed_stack_pointer.load();
+        }   while(push_block == fixed_stack_end);
         
 	} while (!fixed_stack_pointer.compare_exchange_weak(push_block               ,
                                                         push_block + 1           ,
@@ -55,8 +59,8 @@ void synapse::lockfree::fixed_stack<T, N>::push(T&& pu_ctx)
 	{
         do
         {
-		    push_block        =  fixed_stack_pointer.load(std::memory_order_acquire);
-        }   while(push_block == &fixed_stack_pointer[N])   ;
+		    push_block        = fixed_stack_pointer.load();
+        }   while(push_block == fixed_stack_end)   		  ;
         
 	} while (!fixed_stack_pointer.compare_exchange_weak(push_block               ,
                                                         push_block + 1           ,
@@ -75,13 +79,13 @@ T& synapse::lockfree::fixed_stack<T, N>::pop()
 	{
 		do
 		{
-			po_res      = fixed_stack_pointer.load(std::memory_order_acquire);
-		} while(po_res == fixed_stack_context);
+			po_res        = fixed_stack_pointer.load();
+		}   while(po_res == fixed_stack_start);
 
 	} while (!fixed_stack_pointer.compare_exchange_weak(po_res		             ,
 												        po_res - 1               ,
 												        std::memory_order_release,
 												        std::memory_order_relaxed));
 
-	return *po_res;
+	return *(po_res - 1);
 }
