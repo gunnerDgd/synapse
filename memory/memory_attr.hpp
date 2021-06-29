@@ -27,5 +27,12 @@ namespace memory  {
         mapped,
         unmapped
     };
+
+    enum vmem_allocate_type : uint64_t
+    {
+        standard = 4096,              // 4KB Size,
+        medium   = 1024 * 1024 * 2,   // 2MB Size,
+        large    = 1024 * 1024 * 1024 // 1GB Size.
+    };
 }
 }

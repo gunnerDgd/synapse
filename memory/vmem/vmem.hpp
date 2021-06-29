@@ -3,7 +3,7 @@
 #include <synapse/memory/memory.hpp>
 #include <synapse/memory/memory_attr.hpp>
 
-#include <variant>
+#include <sys/mman.h>
 
 namespace synapse {
 namespace memory  {
@@ -11,9 +11,9 @@ namespace memory  {
     class vmem : public synapse::memory::memory
     {
     public:
-        vmem (size_t vm_size,
-              int    vm_protect = protect_type::read | protect_type::write,
-              void*  vm_addr    = nullptr);
+        vmem (uint64_t vm_page_count = 1,
+              int      vm_protect    = protect_type::read | protect_type::write,
+              void*    vm_addr       = nullptr);
 
         vmem(synapse::memory::vmem& copy_vmem)
         { 
@@ -40,13 +40,13 @@ namespace memory  {
 }
 }
 
-synapse::memory::vmem::vmem(size_t vm_size    ,
-                            int    vm_protect ,
-                            void*  vm_addr    )
-    : memory(nullptr, vm_size)
+synapse::memory::vmem::vmem(uint64_t vm_page_count,
+                            int      vm_protect   ,
+                            void*    vm_addr      )
+    : memory(nullptr, vm_page_count * 4096)
 {
     memory_address = mmap(vm_addr                    , 
-                          vm_size                    ,
+                          memory_block_size          ,
                           vm_protect                 ,
                           MAP_PRIVATE | MAP_ANONYMOUS,
                           -1                         ,
@@ -71,6 +71,4 @@ synapse::memory::vmem::~vmem()
         std::cerr << "FATAL ## MUNMAP Failed...\n";
         exit(1);
     }
-
-    std::cout << "Memory Unallocated\n";
 }

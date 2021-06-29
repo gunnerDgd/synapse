@@ -17,11 +17,11 @@ namespace lockfree {
 		void   push (T&& pu_ctx);
 		T&     pop  ()		    ;
 
-	private:
+	protected:
         T   			fixed_stack_context[N];
 		std::atomic<T*> fixed_stack_pointer   ;
 
-	private:
+	protected:
 		T*				fixed_stack_start = fixed_stack_context		   ,
 	     *			    fixed_stack_end   = &fixed_stack_context[N];
 	};

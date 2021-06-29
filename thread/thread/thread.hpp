@@ -3,43 +3,10 @@
 namespace synapse {
 namespace thread  {
 
-    template <typename T>
-    struct executor_argument { };
-
-    template <>
-    struct executor_argument<void(void)>
+    template <typename... Args>
+    class thread<void(Args...)> : public work_base
     {
-        void(*exec_function)(void);
-        void  execute() { exec_function(); }
-    };
-
-    template <typename R>
-    struct executor_argument<R(void)>
-    {
-        R(*exec_function)(void);
-        R  exec_result;
-
-        void execute() { R = exec_function(); }
-    };
-
-    template <typename... Arg>
-    struct executor_argument<void(Arg...)>
-    {
-        std::tuple<Arg...> exec_argument;
-        void             (*exec_function)(Arg...);
-
-        void execute() { std::apply(exec_function, exec_argument); }
-    };
-
-
-    template <typename R, typename... Arg>
-    struct executor_argument<R(Arg...)>
-    {
-        std::tuple<Arg...> exec_argument;
-        R                (*exec_function)(Arg...);
-        R                  exec_result  ;
-
-        void execute() { exec_result = std::apply(exec_function, exec_argument); }
+         
     };
 
     template <typename R, typename... Arg>

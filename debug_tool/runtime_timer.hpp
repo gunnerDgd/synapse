@@ -19,7 +19,7 @@ namespace debug_tool {
         {
             dbg_end = std::chrono::high_resolution_clock::now();
             std::cout << dbg_msg << " " 
-                      << (float)std::chrono::duration_cast<std::chrono::microseconds>(dbg_end - dbg_start).count() / 1000000 << std::endl;
+                      << (float)std::chrono::duration_cast<std::chrono::nanoseconds>(dbg_end - dbg_start).count() << std::endl;
         }
 
     private:
