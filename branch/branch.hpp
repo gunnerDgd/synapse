@@ -15,14 +15,12 @@ namespace branch  {
     }
 
     template <typename R, typename... Args>
-    class branch
+    class branch : 
     {
     public:
         branch(std::function<R(Args...)> br_exec, Args... br_args)
             : branch_executor(br_exec)                   ,
               branch_argument(std::make_tuple(br_args...)) { }
-
-        R operator() (void) { return }
 
 
     protected:
