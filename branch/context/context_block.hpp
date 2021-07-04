@@ -1,3 +1,4 @@
+#pragma once
 #include <synapse/synapse.hpp>    
 
 namespace synapse {

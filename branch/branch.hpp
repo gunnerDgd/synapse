@@ -1,4 +1,4 @@
-#include <synapse/synapse.hpp>
+#include <synapse/branch/context/context.hpp>
 
 #include <functional>
 #include <tuple>
@@ -6,26 +6,10 @@
 namespace synapse {
 namespace branch  {
 
-    template <typename R, typename... Args>
-    class branch_launcher
+    class branch : public synapse::branch::context
     {
     public:
-        std::tuple<Args...> launcher_argument;
-        
-    }
-
-    template <typename R, typename... Args>
-    class branch : 
-    {
-    public:
-        branch(std::function<R(Args...)> br_exec, Args... br_args)
-            : branch_executor(br_exec)                   ,
-              branch_argument(std::make_tuple(br_args...)) { }
-
-
-    protected:
-        std::tuple<Args...>       branch_argument;
-        std::function<R(Args...)> branch_executor;
+        branch() { }
     };
 }
 }
