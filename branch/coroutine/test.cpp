@@ -7,7 +7,7 @@ void test_1(int a);
 int main()
 {
     std::cout << co_test.execute<std::string>(test_1, 0) << std::endl;
-    std::cout << co_test.execute<std::string>(test_1)    << std::endl;
+    std::cout << co_test.advance<std::string>(test_1)    << std::endl;
 }
 
 void test_1(int a)

@@ -22,7 +22,7 @@ namespace branch    {
         co_yield_t  execute(co_exec_t co_exec, co_exec_arg_t... co_exec_arg);
 
         template <typename co_yield_t, typename co_exec_t>
-        co_yield_t  execute(co_exec_t co_exec);
+        co_yield_t  advance(co_exec_t co_exec);
         
         template <typename yield_t>
         void        yield  (yield_t   co_ret);
@@ -39,7 +39,7 @@ namespace branch    {
         void execute_branch(co_exec_t co_exec, co_exec_arg_t... co_exec_arg);
 
         template <typename co_exec_t>
-        void execute_branch(co_exec_t co_exec);
+        void advance_branch(co_exec_t co_exec);
     };
 
 }
@@ -64,15 +64,15 @@ void synapse::branch::coroutine::execute_branch(co_exec_t co_exec, co_exec_arg_t
     coroutine_node_current->co_child.insert(std::make_pair((uint64_t)co_exec, co_new));
     coroutine_node_current = co_new;
 
-    synapse::branch::switch_branch(co_new->co_parent->co_branch, co_exec, co_exec_arg);
+    synapse::branch::switch_branch(co_new->co_parent->co_branch, co_exec, co_exec_arg...);
 }
 
 template <typename co_exec_t>
-void synapse::branch::coroutine::execute_branch(co_exec_t co_exec)
+void synapse::branch::coroutine::advance_branch(co_exec_t co_exec)
 {
     synapse::branch::coroutine_node* co_run = (*coroutine_node_current->co_child.find((uint64_t)co_exec)).second;
     coroutine_node_current                  = co_run;
-    
+
     synapse::branch::switch_branch(co_run->co_parent->co_branch, co_run->co_branch);
 }
 
@@ -84,9 +84,9 @@ co_yield_t synapse::branch::coroutine::execute(co_exec_t co_exec, co_exec_arg_t.
 }
 
 template <typename co_yield_t, typename co_exec_t>
-co_yield_t synapse::branch::coroutine::execute(co_exec_t co_exec)
+co_yield_t synapse::branch::coroutine::advance(co_exec_t co_exec)
 {
-    execute_branch(co_exec);
+    advance_branch(co_exec);
     return         std::any_cast<co_yield_t>(coroutine_argument);
 }
 
@@ -97,5 +97,5 @@ void synapse::branch::coroutine::yield(yield_t co_ret)
     coroutine_node_current                   = coroutine_node_current->co_parent ;
     
     coroutine_argument                       = co_ret;
-    synapse::branch::switch_branch(co_prev->co_branch, coroutine_node_current->co_branch);
+    synapse::branch::switch_branch            (co_prev->co_branch, coroutine_node_current->co_branch);
 }

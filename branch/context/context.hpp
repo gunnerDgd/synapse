@@ -1,5 +1,6 @@
 #include <synapse/branch/context/context_block.hpp>
 #include <tuple>
+#include <functional>
 
 extern "C"
 {
@@ -35,8 +36,8 @@ namespace branch  {
         load_execution_context (next);
     }
 
-    template <typename exec_t, typename... exec_args_t>
-    void switch_branch(synapse::branch::context& prev, exec_t next, exec_args_t... next_args)
+    template <typename exec_return_t, typename... exec_args_t>
+    void switch_branch(synapse::branch::context& prev, exec_return_t(*next)(exec_args_t...), exec_args_t... next_args)
     {
         store_context          (prev);
         store_execution_context(prev);

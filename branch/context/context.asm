@@ -22,11 +22,6 @@ store_context:
     mov  qword[rdi + 16] , rcx
     mov  qword[rdi + 24] , rdx ; Save Generic Register.
 
-; Saves Stack Instruction Pointer.
-
-    mov  qword[rdi + 32] , rsi
-    mov  qword[rdi + 40] , rdi
-
 ; Save Generic Extended Register.
 
     mov  qword[rdi + 48] , r8
@@ -55,11 +50,6 @@ load_context:
     mov rcx, qword[rdi + 16]
     mov rdx, qword[rdi + 24]
 
-; Load Stack Instructor Register.
-; RDI Stores Parameter of the Function, Thus It Will Be Backed Up At Last.
-
-    mov rsi, qword[rdi + 32]
-
     mov r8 , qword[rdi + 48]
     mov r9 , qword[rdi + 56]
     mov r10, qword[rdi + 64]
@@ -69,7 +59,6 @@ load_context:
     mov r14, qword[rdi + 96]
     mov r15, qword[rdi + 104]
 
-    mov rdi, qword[rdi + 40]
     retq
 
 store_execution_context:
@@ -103,4 +92,3 @@ load_execution_context:
     mov   rsp, qword[rdi + 120]
 
     jmp        qword[rdi + 112]
-    
