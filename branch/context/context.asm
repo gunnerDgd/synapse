@@ -1,22 +1,16 @@
-
 global load_context:function
 global store_context:function
 
 global load_execution_context:function
 global store_execution_context:function
 
-; save_context function
-; ** void load_context(synapse::context::context*)
-;
-; Saves Current CPU Context to Context Struct.
-; Uses System V Calling Convention.
-
-;
-;   load_context function does not make independent stack.
-;   Thus, Base Pointer will be preserved, and Stack Pointer added 0x08 for Previous RIP.
-;
-
 section .text
+
+
+; void store_context(synapse::branch::context&)
+;
+; Store Current CPU Context to the Context Block.
+; ** System V ABI Specifies That First Argument Will Be Stored At RDI Register.
 
 
 store_context:
@@ -46,16 +40,23 @@ store_context:
     
     retq
 
-load_context:
 
-; Store Generic Register
+; void load_context(synapse::branch::context&)
+;
+; Load Previous CPU Context From the Context Block.
+; ** System V ABI Specifies That First Argument Will Be Stored At RDI Register.
+
+
+load_context:
+; Load Generic Register
 
     mov rax, qword[rdi]
     mov rbx, qword[rdi + 8]
     mov rcx, qword[rdi + 16]
     mov rdx, qword[rdi + 24]
 
-; Store Stack Instructor Register.
+; Load Stack Instructor Register.
+; RDI Stores Parameter of the Function, Thus It Will Be Backed Up At Last.
 
     mov rsi, qword[rdi + 32]
 
@@ -68,10 +69,18 @@ load_context:
     mov r14, qword[rdi + 96]
     mov r15, qword[rdi + 104]
 
+    mov rdi, qword[rdi + 40]
     retq
 
 store_execution_context:
 ; RBP Store.
+;
+;   +-------------------------+------------------------+
+;   |                         |                        |
+;   |   Previous Frame's RIP  |  Previous Frame's RBP  |
+;   |                         |                        |
+;   +-------------------------+------------------------+
+
     mov rbx             , qword[rbp]
     mov qword[rdi + 128], rbx
 
