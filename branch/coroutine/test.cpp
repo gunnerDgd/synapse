@@ -2,22 +2,17 @@
 #include <synapse/branch/coroutine/coroutine.hpp>
 
 synapse::branch::coroutine co_test;
-
 void test_1(int a);
-void test_2(int a);
 
 int main()
 {
-    int test_1_yield = co_test.execute<int>(test_1, 3);
-    std::cout << "Main Yield : " << test_1_yield << std::endl;
+    std::cout << co_test.execute<std::string>(test_1, 0) << std::endl;
+    std::cout << co_test.execute<std::string>(test_1)    << std::endl;
 }
 
 void test_1(int a)
 {
-    std::cout << "Yield : " << co_test.execute<int>(test_2, 5) << std::endl;
-    co_test.exit(test_1, 10);    
-}
-void test_2(int a)
-{
-    co_test.yield(3, test_1);
+    co_test.yield(std::string("Hello World #1"));
+    std::cout << "Yield\n";
+    co_test.yield(std::string("Hello World #2"));
 }
