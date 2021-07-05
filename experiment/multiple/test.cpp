@@ -1,7 +1,3 @@
-#include "multiple.hpp"
+#include "test.hpp"
 
-int main()
-{
-    print_extern();
-    std::cout << &a << std::endl;
-}
+thread_local int a;

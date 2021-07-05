@@ -1,101 +1,60 @@
-#include <synapse/branch/branch.hpp>
-#include <unordered_map>
-#include <any>
+#include <synapse/branch/coroutine/coroutine_node.hpp>
+#include <synapse/branch/context/context.hpp>
+#include <functional>
 
 namespace synapse   {
 namespace branch    {
-    
-    struct coroutine_node
+namespace coroutine {
+
+    template <typename co_yield_t, typename R, typename... Args>
+    co_yield_t next (R(*co_exec)(Args...), Args... co_args);
+
+    template <typename co_yield_t>
+    void       yield(co_yield_t co_yield);
+
+}
+}
+}
+
+template <typename co_yield_t, typename R, typename... Args>
+co_yield_t synapse::branch::coroutine::next(R(*co_exec)(Args...), Args... co_args)
+{
+    auto   co_find  = co_current_node->co_child.find((uint64_t)co_exec);
+    switch(co_find == co_current_node->co_child.end())
     {
-        coroutine_node*                               co_parent = nullptr;
-        synapse::branch::branch                       co_branch          ;
-        std::unordered_map<uint64_t, coroutine_node*> co_child           ;
-    };
-
-    class coroutine
+    case true: // If the Coroutine is newly registered.
     {
-    public:
-        coroutine()
-            : coroutine_node_current(&coroutine_stack) { }
-
-        template <typename co_yield_t, typename co_exec_t, typename... co_exec_arg_t>
-        co_yield_t  execute(co_exec_t co_exec, co_exec_arg_t... co_exec_arg);
-
-        template <typename co_yield_t, typename co_exec_t>
-        co_yield_t  advance(co_exec_t co_exec);
+        auto co_new       = new synapse::branch::coroutine::coroutine_node;
+        co_new->co_parent = co_current_node;
         
-        template <typename yield_t>
-        void        yield  (yield_t   co_ret);
+        synapse::branch::store_branch(co_current_node->co_branch);
+        co_current_node   = co_new;
 
-        template <typename yield_t>
-        void        exit   (yield_t   co_ret);
+        std::apply(co_exec, std::make_tuple(co_args...));
+        break;
+    }
 
-    private:
-        synapse::branch::coroutine_node  coroutine_stack       ,
-                                        *coroutine_node_current;
-        std::any                         coroutine_argument    ;
+    case false:
+    {
+        synapse::branch::coroutine::coroutine_node* co_prev = co_current_node;
+        co_current_node                                     = *co_find;
 
-        template <typename co_exec_t, typename... co_exec_arg_t>
-        void execute_branch(co_exec_t co_exec, co_exec_arg_t... co_exec_arg);
+        synapse::branch::switch_branch(co_prev->co_branch, co_current_node->co_branch);
+        break;
+    }
+    }
 
-        template <typename co_exec_t>
-        void advance_branch(co_exec_t co_exec);
-    };
-
+    return std::any_cast<co_yield_t>(co_yield_argument);
 }
-}
 
-template <typename yield_t>
-void synapse::branch::coroutine::exit(yield_t co_ret)
+template <typename co_yield_t>
+void synapse::branch::coroutine::yield(co_yield_t co_yield)
 {
-    synapse::branch::coroutine_node* co_exit = coroutine_node_current;
-    coroutine_node_current                   = coroutine_node_current->co_parent;
-    
-    coroutine_argument                       = co_ret;
-    synapse::branch::load_branch(coroutine_node_current->co_branch);
-}
+    synapse::branch::coroutine_node* co_prev = co_current_node,
+                                   * co_next = co_current_node->co_parent;
 
-template <typename co_exec_t, typename... co_exec_arg_t>
-void synapse::branch::coroutine::execute_branch(co_exec_t co_exec, co_exec_arg_t... co_exec_arg)
-{
-    synapse::branch::coroutine_node* co_new = new synapse::branch::coroutine_node;
-    co_new->co_parent                       = coroutine_node_current ;
-    
-    coroutine_node_current->co_child.insert(std::make_pair((uint64_t)co_exec, co_new));
-    coroutine_node_current = co_new;
+    co_yield_argument = co_yield;
+    co_current_node   = co_next ;
 
-    synapse::branch::switch_branch(co_new->co_parent->co_branch, co_exec, co_exec_arg...);
-}
-
-template <typename co_exec_t>
-void synapse::branch::coroutine::advance_branch(co_exec_t co_exec)
-{
-    synapse::branch::coroutine_node* co_run = (*coroutine_node_current->co_child.find((uint64_t)co_exec)).second;
-    coroutine_node_current                  = co_run;
-
-    synapse::branch::switch_branch(co_run->co_parent->co_branch, co_run->co_branch);
-}
-
-template <typename co_yield_t, typename co_exec_t, typename... co_exec_arg_t>
-co_yield_t synapse::branch::coroutine::execute(co_exec_t co_exec, co_exec_arg_t... co_exec_arg)
-{
-    execute_branch(co_exec, co_exec_arg...);
-    return         std::any_cast<co_yield_t>(coroutine_argument);
-}
-
-template <typename co_yield_t, typename co_exec_t>
-co_yield_t synapse::branch::coroutine::advance(co_exec_t co_exec)
-{
-    advance_branch(co_exec);
-    return         std::any_cast<co_yield_t>(coroutine_argument);
-}
-
-template <typename yield_t>
-void synapse::branch::coroutine::yield(yield_t co_ret)
-{
-    synapse::branch::coroutine_node* co_prev = coroutine_node_current;
-    coroutine_node_current                   = coroutine_node_current->co_parent ;
-    
-    coroutine_argument                       = co_ret;
-    synapse::branch::switch_branch            (co_prev->co_branch, coroutine_node_current->co_branch);
+    synapse::branch::switch_branch(*co_prev, *co_next);
 }
